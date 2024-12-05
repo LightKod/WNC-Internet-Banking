@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import db from '../models/index.model.js'; // Đường dẫn đến tệp Sequelize models
 
 const User = db.User;
+const Account = db.Account;
 const refreshToken = db.RefreshToken;
 const router = express.Router();
 // Định nghĩa các hằng số trạng thái
@@ -84,7 +85,13 @@ router.post('/register', async (req, res) => {
             email,
             phone_number
         });
-
+        await Account.create({
+            account_number: `ACC-${newUser.id}`,  // You can generate a custom account number
+            account_type: 'payment',
+            balance: 1000,  // Default balance
+            currency: 'USD',  // Default currency
+            user_id: newUser.id,
+        });
         res.status(201).json({ status: STATUS_SUCCESS, message: 'User registered successfully', userId: newUser.id });
     } catch (error) {
         console.error('Error during registration:', error);
