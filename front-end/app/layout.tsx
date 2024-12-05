@@ -4,10 +4,10 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Internet Banking',
-    default: 'Internet Banking'
+    template: '%s | Bankit! | Internet Banking',
+    default: 'Bankit! | Internet Banking'
   },
-  description: "WNC - Internet Banking",
+  description: "Bankit! - Internet Banking",
 };
 
 export default function RootLayout({
@@ -17,7 +17,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${figtree.className} antialiased`}>{children}</body>
+      <body className={`${figtree.className} antialiased`}>
+        {children}
+      </body>
     </html>
   );
 }
