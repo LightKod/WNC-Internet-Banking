@@ -2,11 +2,16 @@ import express, { json, urlencoded } from "express";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
 import cors from "cors";
+import 'dotenv/config'
 
 import db from "./src/models/index.model.js";
-
+import authRouter from "./src/routes/auth.route.js";
 const maxRetries = 5;
 const retryDelay = 5000;
+
+//dùng jwt
+import passport from "./src/config/passport.js";
+const protectRoute = passport.authenticate('jwt', { session: false });
 
 async function syncDatabase(retries) {
   try {
@@ -36,7 +41,7 @@ app.use(logger("dev"));
 app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
-
+app.use("/api/auth", authRouter);
 var port = 80;
 
 app.listen(port, function () {
