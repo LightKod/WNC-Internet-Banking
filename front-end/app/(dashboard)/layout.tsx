@@ -4,7 +4,7 @@ import NavBar from "../ui/components/app_layout/navbar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="grid h-screen grid-cols-[1fr_5fr] grid-rows-[auto_1fr]">
+        <div className="grid h-screen grid-cols-1 md:grid-cols-[1fr_4fr] xl:grid-cols-[1fr_5fr] grid-rows-[auto_1fr]">
             <Logo/>
             <HorizontalBar/>
             <NavBar/>

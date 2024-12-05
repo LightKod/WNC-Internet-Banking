@@ -9,9 +9,9 @@ export default function NavBar() {
     const pathname = usePathname();
     
     return (
-        <div className="flex h-full flex-col overflow-y-auto border-r-2 border-slate-100">
+        <div className="h-full flex-col overflow-y-auto border-r-2 p-2 gap-y-4 border-slate-100 hidden md:flex">
             {paths.map((group: any) => (
-                <div key={group.groupName} className="flex flex-col gap-y-2 p-2">
+                <div key={group.groupName} className="flex flex-col gap-y-2">
                     <div className="text-gray-950 text-sm">{group.groupName}</div>
                     {group.paths.map((path: any) => {
                         const Icon = path.icon
@@ -23,9 +23,9 @@ export default function NavBar() {
                                 }
                             )}>
                                 {pathname.includes(path.href) ? (
-                                    <LitIcon className="w-5"/>
+                                    <LitIcon className="w-5 flex-none"/>
                                 ) : (
-                                    <Icon className="w-5"/>
+                                    <Icon className="w-5 flex-none"/>
                                 )}
                                 <p>{path.name}</p>
                             </Link>
