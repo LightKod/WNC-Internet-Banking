@@ -6,6 +6,8 @@ import 'dotenv/config'
 
 import db from "./src/models/index.model.js";
 import authRouter from "./src/routes/auth.route.js";
+import transferRouter from "./src/routes/transfer.route.js"
+
 const maxRetries = 5;
 const retryDelay = 5000;
 
@@ -42,6 +44,7 @@ app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use("/api/auth", authRouter);
+app.use("/api/transfer",protectRoute,transferRouter);
 var port = 80;
 
 app.listen(port, function () {

@@ -18,6 +18,10 @@ const Account = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      account_type: {
+        type: DataTypes.ENUM("payment"),
+        defaultValue: "payment",
+      },
       balance: {
         type: DataTypes.DECIMAL(15, 2),
         allowNull: false,

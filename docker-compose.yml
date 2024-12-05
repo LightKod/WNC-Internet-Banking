@@ -13,7 +13,9 @@ services:
       POSTGRES_PASSWORD: example
     depends_on:
       - db
-
+    volumes:
+      - ./back-end:/usr/src/auth-service
+      - /usr/src/auth-service/node_modules # Để tránh lỗi `node_modules` bị ghi đè
   db:
     container_name: db
     image: postgres

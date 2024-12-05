@@ -22,8 +22,20 @@ const Transaction = (sequelize) => {
         type: DataTypes.DECIMAL(15, 2),
         allowNull: false,
       },
+      transaction_type: {
+        type: DataTypes.ENUM("internal", "external", "debt-payment"),
+        allowNull: false,
+      },
+      fee_payer: {
+        type: DataTypes.ENUM("sender", "receiver"),
+        defaultValue: "sender",
+      },
+      content: {
+        type: DataTypes.TEXT,
+      },
       status: {
         type: DataTypes.ENUM("PENDING", "SUCCESS", "FAILED"),
+        defaultValue: "PENDING",
         allowNull: false,
       },
       transaction_date: {
