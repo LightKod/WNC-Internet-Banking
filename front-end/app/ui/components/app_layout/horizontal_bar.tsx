@@ -25,7 +25,7 @@ export default function HorizontalBar() {
                     <BellAlertIcon className="w-5 text-gray-500 group-hover:text-gray-950 transition-colors duration-300"/>
                 </button>
                 <button type="button" className="group flex items-center gap-x-1.5 px-1.5 py-1 rounded-md border-2 border-gray-200 hover:border-blue-600 transition-colors duration-300">
-                    <div className="flex-none w-8 h-8 rounded-full bg-gray-500"/>
+                    <div className="flex-none w-8 h-8 rounded-full bg-slate-100"/>
                     <div className="flex flex-col gap-y-0.5 justify-center items-start">
                         <span className="text-gray-950 font-bold text-[0.688rem] leading-3">User's name</span>
                         <span className="text-gray-500 text-[0.688rem] leading-3">Role</span>

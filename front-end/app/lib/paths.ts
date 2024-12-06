@@ -9,7 +9,8 @@ export const paths = [
             { name: 'Dashboard', href:'/dashboard', icon: outline.Squares2X2Icon, litIcon: solid.Squares2X2Icon },
             { name: 'Transfer', href: '/transfer', icon: outline.ArrowUpCircleIcon, litIcon: solid.ArrowUpCircleIcon },
             { name: 'Payment Request', href: '/payment-request', icon: outline.DocumentCurrencyDollarIcon, litIcon: solid.DocumentCurrencyDollarIcon },
-            { name: 'Transaction', href: '/transaction', icon: outline.CurrencyDollarIcon, litIcon: solid.CurrencyDollarIcon}
+            { name: 'Transaction', href: '/transaction', icon: outline.CurrencyDollarIcon, litIcon: solid.CurrencyDollarIcon},
+            { name: 'Contacts', href: '/contacts', icon: outline.UsersIcon, litIcon: solid.UsersIcon},
         ]
     },
     {
