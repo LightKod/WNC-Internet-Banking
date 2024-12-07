@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import db from '../models/index.model.js'
+import { createAccountService } from './account.service.js'
 
 const { User, Account, RefreshToken } = db;
 
@@ -49,13 +50,7 @@ export const registerService = async (username, password, email, phone_number) =
         phone_number,
     });
 
-    await Account.create({
-        account_number: `ACC-${newUser.id}`,
-        account_type: 'payment',
-        balance: 1000,
-        currency: 'USD',
-        user_id: newUser.id,
-    });
+    await createAccountService(newUser.id)
 
     return newUser.id;
 };
