@@ -4,7 +4,7 @@ import Sequelize from "sequelize";
 import User from "./user.model.js";
 import Transaction from "./transaction.model.js";
 import Account from "./account.model.js";
-import RefreshToken from "./RefreshToken.js";
+import RefreshToken from "./refresh_tokens.model.js";
 import OTP from "./otp.model.js"
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,

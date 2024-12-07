@@ -12,7 +12,7 @@ const RefreshToken = (sequelize) => {
         user_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            
+
         },
         token: {
             type: DataTypes.STRING,
