@@ -28,10 +28,10 @@ export default function AccountBalance({
         <div className="flex flex-col gap-y-2 p-4 bg-white border-2 border-slate-100 rounded-md shadow-sm">
             <div className="flex justify-between items-center">
                 <span className={clsx(
-                    "font-semibold",
+                    "font-semibold text-xs px-1.5 py-1  rounded-md",
                     {
-                        "text-sm text-gray-950": data.accountType !== "payment",
-                        "text-xs px-1.5 py-1 bg-blue-600 text-blue-50 rounded-md": data.accountType === "payment"
+                        "bg-gray-100 text-gray-950": data.accountType !== "payment",
+                        "bg-yellow-100 text-yellow-500": data.accountType === "payment"
                     }
                 )}>{data.accountType === "payment" ? "Payment account" : "Account"}</span>
                 <button type="button" onClick={() => setIsShowing((prev) => !prev)} className="text-gray-500 hover:text-blue-600 transition-colors duration-300">

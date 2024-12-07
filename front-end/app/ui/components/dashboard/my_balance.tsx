@@ -24,8 +24,8 @@ export default function MyBalance() {
     ]
 
     return (
-        <div className="flex flex-col">
-            <div className="flex flex-col gap-y-4 p-4 pb-12 bg-white border-2 border-slate-100 rounded-md shadow-sm">
+        <div className="group flex flex-col">
+            <div className="flex flex-col gap-y-4 p-4 pb-12 bg-white border-2 border-slate-100 rounded-md shadow-sm group-hover:pb-4 transition-all duration-300">
                 <div className="flex justify-between items-center">
                     <div className="flex gap-x-2 items-center">
                         <span className="text-gray-950 text-sm font-semibold">My Balance</span>
@@ -34,9 +34,7 @@ export default function MyBalance() {
                                 <InformationCircleIcon className="w-4 text-gray-500 cursor-pointer hover:text-gray-950 transition-colors duration-300"/>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <div className="flex flex-col gap-y-2">
-                                    <p>Your accounts' balance</p>
-                                </div>
+                                <p>Your accounts' balance</p>
                             </TooltipContent>
                         </Tooltip>
                     </div>
@@ -48,13 +46,13 @@ export default function MyBalance() {
                         )}
                     </button>
                 </div>
-                <div className="text-gray-950 text-3xl font-medium">{`${isShowing ? formatMoney(
+                <div className="text-gray-950 text-3xl font-semibold">{`${isShowing ? formatMoney(
                     bankAccounts.reduce((sum, account) => {
                         return (BigInt(sum) + BigInt(account.balance)).toString()
                     }, "0")
                 ) : "xxx, xxx"} VND`}</div>
             </div>
-            <div className="flex flex-col px-4 gap-y-2 -mt-8">
+            <div className="flex flex-col mx-4 gap-y-2 -mt-8 group-hover:mx-0 group-hover:mt-0 group-hover:pt-2 transition-all duration-300">
                 {bankAccounts.map((bankAccount: BankAccount) => (
                     <AccountBalance key={bankAccount.accountNumber} data={bankAccount}/> 
                 ))}
