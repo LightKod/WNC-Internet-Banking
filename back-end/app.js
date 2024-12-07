@@ -44,7 +44,7 @@ app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use("/api/auth", authRouter);
-app.use("/api/transfer",protectRoute,transferRouter);
+app.use("/api/transfer", protectRoute, transferRouter);
 var port = 80;
 
 app.listen(port, function () {

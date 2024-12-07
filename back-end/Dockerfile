@@ -1,6 +1,5 @@
 # Sử dụng Node.js phiên bản 20 làm base image
 FROM node:20-alpine
-#Tạo và sử dụng thư mục /usr/src/auth-service làm thư mục làm việc
 WORKDIR /usr/src/auth-service
 
 # Sao chép file package.json và package-lock.json vào thư mục làm việc
