@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function TransactionTable({
+export default async function TransactionTable({
   query,
   currentPage,
   from,

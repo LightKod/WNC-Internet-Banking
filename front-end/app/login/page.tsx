@@ -28,22 +28,22 @@ export default function Page() {
   };
 
   return (
-    <div className="grid h-screen grid-cols-1 md:grid-cols-[2fr_3fr] bg-slate-50">
+    <div className="grid h-screen grid-cols-1 md:grid-cols-[2fr_3fr] bg-slate-100">
       <div className="bg-blue-600 rounded-r-md hidden md:block ">
         <div className="h-full flex justify-center items-center">
           <div className="flex flex-col items-center">
-            <div className="flex gap-4">
-              <BanknotesIcon className="size-16 text-blue-50 -rotate-12" />
-              <h1 className="font-bold text-6xl text-blue-50">Bank It!</h1>
+            <div className="flex items-center gap-4">
+              <BanknotesIcon className="size-20 text-blue-50 -rotate-12" />
+              <h1 className="font-bold text-8xl text-blue-50">Bank It!</h1>
             </div>
-            <div className="font-normal text-blue-50 text-lg mt-2">
+            <div className="font-normal text-blue-50 text-xl mt-2">
               Seamless banking for a digital world
             </div>
           </div>
         </div>
       </div>
       <div className="flex justify-center items-center">
-        <div className="relative w-[30vw] flex flex-col justify-between bg-blue-50 shadow-2xl rounded-xl px-8 py-10 overflow-hidden">
+        <div className="relative w-[43vw] flex flex-col justify-between bg-white shadow-2xl rounded-xl px-8 py-10 overflow-hidden">
           <CurrencyDollarIcon className="absolute size-32 text-blue-600 -left-8 -top-8 rotate-45" />
           <SparklesIcon className="size-20 text-blue-600 absolute -right-8 -bottom-7 rotate-[30deg]" />
 
