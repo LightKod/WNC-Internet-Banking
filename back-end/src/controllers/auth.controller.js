@@ -3,9 +3,7 @@ import {
     registerService,
     refreshTokenService
 } from '../services/auth.service.js';
-
-const STATUS_SUCCESS = 0;
-const STATUS_ERROR = -1;
+import statusCode from '../constants/statusCode.js';
 
 // Login Controller
 export const loginController = async (req, res) => {
@@ -14,12 +12,12 @@ export const loginController = async (req, res) => {
     try {
         const data = await loginService(username, password, res);
         if (!data) {
-            return res.status(401).json({ status: STATUS_ERROR, message: 'Invalid credentials' });
+            return res.status(401).json({ status: statusCode.ERROR, message: 'Invalid credentials' });
         }
 
         res.cookie('refreshToken', data.refreshToken, { httpOnly: true });
         res.status(200).json({
-            status: STATUS_SUCCESS,
+            status: statusCode.SUCCESS,
             data: {
                 accessToken: data.accessToken,
             },
@@ -27,7 +25,7 @@ export const loginController = async (req, res) => {
         });
     } catch (error) {
         console.error('Error during login:', error);
-        res.status(500).json({ status: STATUS_ERROR, message: 'Internal server error' });
+        res.status(500).json({ status: statusCode.ERROR, message: 'Internal server error' });
     }
 };
 
@@ -38,7 +36,7 @@ export const registerController = async (req, res) => {
     try {
         const userId = await registerService(username, password, email, phone_number);
         res.status(201).json({
-            status: STATUS_SUCCESS,
+            status: statusCode.SUCCESS,
             data: {
                 userId,
             },
@@ -46,7 +44,7 @@ export const registerController = async (req, res) => {
         });
     } catch (error) {
         console.error('Error during registration:', error);
-        res.status(500).json({ status: STATUS_ERROR, message: 'Internal server error' });
+        res.status(500).json({ status: statusCode.ERROR, message: 'Internal server error' });
     }
 };
 
@@ -55,23 +53,23 @@ export const refreshTokenController = async (req, res) => {
     const token = req.cookies.refreshToken;
 
     if (!token) {
-        return res.status(401).json({ status: STATUS_ERROR, message: 'Refresh token missing' });
+        return res.status(401).json({ status: statusCode.ERROR, message: 'Refresh token missing' });
     }
 
     try {
         const newAccessToken = await refreshTokenService(token);
         if (!newAccessToken) {
-            return res.status(403).json({ status: STATUS_ERROR, message: 'Invalid refresh token' });
+            return res.status(403).json({ status: statusCode.ERROR, message: 'Invalid refresh token' });
         }
 
         res.status(200).json({
-            status: STATUS_SUCCESS,
+            status: statusCode.SUCCESS,
             data: {
                 accessToken: newAccessToken,
             },
         });
     } catch (error) {
         console.error('Error during token refresh:', error);
-        res.status(403).json({ status: STATUS_ERROR, message: 'Invalid refresh token' });
+        res.status(403).json({ status: statusCode.ERROR, message: 'Invalid refresh token' });
     }
 };

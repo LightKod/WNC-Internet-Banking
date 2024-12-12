@@ -12,7 +12,7 @@ export const createDebtController = async (req, res) => {
         res.status(201).json({
             status: STATUS_SUCCESS,
             message: 'Debt created successfully',
-            data: { debt: newDebt, }
+            data: { newDebt, }
         });
     } catch (error) {
         console.error('Error creating debt:', error);
