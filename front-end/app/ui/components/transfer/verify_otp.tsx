@@ -56,8 +56,7 @@ export default function VerifyOTP() {
             <div className="grid grid-cols-1 divide-y-2 divide-slate-100 md:grid-cols-[2fr_1fr] md:divide-x-2 md:divide-y-0 ">
                 <div className="flex flex-col gap-y-4 pb-4 md:pr-4 md:pb-0">
                     <OTPInput length={4} setOtp={setOtp}/>
-                    <div className="flex gap-x-1 justify-center items-center">
-                        <p className="text-sm text-gray-500">Have not received an email yet?</p>
+                    <p className="text-sm text-gray-500 text-center">Have not received an email yet? {' '}
                         {canResend ? (
                             <button onClick={handleResend} className="text-sm text-gray-500 hover:text-blue-600 font-medium transition-all duration-300">Resend OTP</button>
                         ) : (
@@ -65,7 +64,7 @@ export default function VerifyOTP() {
                                 <span className="text-blue-600 font-medium">{`${timeLeft}s`}</span>
                             </p>
                         )}
-                    </div>
+                    </p>
                 </div>
                 <div className="w-full h-full pt-4 md:pl-4 md:pt-0">
                     <div className="flex flex-col gap-y-2">

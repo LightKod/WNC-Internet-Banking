@@ -10,6 +10,7 @@ import { clsx } from 'clsx';
 interface ModalProps {
     size: string,
     heading: string,
+    onClose?: () => void,
     children: React.ReactNode
 }
 
@@ -50,7 +51,12 @@ const Modal = forwardRef<ModalRef, ModalProps>(function Modal (props, ref) {
                 tension: 400,
                 friction: 40
             },
-            onRest: () => setIsOpen(false)
+            onRest: () => {
+                setIsOpen(false)
+                if(props.onClose) {
+                    props.onClose()
+                }
+            }
         })
     }
 

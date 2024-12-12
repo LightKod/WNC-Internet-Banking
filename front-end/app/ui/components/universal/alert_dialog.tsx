@@ -10,6 +10,7 @@ import { forwardRef, useImperativeHandle, useState, useEffect } from 'react'
 interface AlerDialogProps {
     heading: string,
     onConfirm: () => void,
+    onCancel: () => void,
     children: React.ReactNode
 }
 
@@ -50,6 +51,7 @@ const AlertDialog = forwardRef<AlertDialogRef, AlerDialogProps>(function AlertDi
                 tension: 400,
                 friction: 40
             },
+            onStart: () => props.onCancel(),
             onRest: () => setIsOpen(false)
         })
     }
