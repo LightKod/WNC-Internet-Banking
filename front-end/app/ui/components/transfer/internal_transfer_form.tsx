@@ -3,11 +3,12 @@
 import { BankAccount, Contact } from "@/app/lib/definitions/definition"
 import { InternalTransferFormValues, internalTransferSchema } from "@/app/lib/schemas/schemas"
 import { formatAccountNumber, formatMoney, numberToWords } from "@/app/lib/utilities/utilities"
-import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/16/solid"
+import { ArrowLeftIcon, ArrowRightIcon, UsersIcon } from "@heroicons/react/16/solid"
 import { zodResolver } from "@hookform/resolvers/zod"
-import React, { forwardRef, useContext, useEffect, useImperativeHandle, useState } from "react"
-import { useForm, UseFormGetValues } from "react-hook-form"
+import React, { forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState } from "react"
+import { useForm, UseFormGetValues, UseFormSetValue } from "react-hook-form"
 import { PageContentContext } from "./transfer_page_content"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../universal/tooltip"
 
 interface InternalTransferProps {
 }
@@ -15,6 +16,7 @@ interface InternalTransferProps {
 // Expose getValues, receiverBankAccount, 
 export interface InternalTransferRef {
     getValues: UseFormGetValues<InternalTransferFormValues>,
+    setValue: UseFormSetValue<InternalTransferFormValues>,
     receiverBankAccount: Contact | null
     onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>
 }
@@ -65,9 +67,11 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
             setIsFetchingReceiver(false)
         }
 
-        if(!isFetchingReceiver && receiverAccountNumber && receiverAccountNumber.length === 15) {
+        if(!isFetchingReceiver && receiverAccountNumber && receiverAccountNumber.length === 12) {
             setIsFetchingReceiver(true)
             fetchReceiver()
+        } else {
+            setReceiverBankAccount(null)
         }
     }, [receiverAccountNumber])
 
@@ -78,6 +82,7 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
 
     useImperativeHandle(ref, () => ({
         getValues,
+        setValue,
         receiverBankAccount,
         onSubmit: handleSubmit(onSubmit)
     }))
@@ -118,9 +123,23 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
                     <div className="flex flex-col gap-y-2">
                         <div className="text-sm text-gray-950 font-semibold">Transfer to</div>
                         <div className="flex flex-col gap-y-4">
-                            <div className="relative mt-2 flex flex-col">
-                                <input {...register("receiverAccountNumber")} maxLength={15} type="text" id="receiverAccountNumber" className="block w-full py-2 px-0.5 text-sm text-gray-950 bg-transparent border-1 border-l-0 border-r-0 border-t-0 border-gray-500 focus:outline-none focus:ring-0 focus:border-blue-600 disabled:cursor-not-allowed transition-colors duration-300 peer" placeholder=" " disabled={isFetchingReceiver}/>
-                                <label htmlFor="receiverAccountNumber" className="absolute text-sm text-gray-500 transform -translate-y-6 scale-75 top-4 left-0.5 origin-top-left z-10 peer-focus:start-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-2 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:left-0.5 after:content-['*'] after:ml-0.5 after:text-red-500 duration-300">Receiver's account number</label>
+                            <div className="flex flex-col">
+                                <div className="flex gap-x-4 items-end">
+                                    <div className="relative mt-2 flex flex-col grow">
+                                        <input {...register("receiverAccountNumber")} maxLength={12} type="text" id="receiverAccountNumber" className="block w-full py-2 px-0.5 text-sm text-gray-950 bg-transparent border-1 border-l-0 border-r-0 border-t-0 border-gray-500 focus:outline-none focus:ring-0 focus:border-blue-600 disabled:cursor-not-allowed transition-colors duration-300 peer" placeholder=" " disabled={isFetchingReceiver}/>
+                                        <label htmlFor="receiverAccountNumber" className="absolute text-sm text-gray-500 transform -translate-y-6 scale-75 top-4 left-0.5 origin-top-left z-10 peer-focus:start-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-2 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:left-0.5 after:content-['*'] after:ml-0.5 after:text-red-500 duration-300">Receiver's account number</label>
+                                    </div>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <button onClick={context.handleOpenModal} type="button" className="text-gray-500 p-2.5 border-2 border-slate-300 rounded-md shrink-0 hover:text-gray-950 hover:border-blue-600 transition-all duration-300">
+                                                <UsersIcon className="w-4"/>
+                                            </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Choose a receiver from your contact list</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </div>
                                 {errors.receiverAccountNumber && <p className="text-red-500 text-xs mt-2">{errors.receiverAccountNumber.message}</p>}
                             </div>
 

@@ -10,7 +10,7 @@ export const internalTransferSchema = z.object({
     receiverAccountNumber: z.string({
         invalid_type_error: "Invalid data",
         required_error: "This field is required"
-    }).trim().length(15, {
+    }).trim().length(12, {
         message: "You must specify a receiver"
     }),
     amount: z.coerce.number({
