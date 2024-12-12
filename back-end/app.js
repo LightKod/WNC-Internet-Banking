@@ -8,6 +8,7 @@ import db from "./src/models/index.model.js";
 import authRouter from "./src/routes/auth.route.js";
 import transferRouter from "./src/routes/transfer.route.js"
 import debtRouter from "./src/routes/debt.route.js"
+import accountRouter from "./src/routes/account.route.js"
 
 const maxRetries = 5;
 const retryDelay = 5000;
@@ -47,6 +48,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/transfer", protectRoute, transferRouter);
 app.use("/api/debt", protectRoute, debtRouter);
+app.use("/api/account", protectRoute, accountRouter);
 var port = 80;
 
 app.listen(port, function () {
