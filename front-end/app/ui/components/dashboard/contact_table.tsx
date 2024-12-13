@@ -114,7 +114,8 @@ export default function ContactTable() {
       <AlertDialog
         ref={alertRef}
         heading="Confirm Delete"
-        onConfirm={() => console.log("confirm")}>
+        onConfirm={() => console.log("confirm")}
+        onCancel={() => alertRef.current?.closeDialog}>
         Are you sure to delete blah... ?
       </AlertDialog>
     </div>
