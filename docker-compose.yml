@@ -14,8 +14,8 @@ services:
     depends_on:
       - db
     volumes:
-      - ./back-end:/usr/src/auth-service
-      - /usr/src/auth-service/node_modules # Để tránh lỗi `node_modules` bị ghi đè
+      - ./back-end:/usr/src/back-end
+      - /usr/src/back-end/node_modules # Để tránh lỗi `node_modules` bị ghi đè
   db:
     container_name: db
     image: postgres
@@ -28,6 +28,17 @@ services:
       POSTGRES_PASSWORD: example
     volumes:
       - postgres-data:/var/lib/postgresql/data
+  # front-end:
+  #   container_name: front-end
+  #   build:
+  #     context: front-end
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - back-end
+  #   volumes:
+  #     - ./front-end:/usr/src/front-end
+  #     - /usr/src/front-end/node_modules # Để tránh lỗi `node_modules` bị ghi đè
 
 volumes:
   postgres-data:

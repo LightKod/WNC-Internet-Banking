@@ -37,3 +37,22 @@ export const internalTransferSchema = z.object({
 })
 
 export type InternalTransferFormValues = z.infer<typeof internalTransferSchema>
+
+export const cancelPaymentRequestSchema = z.object({
+    paymentRequestId: z.string({
+        invalid_type_error: "Invalid data",
+        required_error: "This field is required"
+    }).min(1, {
+        message: "This field is required"
+    }),
+    content:  z.string({
+        invalid_type_error: "Invalid data",
+        required_error: "This field is required"
+    }).min(1, {
+        message: "This field is required"
+    }).max(500, {
+        message: "The content is too long (max: 500 characters)"
+    })
+})
+
+export type CanclePaymentRequestFormValue = z.infer<typeof cancelPaymentRequestSchema>

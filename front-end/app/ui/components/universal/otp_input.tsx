@@ -54,7 +54,7 @@ export const OTPInput = forwardRef<OTPInputRef, OTPInputProps>(function OTPInput
             <div className="flex gap-x-4 w-full justify-center">
                 {otp.map((digit, index) => (
                     <input key={index} id={`otp_input_${index}`} type="text" maxLength={1} value={digit} 
-                        className="w-16 h-16 border-2 border-slate-300 rounded-md text-center text-2xl text-gray-950 font-bold hover:border-blue-600 focus:border-blue-600 focus:outline-none focus:ring-0 transition-all duration-300"
+                        className="w-14 h-14 border-2 border-slate-300 rounded-md text-center text-xl text-gray-950 font-bold hover:border-blue-600 focus:border-blue-600 focus:outline-none focus:ring-0 md:w-16 md:h-16 md:text-2xl transition-all duration-300"
                         onChange={(e) => handleChange(e, index)} onKeyDown={(e) => handleKeyDown(e, index)}/>
                 ))}
             </div>
