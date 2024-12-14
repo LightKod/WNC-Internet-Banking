@@ -23,7 +23,6 @@ export default async function TransactionTable({
           <th>Status</th>
         </tr>
       </thead>
-
       <tbody>
         <tr className="text-center cursor-pointer hover:bg-blue-50 transition-colors">
           <td className="font-bold px-2 py-2.5 border-b-2 border-slate-100">
