@@ -9,7 +9,7 @@ import SelfPaymentRequestList from "./self_payment_request_list"
 import OtherPaymentRequestList from "./other_payment_request_list"
 import Modal, { ModalRef } from "../universal/modal"
 import { useForm } from "react-hook-form"
-import { cancelPaymentRequestSchema, CanclePaymentRequestFormValue } from "@/app/lib/schemas/schemas"
+import { cancelPaymentRequestSchema, CancelPaymentRequestFormValue } from "@/app/lib/schemas/schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ArrowRightIcon } from "@heroicons/react/16/solid"
 
@@ -27,7 +27,7 @@ export default function PaymentRequestPageContent() {
         pageSliderRef.current?.prevPage()
     }
 
-    const { handleSubmit, register, setValue, reset, getValues, formState: { errors } } = useForm<CanclePaymentRequestFormValue>({
+    const { handleSubmit, register, setValue, reset, getValues, formState: { errors } } = useForm<CancelPaymentRequestFormValue>({
         resolver: zodResolver(cancelPaymentRequestSchema)
     })
     const modalRef = useRef<ModalRef>(null)

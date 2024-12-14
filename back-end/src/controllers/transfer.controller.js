@@ -17,10 +17,10 @@ export const initiateTransfer = async (req, res) => {
         });
 
         if (result.status === STATUS_ERROR) {
-            return res.status(200).json({ data:{}, message: result.message, status: STATUS_ERROR });
+            return res.status(200).json({ data: {}, message: result.message, status: STATUS_ERROR });
         }
 
-        res.status(200).json({ data: result , message: result.message, status: STATUS_SUCCESS });
+        res.status(200).json({ data: result, message: result.message, status: STATUS_SUCCESS });
     } catch (err) {
         console.error('Error during transfer initiation:', err);
         res.status(500).json({ error: 'Failed to initiate transfer', status: STATUS_ERROR });
@@ -29,7 +29,7 @@ export const initiateTransfer = async (req, res) => {
 
 // Bước 2: Xác nhận OTP và thực hiện chuyển khoản
 export const confirmTransfer = async (req, res) => {
-    const { otp_code,transaction_id } = req.body;
+    const { otp_code, transaction_id } = req.body;
 
     try {
         // Xác nhận OTP và thực hiện chuyển khoản
