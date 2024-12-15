@@ -7,9 +7,11 @@ import statusCode from "../constants/statusCode.js";
 // Controller for creating a new contact
 export const createNewContactController = async (req, res) => {
     try {
-        const { user_id, account_number, nickname, bank_id, bank_name } = req.body;
+        const userId = req.user.id;
+        const { account_number, nickname, bank_id, bank_name } = req.body;
+        if (!bank_id) bank_id = "";
+        if (!bank_name) bank_name = "";
         const newContact = await createNewContactService({
-            user_id,
             account_number,
             nickname,
             bank_id,
