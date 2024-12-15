@@ -34,7 +34,7 @@ export const createAccountService = async (userId) => {
         user_id: userId,
         account_number: nextAccountNumber,
         account_type: 'payment',
-        balance: 0.0,
+        balance: 1000000.0,
         currency: 'USD',
     });
 

@@ -7,6 +7,7 @@ import Account from "./account.model.js";
 import RefreshToken from "./refresh_tokens.model.js";
 import Debt from "./debt.model.js";
 import OTP from "./otp.model.js"
+import LinkedBanks from "./linked_banks.model.js"
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
@@ -30,5 +31,5 @@ db.Transaction = Transaction(sequelize);
 db.RefreshToken = RefreshToken(sequelize);
 db.OTP = OTP(sequelize);
 db.Debt = Debt(sequelize)
-
+db.LinkedBanks   = LinkedBanks(sequelize)
 export default db;
