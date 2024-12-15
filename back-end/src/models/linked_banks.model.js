@@ -15,25 +15,25 @@ const LinkedBanks = (sequelize) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        public_key: {
+        public_key: { // Hash signature
             type: DataTypes.TEXT,
             allowNull: false,
         },
-        secret_key: {
+        secret_key: { // Hash data
             type: DataTypes.STRING,
             allowNull: false,
         },
-        encryption_type: 
-        { 
+        encryption_type:
+        {
             type: DataTypes.ENUM('RSA', 'PGP'),
-            allowNull: false 
+            allowNull: false
         },
-        api_base_url: { 
-            type: DataTypes.STRING, 
-            allowNull: false 
+        api_base_url: {
+            type: DataTypes.STRING,
+            allowNull: false
         },
 
-    },{
+    }, {
         tableName: 'linked_banks',
         timestamps: false,
     });

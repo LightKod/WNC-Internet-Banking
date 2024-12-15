@@ -1,6 +1,6 @@
 import db from "../models/index.model.js";
 const { Account, User } = db;
-import bankinfo from '../config/bankinfo.js'
+import bankinfo from '../config/bankConfig.js'
 
 export const getAccountsByUserIdService = async (userId) => {
     const accounts = await Account.findAll({

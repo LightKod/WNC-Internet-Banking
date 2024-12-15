@@ -1,5 +1,5 @@
 import transferService from '../services/transfer.service.js';
-import { STATUS_SUCCESS, STATUS_ERROR } from '../utils/constants.js';
+import statusCode from '../constants/statusCode.js';
 
 // Bước 1: Yêu cầu chuyển khoản và gửi OTP
 export const initiateTransfer = async (req, res) => {
@@ -16,14 +16,14 @@ export const initiateTransfer = async (req, res) => {
             user: User
         });
 
-        if (result.status === STATUS_ERROR) {
-            return res.status(200).json({ data: {}, message: result.message, status: STATUS_ERROR });
+        if (result.status === statusCode.STATUS_ERROR) {
+            return res.status(200).json({ data: {}, message: result.message, status: statusCode.STATUS_ERROR });
         }
 
-        res.status(200).json({ data: result, message: result.message, status: STATUS_SUCCESS });
+        res.status(200).json({ data: result, message: result.message, status: statusCode.STATUS_SUCCESS });
     } catch (err) {
         console.error('Error during transfer initiation:', err);
-        res.status(500).json({ error: 'Failed to initiate transfer', status: STATUS_ERROR });
+        res.status(500).json({ error: 'Failed to initiate transfer', status: statusCode.STATUS_ERROR });
     }
 };
 
@@ -35,18 +35,18 @@ export const confirmTransfer = async (req, res) => {
         // Xác nhận OTP và thực hiện chuyển khoản
         const result = await transferService.confirmTransfer({ otp_code, transaction_id: transaction_id });
 
-        if (result.status === STATUS_ERROR) {
-            return res.status(400).json({ message: result.message, status: STATUS_ERROR });
+        if (result.status === statusCode.STATUS_ERROR) {
+            return res.status(400).json({ message: result.message, status: statusCode.STATUS_ERROR });
         }
 
-        res.status(200).json({ message: 'Transfer completed successfully', status: STATUS_SUCCESS });
+        res.status(200).json({ message: 'Transfer completed successfully', status: statusCode.STATUS_SUCCESS });
     } catch (err) {
         console.error('Error during transfer confirmation:', err);
-        res.status(500).json({ error: 'Failed to complete transfer', status: STATUS_ERROR });
+        res.status(500).json({ error: 'Failed to complete transfer', status: statusCode.STATUS_ERROR });
     }
 };
 export const initiateExternalTransfer = async (req, res) => {
-    const { source_account_number, destination_account_number, amount, bank_code, content,fee_payer } = req.body;
+    const { source_account_number, destination_account_number, amount, bank_code, content, fee_payer } = req.body;
     const user = req.user; // User authenticated from JWT middleware
 
     try {
@@ -60,14 +60,14 @@ export const initiateExternalTransfer = async (req, res) => {
             user,
         });
 
-        if (result.status === STATUS_ERROR) {
-            return res.status(400).json({ message: result.message, status: STATUS_ERROR });
+        if (result.status === statusCode.STATUS_ERROR) {
+            return res.status(400).json({ message: result.message, status: statusCode.STATUS_ERROR });
         }
 
-        res.status(200).json({ data: result.data, message: result.message, status: STATUS_SUCCESS });
+        res.status(200).json({ data: result.data, message: result.message, status: statusCode.STATUS_SUCCESS });
     } catch (err) {
         console.error('Error during external transfer initiation:', err);
-        res.status(500).json({ error: 'Failed to initiate external transfer', status: STATUS_ERROR });
+        res.status(500).json({ error: 'Failed to initiate external transfer', status: statusCode.STATUS_ERROR });
     }
 };
 
@@ -77,14 +77,14 @@ export const confirmExternalTransfer = async (req, res) => {
     try {
         const result = await transferService.confirmExternalTransfer({ otp_code, transaction_id, bank_code, signature });
 
-        if (result.status === STATUS_ERROR) {
-            return res.status(400).json({ message: result.message, status: STATUS_ERROR });
+        if (result.status === statusCode.STATUS_ERROR) {
+            return res.status(400).json({ message: result.message, status: statusCode.STATUS_ERROR });
         }
 
-        res.status(200).json({ message: result.message, status: STATUS_SUCCESS });
+        res.status(200).json({ message: result.message, status: statusCode.STATUS_SUCCESS });
     } catch (err) {
         console.error('Error during external transfer confirmation:', err);
-        res.status(500).json({ error: 'Failed to confirm external transfer', status: STATUS_ERROR });
+        res.status(500).json({ error: 'Failed to confirm external transfer', status: statusCode.STATUS_ERROR });
     }
 };
 

@@ -1,8 +1,8 @@
 import express from 'express';
 import transferController from '../controllers/transfer.controller.js';
 import { verifySignature, verifyRequestHash, generateSignature } from '../utils/security.js';
-import { CURRENT_SIGNATURE_TYPE } from '../utils/constants.js';
 import db from '../models/index.model.js';
+import bankConfig from '../config/bankConfig.js';
 
 const router = express.Router();
 
@@ -48,8 +48,8 @@ router.post('/external/account-info', async (req, res) => {
         }
 
         // Tạo phản hồi và ký bằng private key
-        const responseData = {id: account.id, account_number: account.account_number, balance: account.balance, bank_code };
-        const signedResponse = generateSignature(responseData, linkedBank.private_key, CURRENT_SIGNATURE_TYPE);
+        const responseData = { id: account.id, account_number: account.account_number, balance: account.balance, bank_code };
+        const signedResponse = generateSignature(responseData, linkedBank.private_key, bankConfig.SIGNATURE_TYPE);
 
         res.status(200).json({ ...responseData, signature: signedResponse });
     } catch (err) {
@@ -72,7 +72,7 @@ router.post('/external/deposit', async (req, res) => {
         if (Date.now() - new Date(timestamp).getTime() > REQUEST_EXPIRY_TIME) {
             return res.status(400).json({ error: 'Request has expired' });
         }
-        const payload = { bank_code, account_number,account, timestamp };
+        const payload = { bank_code, account_number, account, timestamp };
 
         // Kiểm tra hash tính toàn vẹn gói tin
         const isHashValid = verifyRequestHash(payload, linkedBank.secret_key, hash);
@@ -97,7 +97,7 @@ router.post('/external/deposit', async (req, res) => {
 
         // Tạo phản hồi và ký bằng private key
         const responseData = { account_number, new_balance: account.balance, bank_code };
-        const signedResponse = await generateSignature(responseData, linkedBank.private_key, CURRENT_SIGNATURE_TYPE);
+        const signedResponse = await generateSignature(responseData, linkedBank.private_key, bankConfig.SIGNATURE_TYPE);
 
         res.status(200).json({ ...responseData, signature: signedResponse });
     } catch (err) {
