@@ -1,5 +1,6 @@
 import db from "../models/index.model.js";
-const { Account } = db;
+const { Account, User } = db;
+import bankinfo from '../config/bankinfo.js'
 
 export const getAccountsByUserIdService = async (userId) => {
     const accounts = await Account.findAll({
@@ -39,4 +40,31 @@ export const createAccountService = async (userId) => {
     });
 
     return account;
+};
+
+
+export const getUserDataByAccountNumberService = async (accountNumber) => {
+    const account = await Account.findOne({
+        where: { account_number: accountNumber },
+    });
+
+    if (!account) {
+        return null;
+    }
+
+    const user = await User.findOne({
+        where: { id: account.user_id },
+        attributes: ["username"],
+    });
+
+    if (!user) {
+        return null;
+    }
+
+    return {
+        username: user.username,
+        bank_name: bankinfo.BANK_NAME,
+        bank_id: bankinfo.BANK_ID,
+        account_number: account.account_number,
+    };
 };
