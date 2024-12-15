@@ -1,11 +1,18 @@
+import { z } from 'zod';
 import {
     loginService,
     registerService,
     refreshTokenService
 } from '../services/auth.service.js';
+import statusCode from '../constants/statusCode.js';
 
-const STATUS_SUCCESS = 0;
-const STATUS_ERROR = -1;
+const registerSchema = z.object({
+    username: z.string().min(3).max(50, "Username must be between 3 and 50 characters").nonempty("Username is required"),
+    password: z.string().min(8, "Password must be at least 8 characters long").nonempty("Password is required"),
+    email: z.string().email("Invalid email format").nonempty("Email is required"),
+    phone_number: z.string().regex(/^[0-9]{10,15}$/, "Phone number must be between 10 and 15 digits").nonempty("Phone number is required"),
+});
+
 
 // Login Controller
 export const loginController = async (req, res) => {
@@ -14,12 +21,12 @@ export const loginController = async (req, res) => {
     try {
         const data = await loginService(username, password, res);
         if (!data) {
-            return res.status(401).json({ status: STATUS_ERROR, message: 'Invalid credentials' });
+            return res.status(401).json({ status: statusCode.ERROR, message: 'Invalid credentials' });
         }
 
         res.cookie('refreshToken', data.refreshToken, { httpOnly: true });
         res.status(200).json({
-            status: STATUS_SUCCESS,
+            status: statusCode.SUCCESS,
             data: {
                 accessToken: data.accessToken,
             },
@@ -27,7 +34,7 @@ export const loginController = async (req, res) => {
         });
     } catch (error) {
         console.error('Error during login:', error);
-        res.status(500).json({ status: STATUS_ERROR, message: 'Internal server error' });
+        res.status(500).json({ status: statusCode.ERROR, message: 'Internal server error' });
     }
 };
 
@@ -36,17 +43,25 @@ export const registerController = async (req, res) => {
     const { username, password, email, phone_number } = req.body;
 
     try {
+        const parsed = registerSchema.safeParse({ username, password, email, phone_number });
+
+        if (!parsed.success) {
+            return res.status(400).json({
+                status: statusCode.ERROR,
+                message: parsed.error.errors[0].message,
+            });
+        }
+
         const userId = await registerService(username, password, email, phone_number);
+
         res.status(201).json({
-            status: STATUS_SUCCESS,
-            data: {
-                userId,
-            },
+            status: statusCode.SUCCESS,
+            data: { userId },
             message: 'User registered successfully',
         });
     } catch (error) {
         console.error('Error during registration:', error);
-        res.status(500).json({ status: STATUS_ERROR, message: 'Internal server error' });
+        res.status(500).json({ status: statusCode.ERROR, message: 'Internal server error' });
     }
 };
 
@@ -55,23 +70,23 @@ export const refreshTokenController = async (req, res) => {
     const token = req.cookies.refreshToken;
 
     if (!token) {
-        return res.status(401).json({ status: STATUS_ERROR, message: 'Refresh token missing' });
+        return res.status(401).json({ status: statusCode.ERROR, message: 'Refresh token missing' });
     }
 
     try {
         const newAccessToken = await refreshTokenService(token);
         if (!newAccessToken) {
-            return res.status(403).json({ status: STATUS_ERROR, message: 'Invalid refresh token' });
+            return res.status(403).json({ status: statusCode.ERROR, message: 'Invalid refresh token' });
         }
 
         res.status(200).json({
-            status: STATUS_SUCCESS,
+            status: statusCode.SUCCESS,
             data: {
                 accessToken: newAccessToken,
             },
         });
     } catch (error) {
         console.error('Error during token refresh:', error);
-        res.status(403).json({ status: STATUS_ERROR, message: 'Invalid refresh token' });
+        res.status(403).json({ status: statusCode.ERROR, message: 'Invalid refresh token' });
     }
 };

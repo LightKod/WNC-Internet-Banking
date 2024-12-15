@@ -1,9 +1,10 @@
 'use client'
 
 import { useContext, useEffect, useState } from "react"
-import { PageContentContext } from "./transfer_page_content"
+import { PageContentContext } from "./resolve_payment_request_content"
 import { OTPInput } from "../universal/otp_input"
 import { ArrowRightIcon, XMarkIcon } from "@heroicons/react/16/solid"
+import Link from "next/link"
 
 export default function VerifyOTP() {
     const context = useContext(PageContentContext)
@@ -48,7 +49,7 @@ export default function VerifyOTP() {
         <div className="flex flex-col gap-y-8 px-8 pb-8">
             <div className="flex flex-col gap-y-1">
                 <div className="flex gap-x-2 items-baseline">
-                    <span className="text-xs tracking-wider text-gray-500">STEP 4</span>
+                    <span className="text-xs tracking-wider text-gray-500">STEP 2</span>
                     <p className="text-xl text-gray-950 font-bold">Verify your transaction</p>
                 </div>
                 <p className="text-sm text-gray-500">Check the email we have sent and fill in the below OTP input to complete your transaction</p>
@@ -72,10 +73,10 @@ export default function VerifyOTP() {
                             <ArrowRightIcon className="w-4"/>
                             <p>Continue</p>
                         </button>
-                        <button onClick={() => window.location.reload()} type="button" className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-slate-200 text-gray-950 text-sm font-medium hover:bg-slate-300 transition-colors duration-300">
+                        <Link href="/payment-request" type="button" className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-slate-200 text-gray-950 text-sm font-medium hover:bg-slate-300 transition-colors duration-300">
                             <XMarkIcon className="w-4"/>
                             <p>Cancel transfer</p>
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>

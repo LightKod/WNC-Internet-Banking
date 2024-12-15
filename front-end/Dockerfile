@@ -1,6 +1,6 @@
 # Sử dụng Node.js phiên bản 20 làm base image
 FROM node:20-alpine
-WORKDIR /usr/src/back-end
+WORKDIR /usr/src/front-end
 
 # Sao chép file package.json và package-lock.json vào thư mục làm việc
 COPY package*.json ./
@@ -12,7 +12,7 @@ RUN npm install
 COPY . .
 
 # Expose cổng mà ứng dụng sẽ chạy
-EXPOSE 80
+EXPOSE 3000
 
 # Khởi động ứng dụng
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]
