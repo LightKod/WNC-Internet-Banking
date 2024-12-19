@@ -22,7 +22,7 @@ export function Tooltip({
 
     return (
         <TooltipContext.Provider value={{ isShowing, setIsShowing, isVisible, setIsVisible }}>
-            <div className="relative inline-block">
+            <div className="relative">
                 {children}
             </div>
         </TooltipContext.Provider>

@@ -1,7 +1,6 @@
 import * as outline from "@heroicons/react/24/outline";
 import * as solid from "@heroicons/react/24/solid";
 
-
 export const paths = [
     {
         groupName: 'Menu',
@@ -20,4 +19,25 @@ export const paths = [
             { name: 'Feedback', href: '/feedback', icon: outline.InformationCircleIcon, litIcon: solid.InformationCircleIcon}
         ]
     },
+]
+
+export const employeePath = [
+    {
+        groupName: 'Employee',
+        paths: [
+            { name: 'Customer Register', href:'/employee/customer-register', icon: outline.UserPlusIcon, litIcon: solid.UserPlusIcon },
+            { name: 'Recharge', href:'/employee/recharge', icon: outline.ArrowRightEndOnRectangleIcon, litIcon: solid.ArrowRightEndOnRectangleIcon },
+            { name: 'Transaction', href: '/employee/transaction', icon: outline.CurrencyDollarIcon, litIcon: solid.CurrencyDollarIcon},
+        ]
+    }
+]
+
+export const adminPath = [
+    {
+        groupName: 'Admin',
+        paths: [
+            { name: 'Manage Employee', href: '/admin/manage-employee', icon: outline.BriefcaseIcon, litIcon: solid.BriefcaseIcon},
+            { name: 'Reconciliation', href: '/admin/reconciliation', icon: outline.DocumentChartBarIcon, litIcon: solid.DocumentChartBarIcon},
+        ]
+    }
 ]

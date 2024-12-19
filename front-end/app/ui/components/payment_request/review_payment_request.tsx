@@ -59,7 +59,7 @@ export default function ReviewPaymentRequest() {
                             <div className="text-blue-600">{paymentRequest?.isSelfFeePayment === "true" ? `${formatMoney((BigInt(paymentRequest!.amount) + BigInt(15000)).toString())} VND` : `${formatMoney(paymentRequest!.amount.toString())} VND`}</div>
                         </div>
                         <div className="flex flex-col gap-y-0.5">
-                            <div className="text-sm text-gray-950 font-semibold">Transfer note</div>
+                            <div className="text-sm text-gray-950 font-semibold">Note</div>
                             <div className="text-gray-500">{paymentRequest?.transferNote}</div>
                         </div>
                     </div>
