@@ -11,6 +11,9 @@ services:
       POSTGRES_DB: db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: example
+      SIGNATURE_TYPE: RSA
+      BANK_NAME: "Bankit!"
+      BANK_ID: "RSA"
     depends_on:
       - db
     volumes:

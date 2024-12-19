@@ -3,14 +3,8 @@ import { getPaymentAccountsByUserIdService } from './account.service.js';
 const { Debt } = db;
 
 // Service function to create a new debt
-export const createDebtService = async (user, data) => {
-    const userAccount = await getPaymentAccountsByUserIdService(user.id)
-    const {
-        debtor_account,
-        amount,
-        description = null,
-        due_date = null,
-    } = data;
+export const createDebtService = async (user, { debtor_account, amount, description = null, due_date = null }) => {
+    const userAccount = await getPaymentAccountsByUserIdService(user.id);
 
     // Create a new debt entry in the database
     const newDebt = await Debt.create({

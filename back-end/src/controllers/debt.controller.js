@@ -1,23 +1,27 @@
 import { createDebtService, getDebtsByDebtorService } from '../services/debt.service.js';
+import statusCode from '../constants/statusCode.js';
 
-const STATUS_SUCCESS = 0;
-const STATUS_ERROR = -1;
-
-// Controller function to handle adding a new debt
 export const createDebtController = async (req, res) => {
     try {
         const user = req.user;
-        const newDebt = await createDebtService(user, req.body);
+        const { debtor_account, amount, description, due_date } = req.body;
+        // Call the service with destructured values
+        const newDebt = await createDebtService(user, {
+            debtor_account,
+            amount,
+            description,
+            due_date
+        });
 
         res.status(201).json({
-            status: STATUS_SUCCESS,
+            status: statusCode.STATUS_SUCCESS,
             message: 'Debt created successfully',
-            data: { newDebt, }
+            data: { newDebt },
         });
     } catch (error) {
         console.error('Error creating debt:', error);
         res.status(500).json({
-            status: STATUS_ERROR,
+            status: statusCode.STATUS_ERROR,
             message: 'Failed to create debt',
         });
     }
@@ -32,20 +36,20 @@ export const getDebtsByDebtorController = async (req, res) => {
 
         if (!debts.length) {
             return res.status(404).json({
-                status: STATUS_ERROR,
+                status: statusCode.STATUS_ERROR,
                 message: 'No debts found for this account',
             });
         }
 
         res.status(200).json({
-            status: STATUS_SUCCESS,
+            status: statusCode.STATUS_SUCCESS,
             message: 'Debts retrieved successfully',
             debts,
         });
     } catch (error) {
         console.error('Error fetching debts:', error);
         res.status(500).json({
-            status: STATUS_ERROR,
+            status: statusCode.STATUS_ERROR,
             message: 'Internal server error',
         });
     }
