@@ -1,6 +1,7 @@
 import HorizontalBar from "../ui/components/app_layout/horizontal_bar";
 import Logo from "../ui/components/app_layout/logo";
 import NavBar from "../ui/components/app_layout/navbar";
+import NotificationToast from "../ui/components/app_layout/notification_toast";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
@@ -9,6 +10,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <HorizontalBar/>
             <NavBar/>
             <div className="p-4 md:overflow-y-auto bg-slate-50">{children}</div>
+            <NotificationToast/>
         </div>
     )
 }
