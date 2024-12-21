@@ -133,3 +133,51 @@ export const paymentRequestSchema = z.object({
 })
 
 export type PaymentRequestFormValue = z.infer<typeof paymentRequestSchema>
+
+export const customerRegisterSchema = z.object({
+    username: z.string({
+        invalid_type_error: "Invalid data",
+        required_error: "This field is required"
+    }).trim().min(1, {
+        message: "This field is required"
+    }).max(100, {
+        message: "The content is too long (max: 100 characters)"
+    }),
+    password: z.string({
+        invalid_type_error: "Invalid data",
+        required_error: "This field is required"
+    }).trim().min(6, {
+        message: "Password's length must have at least 6 characters"
+    }).max(100, {
+        message: "Password is too long (max: 100 characters)"
+    }).regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+        "Password must contain at least one uppercase letter, one lowercase letter, and one number."
+    ),
+    name: z.string({
+        invalid_type_error: "Invalid data",
+        required_error: "This field is required"
+    }).trim().min(1, {
+        message: "This field is required"
+    }).max(100, {
+        message: "The content is too long (max: 100 characters)"
+    }),
+    email: z.string({
+        invalid_type_error: "Invalid data",
+        required_error: "This field is required"
+    }).trim().min(1, {
+        message: "This field is required"
+    }).max(100, {
+        message: "The content is too long (max: 100 characters)"
+    }).email({
+        message: "Invalid email format"
+    }),
+    phone: z.string({
+        invalid_type_error: "Invalid data",
+        required_error: "This field is required"
+    }).trim().length(10, {
+        message: "Invalid phone number"
+    })
+})
+
+export type CustomerRegisterFormValues = z.infer<typeof customerRegisterSchema>

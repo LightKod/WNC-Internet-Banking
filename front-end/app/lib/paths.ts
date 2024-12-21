@@ -12,16 +12,9 @@ export const paths = [
             { name: 'Contacts', href: '/contacts', icon: outline.UsersIcon, litIcon: solid.UsersIcon},
         ]
     },
-    {
-        groupName: 'Help & Settings',
-        paths: [
-            { name: 'Settings', href:'/settings', icon: outline.Cog6ToothIcon, litIcon: solid.Cog6ToothIcon },
-            { name: 'Feedback', href: '/feedback', icon: outline.InformationCircleIcon, litIcon: solid.InformationCircleIcon}
-        ]
-    },
 ]
 
-export const employeePath = [
+export const employeePaths = [
     {
         groupName: 'Employee',
         paths: [
@@ -32,7 +25,7 @@ export const employeePath = [
     }
 ]
 
-export const adminPath = [
+export const adminPaths = [
     {
         groupName: 'Admin',
         paths: [
@@ -40,4 +33,14 @@ export const adminPath = [
             { name: 'Reconciliation', href: '/admin/reconciliation', icon: outline.DocumentChartBarIcon, litIcon: solid.DocumentChartBarIcon},
         ]
     }
+]
+
+export const otherPaths = [
+    {
+        groupName: 'Help & Settings',
+        paths: [
+            { name: 'Settings', href:'/settings', icon: outline.Cog6ToothIcon, litIcon: solid.Cog6ToothIcon },
+            { name: 'Feedback', href: '/feedback', icon: outline.InformationCircleIcon, litIcon: solid.InformationCircleIcon}
+        ]
+    },
 ]
