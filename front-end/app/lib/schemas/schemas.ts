@@ -181,3 +181,34 @@ export const customerRegisterSchema = z.object({
 })
 
 export type CustomerRegisterFormValues = z.infer<typeof customerRegisterSchema>
+
+export const rechargeSchema = z.object({
+    infoType: z.enum(["username", "account"], {
+        message: "Invalid choice"
+    }),
+    accountInfo: z.string({
+        invalid_type_error: "Invalid data",
+        required_error: "This field is required"
+    }).trim().min(1, {
+        message: "This field is required"
+    }),
+    amount: z.coerce.number({
+        invalid_type_error: "Invalid data",
+        required_error: "This field is required"
+    }).int({
+        message: "Amount must be an integer"
+    }).positive({
+        message: "Amount cannot be negative"
+    }).min(10000, {
+        message: "The minimum amount is 10,000 VND"
+    })
+}).refine((data) => {
+    if(data.infoType === "account")
+        return data.accountInfo.length === 12
+    return true
+}, {
+    message: "Invalid account number",
+    path: ["accountInfo"]
+})
+
+export type RechargeFormValues = z.infer<typeof rechargeSchema>
