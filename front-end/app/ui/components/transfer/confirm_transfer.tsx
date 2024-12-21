@@ -4,6 +4,7 @@ import { useContext } from "react"
 import { PageContentContext } from "./transfer_page_content"
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/16/solid"
 import { formatAccountNumber, formatMoney } from "@/app/lib/utilities/utilities"
+import { linkedLibraryDict } from "@/app/lib/definitions/definition"
 
 export default function ConfirmTransfer() {
     const context = useContext(PageContentContext)
@@ -12,9 +13,27 @@ export default function ConfirmTransfer() {
         throw new Error('Something went wrong')
     }
 
-    const formValues = context.formRef.current?.getValues()
-    const receiverBankAccount = context.formRef.current?.receiverBankAccount
+    let formValues: any = null
+    let receiverBankAccount: any = null
 
+    if(context.transferType === "internal") {
+        formValues = context.internalFormRef.current?.getValues()
+        receiverBankAccount = context.internalFormRef.current?.receiverBankAccount
+    }
+    else if(context.transferType === "interbank") {
+        formValues = context.interbankFormRef.current?.getValues()
+        receiverBankAccount = context.interbankFormRef.current?.receiverBankAccount
+    }
+
+    const handleSubmit = () => {
+        if(context.transferType === "internal") {
+            context.internalFormRef.current?.onSubmit()
+        }
+        else if(context.transferType === "interbank") {
+            context.interbankFormRef.current?.onSubmit()
+        }
+    }
+    
     return (
         <div className="flex flex-col gap-y-8 px-8 pb-8">
             <div className="flex flex-col gap-y-1">
@@ -43,6 +62,12 @@ export default function ConfirmTransfer() {
                             <div className="text-sm text-gray-950 font-semibold">Transfer type</div>
                             <div className="text-gray-500">{context.transferType === "internal" ? "Internal transfer" : "Interbank transfer"}</div>
                         </div>
+                        {context.transferType === "interbank" && (
+                            <div className="flex flex-col gap-y-0.5">
+                                <div className="text-sm text-gray-950 font-semibold">Destination bank</div>
+                                <div className="text-blue-600">{linkedLibraryDict[formValues!.bankCode].name}</div>
+                            </div>
+                        )}
                     </div>
                     <div className="flex flex-col gap-y-4">
                         <div className="flex flex-col gap-y-0.5">
@@ -65,7 +90,7 @@ export default function ConfirmTransfer() {
                 </div>
                 <div className="w-full h-full pt-4 md:pl-4 md:pt-0">
                     <div className="flex flex-col gap-y-2">
-                        <button type="button" onClick={context.formRef.current?.onSubmit} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 transition-colors duration-300">
+                        <button type="button" onClick={handleSubmit} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 transition-colors duration-300">
                             <ArrowRightIcon className="w-4"/>
                             <p>Continue</p>
                         </button>

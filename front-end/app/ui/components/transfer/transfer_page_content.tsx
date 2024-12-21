@@ -12,6 +12,7 @@ import FailedTransfer from "./failed_transfer"
 import Modal, { ModalRef } from "../universal/modal"
 import { Contact } from "@/app/lib/definitions/definition"
 import { formatAccountNumber } from "@/app/lib/utilities/utilities"
+import { InterbankTransferForm, InterbankTransferRef } from "./interbank_transfer_form"
 
 interface PageContentContextType {
     nextStep: () => void,
@@ -22,7 +23,8 @@ interface PageContentContextType {
     transactionId: string,
     setTransactionId: React.Dispatch<React.SetStateAction<string>>,
     setIsTransactionSuccessful: React.Dispatch<React.SetStateAction<boolean | null>>,
-    formRef: RefObject<InternalTransferRef>,
+    internalFormRef: RefObject<InternalTransferRef>,
+    interbankFormRef: RefObject<InterbankTransferRef>
     handleOpenModal: () => void
 }
 
@@ -36,7 +38,8 @@ export default function TransferPageContent() {
 
     const stepIndicatorRef = useRef<StepIndicatorRef>(null)
     const pageSliderRef = useRef<PageSliderRef>(null)
-    const formRef = useRef<InternalTransferRef>(null)
+    const internalFormRef = useRef<InternalTransferRef>(null)
+    const interbankFormRef = useRef<InterbankTransferRef>(null)
 
     const nextStep = () => {
         stepIndicatorRef.current?.nextStep()
@@ -63,7 +66,14 @@ export default function TransferPageContent() {
     }
 
     const handleSelectReceiver = (accountNumber: string) => {
-        formRef.current?.setValue("receiverAccountNumber", accountNumber)
+        if(transferType === "internal") {
+            internalFormRef.current?.setValue("receiverAccountNumber", accountNumber)
+        }
+        else if (transferType === "interbank") {
+            interbankFormRef.current?.setValue("receiverAccountNumber", accountNumber)
+            interbankFormRef.current?.setValue("bankCode", "PGP")
+        }
+
         modalRef.current?.closeModal()
     }
 
@@ -118,7 +128,8 @@ export default function TransferPageContent() {
                     transactionId,
                     setTransactionId,
                     setIsTransactionSuccessful,
-                    formRef,
+                    internalFormRef,
+                    interbankFormRef,
                     handleOpenModal
                 }}>
                     <PageSlider ref={pageSliderRef}>
@@ -151,7 +162,10 @@ export default function TransferPageContent() {
                         </Page>
                         <Page>
                             {transferType === "internal" && (
-                                <InternalTransferForm ref={formRef}/>
+                                <InternalTransferForm ref={internalFormRef}/>
+                            )}
+                            {transferType === "interbank" && (
+                                <InterbankTransferForm ref={interbankFormRef}/>
                             )}
                         </Page>
                         <Page>

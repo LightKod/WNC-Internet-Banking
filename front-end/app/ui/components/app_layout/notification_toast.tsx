@@ -19,15 +19,15 @@ export default function NotificationToast() {
         toastRef.current?.closeToast()
     }
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if(pathname !== '/payment-request') {
-                openToast()
-            }
-        }, 15000);
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         if(pathname !== '/payment-request') {
+    //             openToast()
+    //         }
+    //     }, 15000);
     
-        return () => clearInterval(interval);
-      }, [pathname]);
+    //     return () => clearInterval(interval);
+    //   }, [pathname]);
 
     return (
         <Toast ref={toastRef} heading="Notification">

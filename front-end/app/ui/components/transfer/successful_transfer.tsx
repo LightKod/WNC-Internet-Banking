@@ -7,6 +7,7 @@ import { formatAccountNumber, formatMoney } from "@/app/lib/utilities/utilities"
 import clsx from "clsx"
 import { ArrowLeftIcon, ArrowPathIcon, ArrowRightIcon } from "@heroicons/react/16/solid"
 import Link from "next/link"
+import { linkedLibraryDict } from "@/app/lib/definitions/definition"
 
 export default function SuccessfulTransfer() {
     const context = useContext(PageContentContext)
@@ -15,8 +16,17 @@ export default function SuccessfulTransfer() {
         throw new Error('Something went wrong')
     }
 
-    const formValues = context.formRef.current?.getValues()
-    const receiverBankAccount = context.formRef.current?.receiverBankAccount
+    let formValues: any = null
+    let receiverBankAccount: any = null
+
+    if(context.transferType === "internal") {
+        formValues = context.internalFormRef.current?.getValues()
+        receiverBankAccount = context.internalFormRef.current?.receiverBankAccount
+    }
+    else if(context.transferType === "interbank") {
+        formValues = context.interbankFormRef.current?.getValues()
+        receiverBankAccount = context.interbankFormRef.current?.receiverBankAccount
+    }
 
     const [isCopied, setIsCopied] = useState<boolean>(false)
 
@@ -81,6 +91,12 @@ export default function SuccessfulTransfer() {
                         <div className="text-sm text-gray-950 font-semibold">Transfer type</div>
                         <div className="text-gray-500">{context.transferType === "internal" ? "Internal transfer" : "Interbank transfer"}</div>
                     </div>
+                    {context.transferType === "interbank" && (
+                        <div className="flex flex-col gap-y-0.5">
+                            <div className="text-sm text-gray-950 font-semibold">Destination bank</div>
+                            <div className="text-blue-600">{linkedLibraryDict[formValues!.bankCode].name}</div>
+                        </div>
+                    )}
                 </div>
                 <div className="flex flex-col gap-y-4">
                     <div className="flex flex-col gap-y-0.5">
