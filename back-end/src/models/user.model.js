@@ -32,6 +32,10 @@ const User = (sequelize) => {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
       },
+      role: {
+        type: DataTypes.STRING(10),
+        defaultValue: "user",
+      },
     },
     {
       tableName: "user",
