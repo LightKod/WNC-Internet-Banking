@@ -4,6 +4,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import ReCAPTCHA from "react-google-recaptcha";
+import { login } from "@/app/lib/actions/api";
+import Spinner from "../universal/spinner";
 
 const LoginSchema = z.object({
   username: z.string().min(1, { message: "Please enter username" }),
@@ -16,11 +18,30 @@ export default function LoginForm() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<LoginInputs>({ resolver: zodResolver(LoginSchema) });
 
-  const onSubmit: SubmitHandler<LoginInputs> = (data: LoginInputs) => {
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const onSubmit: SubmitHandler<LoginInputs> = async (data: LoginInputs) => {
     console.log(data);
+    try {
+      setLoading(true);
+      const response = await login({
+        username: data.username,
+        password: data.password,
+      });
+      if (response.status === 401) {
+        setError("username", { message: "Username or password is incorrect" });
+        setError("password", { message: "Username or password is incorrect" });
+        return;
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const [captchaValue, setCaptchaValue] = useState<string | null>(null);
@@ -78,8 +99,8 @@ export default function LoginForm() {
 
       <button
         type="submit"
-        className="w-full rounded-lg py-3 bg-blue-600 text-blue-50 font-bold hover:bg-blue-800 transition-colors duration-300">
-        Log In
+        className="w-full flex justify-center items-center rounded-lg py-3 bg-blue-600 text-blue-50 font-bold hover:bg-blue-800 transition-colors duration-300">
+        {loading ? <Spinner /> : <div>Log In</div>}
       </button>
     </form>
   );
