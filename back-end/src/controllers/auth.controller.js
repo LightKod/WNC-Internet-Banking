@@ -24,11 +24,12 @@ export const loginController = async (req, res) => {
             return res.status(401).json({ status: statusCode.ERROR, message: 'Invalid credentials' });
         }
 
-        res.cookie('refreshToken', data.refreshToken, { httpOnly: true });
+        // res.cookie('refreshToken', data.refreshToken, { httpOnly: true });
         res.status(200).json({
             status: statusCode.SUCCESS,
             data: {
                 accessToken: data.accessToken,
+                refreshToken: data.refreshToken,
             },
             message: 'Login successful',
         });
