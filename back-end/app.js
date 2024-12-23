@@ -51,6 +51,9 @@ app.use("/api/transfer", protectRoute, transferRouter);
 app.use("/api/debt", protectRoute, debtRouter);
 app.use("/api/account", protectRoute, accountRouter);
 app.use("/api/user", protectRoute, userRouter);
+app.use('/api/check-role',protectRoute, (req, res) => {
+  res.status(200).json({ role: req.user.role });
+});
 var port = 80;
 
 app.listen(port, function () {
