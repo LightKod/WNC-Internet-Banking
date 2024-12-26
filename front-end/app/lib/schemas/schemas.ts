@@ -212,3 +212,14 @@ export const rechargeSchema = z.object({
 })
 
 export type RechargeFormValues = z.infer<typeof rechargeSchema>
+
+export const assignEmployeeSchema = z.object({
+    username: z.string({
+        invalid_type_error: "Invalid data",
+        required_error: "This field is required"
+    }).trim().min(1, {
+        message: "This field is required"
+    })
+})
+
+export type AssignEmployeeFormValues = z.infer<typeof assignEmployeeSchema>
