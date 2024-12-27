@@ -1,4 +1,4 @@
-import { getAccountsByUserIdService, getPaymentAccountsByUserIdService, getUserDataByAccountNumberService } from "../services/account.service.js";
+import {getBankAccountByAccountNumber, getAccountsByUserIdService, getPaymentAccountsByUserIdService, getUserDataByAccountNumberService } from "../services/account.service.js";
 import statusCode from "../constants/statusCode.js";
 
 export const getAccountsByUserIdController = async (req, res) => {
@@ -56,3 +56,18 @@ export const getUserDataByAccountNumberController = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+export const getBankAccountByAccountNumberController = async (req, res) => {
+    try {
+      const {  bank_code, account_number } = req.body;
+      const bankAccountData = await getBankAccountByAccountNumber(bank_code,account_number);
+  
+      if (!bankAccountData) {
+        return res.status(200).json({ status: statusCode.ERROR, message: "Bank account not found" });
+      }
+  
+      res.status(200).json({ status: statusCode.SUCCESS, data: bankAccountData });
+    } catch (error) {
+      console.error("Error in getBankAccountByAccountNumberController:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };

@@ -1,5 +1,5 @@
 import db from "../models/index.model.js";
-const { Account, User } = db;
+const { Account, User,LinkedBanks } = db;
 import bankinfo from '../config/bankConfig.js'
 
 export const getAccountsByUserIdService = async (userId) => {
@@ -68,3 +68,35 @@ export const getUserDataByAccountNumberService = async (accountNumber) => {
         account_number: account.account_number,
     };
 };
+export const getBankAccountByAccountNumber = async (bank_code, accountNumber) => {
+    try {
+      // Tìm tài khoản ngân hàng trong cơ sở dữ liệu
+      const linkedBank = await LinkedBanks.findOne({ where: { bank_code } });
+        if (!linkedBank) {
+            return { status: statusCode.STATUS_ERROR, message: 'Bank not linked' };
+        }
+        const destinationCheckPayload = { bank_code: bankConfig.BANK_CODE, account_number: destination_account_number, timestamp: Date.now() };
+        const destinationHash = generateRequestHash(destinationCheckPayload, linkedBank.secret_key);
+
+        const destinationCheckResponse = await axios.post(linkedBank.account_info_api_url, {
+            ...destinationCheckPayload,
+            hash: destinationHash,
+        });
+
+        if (destinationCheckResponse.status !== 200 || !destinationCheckResponse.data) {
+            return { status: statusCode.STATUS_ERROR, message: 'Invalid destination account' };
+        }
+        const data = destinationCheckResponse.data;
+  
+      // Trả về thông tin tài khoản ngân hàng
+      return {
+        account_number: data.account_number,
+        bank_name: linkedBank.bank_name,
+        bank_code: data.bank_code,
+        balance: data.balance,
+      };
+    } catch (error) {
+      console.error("Error in getBankAccountByAccountNumber:", error);
+      throw error; // Có thể xử lý thêm tùy theo yêu cầu
+    }
+  };
