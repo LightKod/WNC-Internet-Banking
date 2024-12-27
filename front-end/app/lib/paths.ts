@@ -44,3 +44,12 @@ export const otherPaths = [
         ]
     },
 ]
+
+export const hiddenPaths = [
+    {
+        groupName: 'Hidden paths',
+        paths: [
+            { name: 'Change password', href:'/change-password', icon: outline.Cog6ToothIcon, litIcon: solid.Cog6ToothIcon },
+        ]
+    }
+]

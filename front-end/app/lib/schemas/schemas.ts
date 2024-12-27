@@ -223,3 +223,25 @@ export const assignEmployeeSchema = z.object({
 })
 
 export type AssignEmployeeFormValues = z.infer<typeof assignEmployeeSchema>
+
+export const changePasswordSchema = z.object({
+    oldPassword: z.string({
+        invalid_type_error: "Invalid data",
+        required_error: "This field is required"
+    }).trim().min(1, {
+        message: "This field is required"
+    }),
+    newPassword: z.string({
+        invalid_type_error: "Invalid data",
+        required_error: "This field is required"
+    }).trim().min(6, {
+        message: "Password's length must have at least 6 characters"
+    }).max(100, {
+        message: "Password is too long (max: 100 characters)"
+    }).regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+        "Password must contain at least one uppercase letter, one lowercase letter, and one number."
+    )
+})
+
+export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>

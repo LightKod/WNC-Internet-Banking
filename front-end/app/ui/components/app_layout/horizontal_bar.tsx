@@ -1,18 +1,19 @@
 'use client'
 
-import { adminPaths, employeePaths, otherPaths, paths } from "@/app/lib/paths"
+import { adminPaths, employeePaths, hiddenPaths, otherPaths, paths } from "@/app/lib/paths"
 import { ArrowRightStartOnRectangleIcon, ChevronDownIcon, KeyIcon, UserIcon } from "@heroicons/react/16/solid";
 import { BellAlertIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { usePathname } from 'next/navigation';
 import MiniNavBar from "./mini_navbar";
 import { Dropdown, DropdownContent, DropdownTrigger } from "../universal/dropdown";
+import Link from "next/link";
 
 // should be a client component
 // fetch for user's info for avatar button
 // TODO: make a dropdown menu
 export default function HorizontalBar() {
     const pathname = usePathname();
-    const currentPathName = [...paths, ...employeePaths, ...adminPaths, ...otherPaths].flatMap(group => group.paths).find(path => path.href === pathname)?.name || 'Define this path'
+    const currentPathName = [...paths, ...employeePaths, ...adminPaths, ...otherPaths, ...hiddenPaths].flatMap(group => group.paths).find(path => path.href === pathname)?.name || 'Define this path'
 
     return (
         <div className="flex p-4 justify-between items-center border-b-2 border-slate-100">
@@ -42,10 +43,10 @@ export default function HorizontalBar() {
                                 <UserIcon className="w-4"/>
                                 <p>Profile</p>
                             </button>
-                            <button type="button" className="px-4 py-3 flex flex-row gap-2 items-center text-sm text-gray-500 font-medium bg-white hover:text-blue-600 hover:bg-blue-50 transition-all duration-300">
+                            <Link href="/change-password" type="button" className="px-4 py-3 flex flex-row gap-2 items-center text-sm text-gray-500 font-medium bg-white hover:text-blue-600 hover:bg-blue-50 transition-all duration-300">
                                 <KeyIcon className="w-4"/>
                                 <p>Change Password</p>
-                            </button>
+                            </Link>
                             <button type="button" className="px-4 py-3 flex flex-row gap-2 items-center text-sm text-gray-500 font-medium bg-white hover:text-red-500 hover:bg-red-50 transition-all duration-300">
                                 <ArrowRightStartOnRectangleIcon className="w-4"/>
                                 <p>Log Out</p>
