@@ -7,6 +7,7 @@ const router = express.Router();
 //Internal
 router.post('/internal/initiate', transferController.initiateTransfer);
 router.post('/internal/confirm', transferController.confirmTransfer);
+router.post('/internal/deposit', transferController.depositInternal);
 
 //External
 router.post('/external/initiate', transferController.initiateExternalTransfer);

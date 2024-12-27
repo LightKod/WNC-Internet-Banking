@@ -195,5 +195,22 @@ export const linkBank = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while linking the bank.', details: error.message });
     }
 };
+export const depositInternal = async (req, res) => {
+    const { infoType, accountInfo, amount } = req.body;
 
-export default { initiateTransfer, confirmTransfer, initiateExternalTransfer, confirmExternalTransfer, accountInfo, deposit, linkBank };
+    try {
+        // Gọi service để thực hiện nạp tiền
+        const result = await transferService.depositInternal({ infoType, accountInfo, amount });
+
+        if (result.status === statusCode.STATUS_ERROR) {
+            return res.status(400).json({ message: result.message, status: statusCode.STATUS_ERROR });
+        }
+
+        res.status(200).json({ data: result.data, message: result.message, status: statusCode.STATUS_SUCCESS });
+    } catch (err) {
+        console.error('Error in depositInternal controller:', err);
+        res.status(500).json({ error: 'Internal server error', status: statusCode.STATUS_ERROR });
+    }
+};
+
+export default {depositInternal, initiateTransfer, confirmTransfer, initiateExternalTransfer, confirmExternalTransfer, accountInfo, deposit, linkBank };

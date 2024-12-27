@@ -12,7 +12,6 @@ const Transaction = (sequelize) => {
       },
       source_account: {
         type: DataTypes.STRING(20),
-        allowNull: false,
       },
       destination_account: {
         type: DataTypes.STRING(20),
@@ -23,7 +22,7 @@ const Transaction = (sequelize) => {
         allowNull: false,
       },
       transaction_type: {
-        type: DataTypes.ENUM("internal", "external", "debt-payment"),
+        type: DataTypes.ENUM("internal", "external", "debt-payment","internal-deposit"),
         allowNull: false,
       },
       fee_payer: {

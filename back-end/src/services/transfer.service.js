@@ -1,6 +1,6 @@
 
 import db from '../models/index.model.js'
-const { OTP, Transaction, Account, LinkedBanks } = db;
+const { OTP, Transaction, Account, LinkedBanks, User } = db;
 import bankConfig from '../config/bankConfig.js';
 import statusCode from '../constants/statusCode.js';
 import { generateRequestHash, generateSignature, verifyRequestHash, verifySignature } from '../utils/security.js'
@@ -239,5 +239,67 @@ export const confirmExternalTransfer = async ({ otp_code, transaction_id, bank_c
     }
 };
 
+export const depositInternal = async ({ infoType, accountInfo, amount }) => {
+    try {
+        let account;
 
-export default { initiateTransfer, confirmTransfer, initiateExternalTransfer, confirmExternalTransfer };
+        if (infoType === 'account') {
+            // Tìm tài khoản dựa trên số tài khoản
+            account = await Account.findOne({
+                where: { account_number: accountInfo },
+            });
+
+            if (!account) {
+                return { status: statusCode.STATUS_ERROR, message: 'Account not found or unauthorized' };
+            }
+        } else if (infoType === 'username') {
+            // Tìm người dùng dựa trên username
+            const targetUser = await User.findOne({
+                where: { username: accountInfo },
+            });
+
+            if (!targetUser ) {
+                return { status: statusCode.STATUS_ERROR, message: 'No payment account found for this username' };
+            }
+
+            account = await Account.findOne({
+            where: { user_id: targetUser.id, account_type: 'payment' },
+           })
+
+            if (!account) {
+                return { status: statusCode.STATUS_ERROR, message: 'No payment account found for this username' };
+            }
+        } else {
+            return { status: statusCode.STATUS_ERROR, message: 'Invalid infoType' };
+        }
+
+        // Kiểm tra số tiền nạp
+        if (amount <= 0) {
+            return { status: statusCode.STATUS_ERROR, message: 'Invalid deposit amount' };
+        }
+        console.log(account);
+        const balance = parseFloat(account.balance); // Chuyển đổi balance sang số
+        const depositAmount = parseFloat(amount); // Chuyển đổi amount sang số
+        
+        account.balance = (balance + depositAmount).toFixed(2); // Làm tròn đến 2 chữ số thập phân
+        await account.save();
+        
+
+        // Lưu thông tin giao dịch
+        const transaction = await Transaction.create({
+            source_account: null, // Không có tài khoản nguồn
+            destination_account: account.account_number,
+            amount,
+            fee_payer: null,
+            content: 'Internal deposit',
+            transaction_type: 'internal-deposit',
+            status: 'SUCCESS',
+        });
+
+        return { status: statusCode.STATUS_SUCCESS, data: { account, transaction }, message: 'Deposit successful' };
+    } catch (err) {
+        console.error('Error in depositInternal service:', err);
+        return { status: statusCode.STATUS_ERROR, message: 'Failed to process deposit' };
+    }
+};
+export default { depositInternal,initiateTransfer, confirmTransfer, initiateExternalTransfer, confirmExternalTransfer };
