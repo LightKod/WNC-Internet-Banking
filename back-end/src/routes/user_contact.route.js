@@ -4,6 +4,7 @@ import {
     createNewContactController,
     getAllContactsController,
     deleteContactController,
+    checkContactExistsController,
 } from "../controllers/user_contact.controller.js";
 
 const router = express.Router();
@@ -12,5 +13,6 @@ const router = express.Router();
 router.post("/", createNewContactController);
 router.get("/", getAllContactsController);
 router.delete("/:contactId", deleteContactController);
+router.post("/check-existence", checkContactExistsController);
 
 export default router;

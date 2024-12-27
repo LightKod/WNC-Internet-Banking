@@ -28,3 +28,16 @@ export const deleteContactService = async (contactId, userId) => {
     await contact.destroy();
     return { message: "Contact deleted successfully" };
 };
+
+
+export const checkContactExistsService = async (accountNumber, bankId, userId) => {
+    const existingContact = await UserContact.findOne({
+        where: {
+            account_number: accountNumber,
+            bank_id: bankId,
+            user_id: userId,
+        },
+    });
+
+    return existingContact !== null; // Returns true if a contact exists, false otherwise
+};

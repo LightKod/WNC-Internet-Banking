@@ -2,6 +2,7 @@ import {
     createNewContactService,
     getAllContactsService,
     deleteContactService,
+    checkContactExistsService,
 } from "../services/user_contact.service.js";
 import statusCode from "../constants/statusCode.js";
 
@@ -55,5 +56,27 @@ export const deleteContactController = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ status: statusCode.ERROR, message: "Delete failed" });
+    }
+};
+
+export const checkContactExistsController = async (req, res) => {
+    try {
+        const userId = req.user.id; // Authenticated user's ID
+        const { account_number, bank_id } = req.body;
+
+        if (!account_number) {
+            return res.status(400).json({ status: statusCode.ERROR, message: "Account number is required" });
+        }
+
+        const contactExists = await checkContactExistsService(account_number, bank_id, userId);
+
+        if (contactExists) {
+            return res.status(200).json({ status: statusCode.SUCCESS, data: true, message: "Contact exists" });
+        }
+
+        return res.status(200).json({ status: statusCode.SUCCESS, data: false, message: "Contact does not exist" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: statusCode.ERROR, message: "Internal server error" });
     }
 };
