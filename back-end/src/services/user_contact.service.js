@@ -41,3 +41,24 @@ export const checkContactExistsService = async (accountNumber, bankId, userId) =
 
     return existingContact !== null; // Returns true if a contact exists, false otherwise
 };
+export const getUserContactsByTypeService = async (type, currentBank) => {
+    try {
+      let condition;
+      if (type === 'internal') {
+        condition = { bank_id: currentBank }; // Nếu là internal, lấy danh bạ với ngân hàng hiện tại
+      } else if (type === 'external') {
+        condition = { bank_id: { [Op.ne]: currentBank } }; // Nếu là external, lấy danh bạ với ngân hàng khác
+      } else {
+        throw new Error('Invalid type');
+      }
+  
+      const contacts = await UserContact.findAll({
+        where: condition,
+      });
+  
+      return contacts;
+    } catch (error) {
+      console.error("Error in getUserContactsByTypeService:", error);
+      throw error;
+    }
+  };

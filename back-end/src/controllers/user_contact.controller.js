@@ -3,6 +3,7 @@ import {
     getAllContactsService,
     deleteContactService,
     checkContactExistsService,
+    getUserContactsByTypeService 
 } from "../services/user_contact.service.js";
 import statusCode from "../constants/statusCode.js";
 
@@ -80,3 +81,15 @@ export const checkContactExistsController = async (req, res) => {
         res.status(500).json({ status: statusCode.ERROR, message: "Internal server error" });
     }
 };
+
+  export const getUserContactsByTypeController = async (req, res) => {
+    const { type } = req.query; // `type` là loại danh bạ, `currentBank` là ngân hàng hiện tại
+    const currentBank = process.env.BANK_ID;
+    try {
+      const contacts = await getUserContactsByTypeService(type, currentBank);
+      return res.status(200).json({ status: statusCode.SUCCESS, data: contacts });
+    } catch (error) {
+      console.error("Error in getUserContactsByTypeController:", error);
+      return res.status(500).json({ status: statusCode.ERROR, message: 'Internal server error' });
+    }
+  };
