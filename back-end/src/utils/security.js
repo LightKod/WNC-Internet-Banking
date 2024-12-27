@@ -110,6 +110,7 @@ export const verifySignature = async (data, publicKey, providedSignature, signat
 export const generateSignature = async (payload, privateKey, signatureType) => {
      privateKey =  Buffer.from(privateKey, 'base64').toString('ascii');
      console.log("privateKey",privateKey)
+     console.log("signatureType",signatureType)
     if (signatureType === 'RSA') {
         return generateRSASignature(payload, privateKey);
     } else if (signatureType === 'PGP') {

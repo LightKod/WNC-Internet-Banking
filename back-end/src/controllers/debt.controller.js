@@ -14,14 +14,14 @@ export const createDebtController = async (req, res) => {
         });
 
         res.status(201).json({
-            status: statusCode.STATUS_SUCCESS,
+            status: statusCode.SUCCESS,
             message: 'Debt created successfully',
             data: { newDebt },
         });
     } catch (error) {
         console.error('Error creating debt:', error);
         res.status(500).json({
-            status: statusCode.STATUS_ERROR,
+            status: statusCode.ERROR,
             message: 'Failed to create debt',
         });
     }
@@ -36,20 +36,20 @@ export const getDebtsByDebtorController = async (req, res) => {
 
         if (!debts.length) {
             return res.status(404).json({
-                status: statusCode.STATUS_ERROR,
+                status: statusCode.ERROR,
                 message: 'No debts found for this account',
             });
         }
 
         res.status(200).json({
-            status: statusCode.STATUS_SUCCESS,
+            status: statusCode.SUCCESS,
             message: 'Debts retrieved successfully',
             debts,
         });
     } catch (error) {
         console.error('Error fetching debts:', error);
         res.status(500).json({
-            status: statusCode.STATUS_ERROR,
+            status: statusCode.ERROR,
             message: 'Internal server error',
         });
     }

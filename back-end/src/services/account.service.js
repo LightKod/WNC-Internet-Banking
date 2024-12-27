@@ -1,6 +1,5 @@
 import db from "../models/index.model.js";
 const { Account, User,LinkedBanks } = db;
-import bankinfo from '../config/bankConfig.js'
 
 export const getAccountsByUserIdService = async (userId) => {
     const accounts = await Account.findAll({
@@ -63,8 +62,8 @@ export const getUserDataByAccountNumberService = async (accountNumber) => {
 
     return {
         username: user.username,
-        bank_name: bankinfo.BANK_NAME,
-        bank_id: bankinfo.BANK_ID,
+        bank_name: process.env.BANK_NAME,
+        bank_id: process.env.BANK_ID,
         account_number: account.account_number,
     };
 };
@@ -75,7 +74,7 @@ export const getBankAccountByAccountNumber = async (bank_code, accountNumber) =>
         if (!linkedBank) {
             return { status: statusCode.STATUS_ERROR, message: 'Bank not linked' };
         }
-        const destinationCheckPayload = { bank_code: bankConfig.BANK_CODE, account_number: destination_account_number, timestamp: Date.now() };
+        const destinationCheckPayload = { bank_code: process.env.BANK_ID, account_number: destination_account_number, timestamp: Date.now() };
         const destinationHash = generateRequestHash(destinationCheckPayload, linkedBank.secret_key);
 
         const destinationCheckResponse = await axios.post(linkedBank.account_info_api_url, {
