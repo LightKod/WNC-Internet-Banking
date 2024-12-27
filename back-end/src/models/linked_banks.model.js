@@ -28,9 +28,13 @@ const LinkedBanks = (sequelize) => {
             type: DataTypes.ENUM('RSA', 'PGP'),
             allowNull: false
         },
-        api_base_url: {
+        account_info_api_url: { 
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+        },
+        deposit_api_url: { 
+            type: DataTypes.STRING,
+            allowNull: false,
         },
 
     }, {

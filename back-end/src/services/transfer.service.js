@@ -31,8 +31,8 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
 
         // Tạo giao dịch mới
         const transaction = await Transaction.create({
-            source_account: sourceAccount.id,
-            destination_account: destinationAccount.id,
+            source_account: sourceAccount.account_number,
+            destination_account: destinationAccount.account_number,
             amount,
             fee_payer,
             content,
@@ -88,8 +88,8 @@ export const confirmTransfer = async ({ otp_code, transaction_id }) => {
         }
 
         // Tiến hành cập nhật tài khoản nguồn và đích
-        const sourceAccount = await Account.findOne({ where: { id: transaction.source_account } });
-        const destinationAccount = await Account.findOne({ where: { id: transaction.destination_account } });
+        const sourceAccount = await Account.findOne({ where: { account_number: transaction.source_account } });
+        const destinationAccount = await Account.findOne({ where: { account_number: transaction.destination_account } });
 
         if (!sourceAccount || !destinationAccount) {
             return { status: statusCode.STATUS_ERROR, message: 'Source or destination account not found' };
@@ -135,7 +135,7 @@ export const initiateExternalTransfer = async ({ source_account_number, destinat
         const destinationCheckPayload = { bank_code: bankConfig.BANK_CODE, account_number: destination_account_number, timestamp: Date.now() };
         const destinationHash = generateRequestHash(destinationCheckPayload, linkedBank.secret_key);
 
-        const destinationCheckResponse = await axios.post(linkedBank.api_base_url + 'transfer/external/account-info', {
+        const destinationCheckResponse = await axios.post(linkedBank.account_info_api_url, {
             ...destinationCheckPayload,
             hash: destinationHash,
         });
@@ -146,8 +146,8 @@ export const initiateExternalTransfer = async ({ source_account_number, destinat
 
         // Create transaction
         const transaction = await Transaction.create({
-            source_account: sourceAccount.id,
-            destination_account: destinationCheckResponse.data.id,
+            source_account: sourceAccount.account_number,
+            destination_account: destination_account_number,
             amount,
             fee_payer,
             content,
@@ -194,7 +194,7 @@ export const confirmExternalTransfer = async ({ otp_code, transaction_id, bank_c
         }
 
         // Update source account balance
-        const sourceAccount = await Account.findOne({ where: { id: transaction.source_account } });
+        const sourceAccount = await Account.findOne({ where: { account_number: transaction.source_account } });
         if (!sourceAccount || sourceAccount.balance < transaction.amount) {
             return { status: statusCode.STATUS_ERROR, message: 'Insufficient funds or invalid source account' };
         }
@@ -214,7 +214,7 @@ export const confirmExternalTransfer = async ({ otp_code, transaction_id, bank_c
 
         const depositSignature = await generateSignature(depositPayload, process.env.PRIVATE_KEY, bankConfig.SIGNATURE_TYPE);
         console.log("depositSignature", depositSignature)
-        const depositResponse = await axios.post(linkedBank.api_base_url + 'transfer/external/deposit', {
+        const depositResponse = await axios.post(linkedBank.deposit_api_url, {
             ...depositPayload,
             hash: depositHash,
             signature: depositSignature,
