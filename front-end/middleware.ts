@@ -6,33 +6,51 @@ import { checkRole, handleRefreshToken } from "./app/lib/actions/api";
 // This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const accessToken =  cookies().get("accessToken")?.value;
+  const accessToken = cookies().get("accessToken")?.value;
+  const refreshToken = cookies().get("refreshToken")?.value;
+  console.log(accessToken);
   let role = null;
-  if (accessToken) {
-    const payload = JSON.parse(atob(accessToken.split(".")[1]));
-    const exp = payload.exp * 1000;
-    const now = Date.now();
-    if (now > exp) {
-      const response = await handleRefreshToken();
-      console.log(await response.json());
+  if (!accessToken && refreshToken) {
+    const fetchRefreshTokenAPI = await handleRefreshToken();
+    if (fetchRefreshTokenAPI.status === 0) {
+      // setTokens(fetchRefreshTokenAPI.data.accessToken, undefined);
+      const response = NextResponse.next();
+      response.cookies.set(
+        "accessToken",
+        fetchRefreshTokenAPI.data.accessToken,
+        { maxAge: 30 }
+      );
+      return response;
     }
-    try {
-      const fetchRole = await checkRole(accessToken);
-      role = (await fetchRole.json()).role;
-    } catch (error) {
-      console.log(error);
+    if(fetchRefreshTokenAPI.status === -1) {
+      return NextResponse.redirect(new URL('/login', request.url));
     }
   }
   if (pathname.startsWith("/login") && accessToken) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
-  if (pathname.startsWith("/dashboard") && !accessToken) {
+  if (
+    (pathname.startsWith("/dashboard") ||
+      pathname.startsWith("/transaction") ||
+      pathname.startsWith("/transfer") ||
+      pathname.startsWith("/contacts") ||
+      pathname.startsWith("/payment-request")) &&
+    !accessToken
+  ) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
+
   NextResponse.next();
 }
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/login", "/dashboard"],
+  matcher: [
+    "/login",
+    "/dashboard",
+    "/transaction/:path*",
+    "/transfer/:path*",
+    "/contacts/:path*",
+    "/payment-request/:path*",
+  ],
 };
