@@ -8,15 +8,17 @@ import Link from "next/link";
 import clsx from "clsx";
 import { adminPaths, employeePaths, otherPaths, paths } from "@/app/lib/paths";
 
-export default function MiniNavBar() {
+export default function MiniNavBar({
+    userRole
+} : {
+    userRole: string
+}) {
     const pathname = usePathname();
     const sheetRef = useRef<SheetRef>(null)
 
     const openSheet = () => {
         sheetRef.current?.openSheet()
     }
-
-    const userRole = "admin"
 
     return (
         <>

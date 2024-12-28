@@ -71,7 +71,8 @@ export const registerController = async (req, res) => {
 
 // Refresh Token Controller
 export const refreshTokenController = async (req, res) => {
-    const token = req.cookies.refreshToken;
+    // const token = req.cookies.refreshToken;
+    const token = req.body.refreshToken;
 
     if (!token) {
         return res.status(401).json({ status: statusCode.ERROR, message: 'Refresh token missing' });
