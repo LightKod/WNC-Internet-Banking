@@ -12,6 +12,8 @@ import accountRouter from "./src/routes/account.route.js"
 import userRouter from "./src/routes/user.route.js"
 import userContactRouter from "./src/routes/user_contact.route.js";
 import transactionRouter from "./src/routes/transaction.route.js"
+import linkbankRoute from "./src/routes/linked_banks.route.js";
+
 const maxRetries = 5;
 const retryDelay = 5000;
 
@@ -54,6 +56,7 @@ app.use("/api/account", protectRoute, accountRouter);
 app.use("/api/user", protectRoute, userRouter);
 app.use("/api/user-contacts", protectRoute, userContactRouter);
 app.use("/api/transaction", protectRoute, transactionRouter);
+app.use("/api/linked-banks", linkbankRoute);
 app.use('/api/check-role', protectRoute, (req, res) => {
   res.status(200).json({ role: req.user.role });
 });
