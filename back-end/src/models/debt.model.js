@@ -7,11 +7,11 @@ const Debt = (sequelize) => {
             primaryKey: true,
             autoIncrement: true,
         },
-        creditor_account: {
+        creditor_account: { //Nguoi nhan
             type: DataTypes.STRING(20),
             allowNull: false,
         },
-        debtor_account: {
+        debtor_account: { //Nguoi tra
             type: DataTypes.STRING(20),
             allowNull: false,
         },
@@ -20,6 +20,10 @@ const Debt = (sequelize) => {
             allowNull: false,
         },
         description: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+        },
+        cancel_note: {
             type: DataTypes.TEXT,
             allowNull: true,
         },
@@ -32,8 +36,8 @@ const Debt = (sequelize) => {
             allowNull: true,
         },
         status: {
-            type: DataTypes.ENUM('PENDING', 'PAID', 'CANCELED'),
-            defaultValue: 'PENDING',
+            type: DataTypes.ENUM('NEW', 'UNREAD', 'PENDING', 'PAID', 'CANCELED'),
+            defaultValue: 'NEW',
         },
     }, {
         tableName: 'debts',

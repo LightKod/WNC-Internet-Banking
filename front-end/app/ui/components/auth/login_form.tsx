@@ -23,6 +23,15 @@ export default function LoginForm() {
   } = useForm<LoginInputs>({ resolver: zodResolver(LoginSchema) });
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
+
+  const [captchaValue, setCaptchaValue] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const handleCaptchaChange = (token: string | null) => {
+    setCaptchaValue(token);
+    // console.log(token);
+    setCaptchaError(null);
+  };
 
   const onSubmit: SubmitHandler<LoginInputs> = async (data: LoginInputs) => {
     console.log(data);
@@ -31,10 +40,15 @@ export default function LoginForm() {
       const response = await login({
         username: data.username,
         password: data.password,
+        captchaValue: captchaValue ?? ""
       });
       if (response.status === 401) {
         setError("username", { message: "Username or password is incorrect" });
         setError("password", { message: "Username or password is incorrect" });
+        return;
+      }
+      if(response.status === -1) {
+        setCaptchaError('Invalid Captcha');
         return;
       }
     } catch (error) {
@@ -44,12 +58,7 @@ export default function LoginForm() {
     }
   };
 
-  const [captchaValue, setCaptchaValue] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
-  const handleCaptchaChange = (token: string | null) => {
-    setCaptchaValue(token);
-    console.log(token);
-  };
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -95,6 +104,9 @@ export default function LoginForm() {
           sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
           onChange={handleCaptchaChange}
         />
+        {captchaError && (
+          <p className="text-xs text-red-700 mt-2">{captchaError}</p>
+        )}
       </div>
 
       <button

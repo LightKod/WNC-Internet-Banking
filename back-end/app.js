@@ -50,7 +50,7 @@ app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use("/api/auth", authRouter);
-app.use("/api/transfer", protectRoute, transferRouter);
+app.use("/api/transfer", transferRouter);
 app.use("/api/debt", protectRoute, debtRouter);
 app.use("/api/account", protectRoute, accountRouter);
 app.use("/api/user", protectRoute, userRouter);

@@ -5,7 +5,7 @@ import {
   SparklesIcon,
   CurrencyEuroIcon,
 } from "@heroicons/react/24/solid";
-import LoginForm from "../ui/components/auth/login_form";
+import LoginForm from "../../ui/components/auth/login_form";
 
 export default function Page() {
   return (
