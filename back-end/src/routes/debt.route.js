@@ -4,15 +4,19 @@ import {
     getDebtsByDebtorController,
     getDebtByCreditorController,
     readDebtStatusController,
-    readAllDebtsController
+    readAllDebtsController,
+    getDebtByIdController,
+    cancelDebtController
 } from '../controllers/debt.controller.js';
 
 const router = express.Router();
 
 router.post('/', createDebtController);
-router.get('/debtor', getDebtsByDebtorController);
-router.get('/creditor', getDebtByCreditorController);
+router.get('/:debtId', getDebtByIdController);
+router.get('/user/debtor', getDebtsByDebtorController);
+router.get('/user/creditor', getDebtByCreditorController);
 router.put('/read/:debtId', readDebtStatusController);
 router.put('/read-all', readAllDebtsController);
+router.post('/cancel', cancelDebtController);
 
 export default router;

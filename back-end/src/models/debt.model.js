@@ -23,6 +23,10 @@ const Debt = (sequelize) => {
             type: DataTypes.TEXT,
             allowNull: true,
         },
+        cancel_note: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+        },
         created_at: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW,

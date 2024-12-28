@@ -95,3 +95,50 @@ export const readAllDebtsService = async (user_id) => {
     });
     return debts;
 }
+
+export const getDebtByIdService = async (debtId) => {
+    const debt = await Debt.findOne({
+        where: { id: debtId },
+    });
+
+    if (!debt) {
+        throw new Error("Debt not found");
+    }
+
+    return debt;
+};
+
+
+export const cancelDebtService = async (userId, debtId, cancelNote) => {
+    const userAccount = await getPaymentAccountsByUserIdService(userId);
+
+    if (!userAccount) {
+        throw new Error('User account not found');
+    }
+    const debt = await Debt.findOne({
+        where: { id: debtId },
+    });
+    if (!debt) {
+        throw new Error('Debt not found');
+    }
+
+    if (debt.creditor_account !== userAccount.account_number && debt.debtor_account !== userAccount.account_number) {
+        throw new Error('You are not authorized to cancel this debt');
+    }
+
+    if (debt.status === 'PAID') {
+        throw new Error('Paid debts cannot be canceled');
+    }
+
+    if (debt.status === 'CANCELED') {
+        throw new Error('This debt is already canceled');
+    }
+
+    // Update debt status to 'CANCELED' and add the cancel note
+    await debt.update({
+        status: 'CANCELED',
+        cancel_note: cancelNote,
+    });
+
+    return debt;
+};

@@ -1,6 +1,7 @@
 import {
     createDebtService, getDebtsByDebtorService, getDebtByCreditorService,
-    setDebtStatusToUnReadService, readDebtService, readAllDebtsService
+    setDebtStatusToUnReadService, readDebtService, readAllDebtsService,
+    getDebtByIdService, cancelDebtService
 } from '../services/debt.service.js';
 import statusCode from '../constants/statusCode.js';
 import { z } from "zod";
@@ -141,6 +142,45 @@ export const readAllDebtsController = async (req, res) => {
         console.error('Error updating all debts status:', error);
         res.status(500).json({
             status: statusCode.ERROR,
+            message: error.message,
+        });
+    }
+};
+
+export const getDebtByIdController = async (req, res) => {
+    try {
+        const { debtId } = req.params;
+        const debt = await getDebtByIdService(debtId);
+
+        res.status(200).json({
+            status: "success",
+            message: "Debt fetched successfully",
+            data: debt,
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: "error",
+            message: error.message,
+        });
+    }
+};
+
+
+
+export const cancelDebtController = async (req, res) => {
+    try {
+        const user = req.user;
+        const { debtId, cancelNote } = req.body;
+
+        const result = await cancelDebtService(user.id, debtId, cancelNote);
+
+        res.status(200).json({
+            status: 'success',
+            data: result,
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'error',
             message: error.message,
         });
     }
