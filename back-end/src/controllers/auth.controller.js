@@ -2,7 +2,10 @@ import { z } from 'zod';
 import {
     loginService,
     registerService,
-    refreshTokenService
+    refreshTokenService,
+    sendResetPasswordOtp,
+    verifyResetPasswordOtp,
+    resetPassword
 } from '../services/auth.service.js';
 import statusCode from '../constants/statusCode.js';
 
@@ -89,5 +92,83 @@ export const refreshTokenController = async (req, res) => {
     } catch (error) {
         console.error('Error during token refresh:', error);
         res.status(403).json({ status: statusCode.ERROR, message: 'Invalid refresh token' });
+    }
+};
+export const sendResetPasswordOtpController = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const result = await sendResetPasswordOtp(email);
+
+        if (result.success) {
+            res.status(200).json({
+                status: statusCode.SUCCESS,
+                data: result.data,
+                message: 'OTP sent successfully to email.',
+            });
+        } else {
+            res.status(200).json({
+                status: statusCode.ERROR,
+                message: result.message,
+            });
+        }
+    } catch (error) {
+        console.error('Error in sendResetPasswordOtpController:', error);
+        res.status(500).json({
+            status: statusCode.ERROR,
+            message: 'Internal server error.',
+        });
+    }
+};
+
+export const verifyResetPasswordOtpController = async (req, res) => {
+    const { otp_code, email, otp_id } = req.body;
+
+    try {
+        const isValid = await verifyResetPasswordOtp(otp_code, email, otp_id);
+
+        if (isValid) {
+            res.status(200).json({
+                status: statusCode.SUCCESS,
+                message: 'OTP verified successfully.',
+            });
+        } else {
+            res.status(200).json({
+                status: statusCode.ERROR,
+                message: 'Invalid or expired OTP.',
+            });
+        }
+    } catch (error) {
+        console.error('Error in verifyResetPasswordOtpController:', error);
+        res.status(500).json({
+            status: statusCode.ERROR,
+            message: 'Internal server error.',
+        });
+    }
+};
+
+export const resetPasswordController = async (req, res) => {
+    const { otp_id, new_password } = req.body;
+
+    try {
+        const result = await resetPassword(otp_id, new_password);
+
+        if (result.success) {
+            res.status(200).json({
+                status: statusCode.SUCCESS,
+                message: 'Password reset successfully.',
+            });
+        } else {
+            res.status(200).json({
+                status: statusCode.ERROR,
+                message: result.message,
+            });
+        }
+    } catch (error) {
+        console.error('Error in resetPasswordController:', error);
+        res.status(500).json({
+            status: statusCode.ERROR,
+            message: 'Internal server error.',
+        });
     }
 };
