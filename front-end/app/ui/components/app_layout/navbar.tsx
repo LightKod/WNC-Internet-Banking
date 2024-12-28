@@ -5,10 +5,12 @@ import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
 
-export default function NavBar() {
+export default function NavBar({
+    userRole
+} : {
+    userRole: string
+}) {
     const pathname = usePathname();
-
-    const userRole = "admin"
     
     return (
         <div className="h-full flex-col overflow-y-auto border-r-2 p-2 gap-y-4 border-slate-100 hidden md:flex">

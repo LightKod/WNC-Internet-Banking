@@ -2,26 +2,19 @@
 
 import { BankAccount } from "@/app/lib/definitions/definition"
 import { EyeIcon, EyeSlashIcon, InformationCircleIcon } from "@heroicons/react/24/outline"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import AccountBalance from "./account_balance"
 import { formatMoney } from "@/app/lib/utilities/utilities"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../universal/tooltip"
+import { getUserAccounts } from "@/app/lib/actions/actions"
 
 // This one fetch user's account list, count the total amount of money and display
-export default function MyBalance() {
+export default function MyBalance({
+    bankAccounts
+} : {
+    bankAccounts: BankAccount[]
+}) {
     const [isShowing, setIsShowing] = useState<boolean>(false)
-    const bankAccounts: BankAccount[] = [
-        {
-            accountType: "payment",
-            accountNumber: "111222233334444",
-            balance: "24847123"
-        },
-        {
-            accountType: "saving",
-            accountNumber: "845621522487763",
-            balance: "1000000000"
-        },
-    ]
 
     return (
         <div className="group flex flex-col">
@@ -48,8 +41,8 @@ export default function MyBalance() {
                 </div>
                 <div className="text-gray-950 text-3xl font-semibold">{`${isShowing ? formatMoney(
                     bankAccounts.reduce((sum, account) => {
-                        return (BigInt(sum) + BigInt(account.balance)).toString()
-                    }, "0")
+                        return sum + parseFloat(account.balance)
+                    }, 0).toString()
                 ) : "xxx, xxx"} VND`}</div>
             </div>
             <div className="flex flex-col mx-4 gap-y-2 -mt-8 group-hover:mx-0 group-hover:mt-0 group-hover:pt-2 transition-all duration-300">
