@@ -1,5 +1,5 @@
 import express from 'express';
-import {getBankAccountByAccountNumberController, getAccountsByUserIdController, getPaymentAccountsByUserIdController, getUserDataByAccountNumberController } from "../controllers/account.controller.js";
+import { getBankAccountByAccountNumberController, getAccountsByUserIdController, getPaymentAccountsByUserIdController, getUserDataByAccountNumberController } from "../controllers/account.controller.js";
 
 const router = express.Router();
 
