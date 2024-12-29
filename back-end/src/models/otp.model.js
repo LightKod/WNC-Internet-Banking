@@ -9,7 +9,15 @@ const OTP = (sequelize) =>{
         },
         transaction_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
+        },
+        user_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true, 
+        },
+        purpose: {
+            type: DataTypes.ENUM('transaction', 'reset_password'),
+            defaultValue: 'transaction',
         },
         otp_code: {
             type: DataTypes.STRING(6),
