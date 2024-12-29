@@ -9,6 +9,7 @@ import React, { forwardRef, useContext, useEffect, useImperativeHandle, useRef, 
 import { useForm, UseFormGetValues, UseFormSetValue } from "react-hook-form"
 import { PageContentContext } from "./transfer_page_content"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../universal/tooltip"
+import { getInternalUserFromBankAccount, getUserAccounts, internalTransfer } from "@/app/lib/actions/actions"
 
 interface InternalTransferProps {
 }
@@ -41,28 +42,27 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
         },
     ]
 
-    const { handleSubmit, register, setValue, getValues, watch, formState: { errors } } = useForm<InternalTransferFormValues>({
+    const { handleSubmit, register, setValue, getValues, watch, formState: { errors, isValid } } = useForm<InternalTransferFormValues>({
         resolver: zodResolver(internalTransferSchema)
     })
 
+    const [sourceBankAccounts, setSourceBankAccounts] = useState<BankAccount[]>([])
     const [isFetchingReceiver, setIsFetchingReceiver] = useState<boolean>(false)
     const [receiverBankAccount, setReceiverBankAccount] = useState<Contact | null>(null)
 
-    const onSubmit = (data: InternalTransferFormValues) => {
+    const onSubmit = async (data: InternalTransferFormValues) => {
         console.log(data)
-        context.setTransactionId("1")
-        context.nextStep()
+        const transactionId = await internalTransfer(data)
+        if(transactionId !== "-1") {
+            context.setTransactionId(transactionId)
+            context.nextStep()
+        }
     }
 
     const [receiverAccountNumber, amount] = watch(["receiverAccountNumber", "amount"])
     useEffect(() => {
         const fetchReceiver = async () => {
-            const receiver: Contact = {
-                name: "Jerry B.",
-                accountNumber: "123456789101112",
-                bankName: "Internal"
-            }
-
+            const receiver: Contact | null = await getInternalUserFromBankAccount(receiverAccountNumber) 
             setReceiverBankAccount(receiver)
             setIsFetchingReceiver(false)
         }
@@ -76,7 +76,15 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
     }, [receiverAccountNumber])
 
     useEffect(() => {
-        setValue("senderAccountNumber", dummyBankAccounts[0].accountNumber)
+        const fetchSourceAccounts = async () => {
+            const result = await getUserAccounts()
+            setSourceBankAccounts(result)
+            if(result.length !== 0) {
+                setValue("senderAccountNumber", result[0].accountNumber)
+            }
+        }
+
+        fetchSourceAccounts()
         setValue("isSelfFeePayment", "true")
     }, [])
 
@@ -103,7 +111,7 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
                     <div className="flex flex-col gap-y-2">
                         <div className="text-sm text-gray-950 font-semibold">Transfer source</div>
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                            {dummyBankAccounts.map((account, index) => (
+                            {sourceBankAccounts.map((account, index) => (
                                 <label key={index} htmlFor={`senderAccountNumber_${index}`} className="group flex gap-x-4 p-4 items-center border-2 border-slate-300 rounded-md hover:border-blue-600 has-[:checked]:border-blue-600 transition-all duration-300 cursor-pointer">
                                     <input {...register("senderAccountNumber")} id={`senderAccountNumber_${index}`} type="radio" value={account.accountNumber} className="peer hidden"/>
                                     <div className="relative w-4 h-4 border-2 border-slate-300 group-hover:border-blue-600 peer-checked:border-blue-600 rounded-full shrink-0 transition-all duration-300
@@ -112,7 +120,7 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
                                         <span className="font-medium text-xs text-gray-500">
                                             {account.accountType === "payment" ? "Payment account" : "Account"}
                                         </span>
-                                        <span className="text-gray-950 font-semibold">{`${formatMoney(account.balance)} VND`}</span>
+                                        <span className="text-gray-950 font-semibold">{`${formatMoney(account.balance.split('.')[0])} VND`}</span>
                                         <span className="text-gray-500 text-sm">{formatAccountNumber(account.accountNumber)}</span>
                                     </div>
                                 </label>
@@ -189,7 +197,7 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
                 </div>
                 <div className="w-full h-full pt-4 md:pl-4 md:pt-0">
                     <div className="flex flex-col gap-y-2">
-                        <button type="button" onClick={handleSubmit(() => {context.nextStep(); context.setIsFormValid(true)})} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 transition-colors duration-300">
+                        <button type="button" onClick={handleSubmit(() => {context.nextStep(); context.setIsFormValid(true)})} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed transition-colors duration-300" disabled={!isValid}>
                             <ArrowRightIcon className="w-4"/>
                             <p>Continue</p>
                         </button>

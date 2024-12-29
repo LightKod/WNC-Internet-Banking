@@ -10,7 +10,7 @@ import VerifyOTP from "./verify_otp"
 import SuccessfulTransfer from "./successful_transfer"
 import FailedTransfer from "./failed_transfer"
 import Modal, { ModalRef } from "../universal/modal"
-import { Contact } from "@/app/lib/definitions/definition"
+import { APIResponse, Contact } from "@/app/lib/definitions/definition"
 import { formatAccountNumber } from "@/app/lib/utilities/utilities"
 import { InterbankTransferForm, InterbankTransferRef } from "./interbank_transfer_form"
 
@@ -22,7 +22,7 @@ interface PageContentContextType {
     setIsFormValid: React.Dispatch<React.SetStateAction<boolean>>,
     transactionId: string,
     setTransactionId: React.Dispatch<React.SetStateAction<string>>,
-    setIsTransactionSuccessful: React.Dispatch<React.SetStateAction<boolean | null>>,
+    setIsTransactionSuccessful: React.Dispatch<React.SetStateAction<APIResponse | null>>,
     internalFormRef: RefObject<InternalTransferRef>,
     interbankFormRef: RefObject<InterbankTransferRef>
     handleOpenModal: () => void
@@ -34,7 +34,7 @@ export default function TransferPageContent() {
     const [transferType, setTransferType] = useState<string | null>(null)
     const [isFormValid, setIsFormValid] = useState<boolean>(false)
     const [transactionId, setTransactionId] = useState<string>("")
-    const [isTransactionSuccessful, setIsTransactionSuccessful] = useState<boolean | null>(null)
+    const [isTransactionSuccessful, setIsTransactionSuccessful] = useState<APIResponse | null>(null)
 
     const stepIndicatorRef = useRef<StepIndicatorRef>(null)
     const pageSliderRef = useRef<PageSliderRef>(null)
@@ -175,7 +175,7 @@ export default function TransferPageContent() {
                             {transactionId !== "" && <VerifyOTP/>}
                         </Page>
                         <Page>
-                            {isTransactionSuccessful === true && <SuccessfulTransfer/>}
+                            {isTransactionSuccessful?.isSuccessful && <SuccessfulTransfer/>}
                         </Page>
                     </PageSlider>
                 </PageContentContext.Provider>
