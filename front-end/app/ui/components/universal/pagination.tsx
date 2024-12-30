@@ -82,42 +82,44 @@ export default function Pagination({ totalPages }: { totalPages: number }) {
       );
     }
   };
-
-  return (
-    <nav aria-label="Page navigation example">
-      <ul className="flex items-center -space-x-px h-10 text-base">
-        <ArrowButton
-          direction="left"
-          isDisabled={currentPage <= 1}
-          handleClick={() => {
-            if (currentPage > 1) {
-              currentPage--;
-              const params = new URLSearchParams();
-              params.set("page", currentPage.toString());
-              replace(`${pathname}?${params.toString()}`);
-            }
-          }}
-        />
-        <li className="cursor-default flex items-center justify-center px-4 h-12 leading-tight text-gray-700 bg-white border-2 border-slate-100">
-          <span className=" select-none">
-            {/* {currentPage + 1} /{" "}
-            {totalPages === 0 ? currentPage + 1 : totalPages} */}
-            {currentPage} / {totalPages}
-          </span>
-        </li>
-        <ArrowButton
-          direction="right"
-          isDisabled={currentPage >= totalPages}
-          handleClick={() => {
-            if (currentPage < totalPages) {
-              currentPage++;
-              const params = new URLSearchParams();
-              params.set("page", currentPage.toString());
-              replace(`${pathname}?${params.toString()}`);
-            }
-          }}
-        />
-      </ul>
-    </nav>
-  );
+  
+  if(totalPages !== 0) {
+    return (
+      <nav aria-label="Page navigation example">
+        <ul className="flex items-center -space-x-px h-10 text-base">
+          <ArrowButton
+            direction="left"
+            isDisabled={currentPage <= 1}
+            handleClick={() => {
+              if (currentPage > 1) {
+                currentPage--;
+                const params = new URLSearchParams(searchParams);
+                params.set("page", currentPage.toString());
+                replace(`${pathname}?${params.toString()}`);
+              }
+            }}
+          />
+          <li className="cursor-default flex items-center justify-center px-4 h-12 leading-tight text-gray-700 bg-white border-2 border-slate-100">
+            <span className=" select-none">
+              {/* {currentPage + 1} /{" "}
+              {totalPages === 0 ? currentPage + 1 : totalPages} */}
+              {totalPages === 0 ? '1/1' : currentPage + '/' + totalPages}
+            </span>
+          </li>
+          <ArrowButton
+            direction="right"
+            isDisabled={currentPage >= totalPages}
+            handleClick={() => {
+              if (currentPage < totalPages) {
+                currentPage++;
+                const params = new URLSearchParams(searchParams);
+                params.set("page", currentPage.toString());
+                replace(`${pathname}?${params.toString()}`);
+              }
+            }}
+          />
+        </ul>
+      </nav>
+    );
+  }
 }
