@@ -32,7 +32,7 @@ export const login = async ({username, password, captchaValue}: {username: strin
             };
         }
         const dataJson = await response.json();
-        cookies().set('accessToken', dataJson.data.accessToken, { maxAge: 30 });
+        cookies().set('accessToken', dataJson.data.accessToken, { maxAge: 60 * 15 });
         cookies().set('refreshToken', dataJson.data.refreshToken, {maxAge: 60 * 60 * 24 * 7});
         redirect('/dashboard');
     } catch(error) {
