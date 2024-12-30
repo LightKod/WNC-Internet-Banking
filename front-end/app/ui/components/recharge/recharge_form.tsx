@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import React, { forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState } from "react"
 import { useForm, UseFormGetValues, UseFormSetValue } from "react-hook-form"
 import { PageContentContext } from "./recharge_page_content"
+import { APIResponse } from "@/app/lib/definitions/definition"
+import { rechargeCustomerAccount } from "@/app/lib/actions/employee_actions"
 
 interface RechargeProps {
 }
@@ -24,15 +26,14 @@ export const RechargeForm = forwardRef<RechargeRef, RechargeProps>(function Rech
         throw new Error('Something went wrong')
     }
 
-    const { handleSubmit, register, getValues, setValue, watch, formState: { errors } } = useForm<RechargeFormValues>({
-        resolver: zodResolver(rechargeSchema)
+    const { handleSubmit, register, getValues, setValue, watch, formState: { errors, isValid } } = useForm<RechargeFormValues>({
+        resolver: zodResolver(rechargeSchema),
+        mode: "onChange"
     })
 
-    const onSubmit = (data: RechargeFormValues) => {
-        console.log(data)   
-
-        // Supposing that the request is successful
-        context.setIsRequestSuccessful(true)
+    const onSubmit = async (data: RechargeFormValues) => {
+        const result: APIResponse = await rechargeCustomerAccount(data)
+        context.setIsRequestSuccessful(result)
         context.nextStep()
     }
 
@@ -98,10 +99,11 @@ export const RechargeForm = forwardRef<RechargeRef, RechargeProps>(function Rech
                 </div>
                 <div className="w-full h-full pt-4 md:pl-4 md:pt-0">
                     <div className="flex flex-col gap-y-2">
-                        <button type="button" onClick={handleSubmit(() => {context.nextStep(); context.setIsFormValid(true)})} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 transition-colors duration-300">
+                        <button type="button" onClick={handleSubmit(() => {context.nextStep(); context.setIsFormValid(true)})} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed transition-colors duration-300" disabled={!isValid}>
                             <ArrowRightIcon className="w-4"/>
                             <p>Continue</p>
                         </button>
+                        {!isValid && <p className="text-red-500 text-xs">You have not completed the form yet</p>}
                     </div>
                 </div>
             </form>

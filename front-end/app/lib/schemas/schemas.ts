@@ -138,15 +138,15 @@ export const customerRegisterSchema = z.object({
     username: z.string({
         invalid_type_error: "Invalid data",
         required_error: "This field is required"
-    }).trim().min(1, {
-        message: "This field is required"
+    }).trim().min(3, {
+        message: "This field is required and must has at least 3 characters"
     }).max(100, {
         message: "The content is too long (max: 100 characters)"
     }),
     password: z.string({
         invalid_type_error: "Invalid data",
         required_error: "This field is required"
-    }).trim().min(6, {
+    }).trim().min(8, {
         message: "Password's length must have at least 6 characters"
     }).max(100, {
         message: "Password is too long (max: 100 characters)"
@@ -157,8 +157,8 @@ export const customerRegisterSchema = z.object({
     name: z.string({
         invalid_type_error: "Invalid data",
         required_error: "This field is required"
-    }).trim().min(1, {
-        message: "This field is required"
+    }).trim().min(3, {
+        message: "This field is required and must has at least 3 characters"
     }).max(100, {
         message: "The content is too long (max: 100 characters)"
     }),
