@@ -43,7 +43,8 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
     ]
 
     const { handleSubmit, register, setValue, getValues, watch, formState: { errors, isValid } } = useForm<InternalTransferFormValues>({
-        resolver: zodResolver(internalTransferSchema)
+        resolver: zodResolver(internalTransferSchema),
+        mode: "onChange"
     })
 
     const [sourceBankAccounts, setSourceBankAccounts] = useState<BankAccount[]>([])
@@ -205,6 +206,7 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
                             <ArrowLeftIcon className="w-4"/>
                             <p>Back</p>
                         </button>
+                        {!isValid && <p className="text-red-500 text-xs">You have not completed the form yet</p>}
                     </div>
                 </div>
             </form>
