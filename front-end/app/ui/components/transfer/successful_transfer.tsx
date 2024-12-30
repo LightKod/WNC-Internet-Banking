@@ -1,13 +1,14 @@
 'use client'
 
 import { CheckCircleIcon, CheckIcon, ClipboardIcon, XMarkIcon } from "@heroicons/react/24/outline"
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { PageContentContext } from "./transfer_page_content"
 import { formatAccountNumber, formatMoney } from "@/app/lib/utilities/utilities"
 import clsx from "clsx"
 import { ArrowLeftIcon, ArrowPathIcon, ArrowRightIcon } from "@heroicons/react/16/solid"
 import Link from "next/link"
 import { linkedLibraryDict } from "@/app/lib/definitions/definition"
+import { addContact, checkContactExistence } from "@/app/lib/actions/actions"
 
 export default function SuccessfulTransfer() {
     const context = useContext(PageContentContext)
@@ -40,14 +41,29 @@ export default function SuccessfulTransfer() {
         }
     }
 
-    const [isSaveContactShowing, setIsSaveContactShowing] = useState<boolean>(true)
+    const [isSaveContactShowing, setIsSaveContactShowing] = useState<boolean>(false)
     const [isContactSaved, setIsContactSaved] = useState<boolean>(false)
 
-    const handleSaveContact = () => {
-        console.log("Saved contact")
-
+    const handleSaveContact = async () => {
+        // if(context.transferType === "internal") {
+        //     const result = await addContact(receiverBankAccount!.accountNumber, receiverBankAccount!.name, "", "")
+        //     if(result === true) {
+        //         setIsContactSaved(true)
+        //     }
+        // }
         setIsContactSaved(true)
     }
+
+    useEffect(() => {
+        const checkExistence = async () => {
+            if(context.transferType === "internal") {
+                const result = await checkContactExistence(receiverBankAccount!.accountNumber, "")
+                setIsSaveContactShowing(!result)
+            }
+        }
+
+        checkExistence()
+    }, [])
 
     return (
         <div className="flex flex-col gap-y-8 px-8 pb-8">

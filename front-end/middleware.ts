@@ -13,11 +13,12 @@ export async function middleware(request: NextRequest) {
   if (!accessToken && refreshToken) {
     const fetchRefreshTokenAPI = await handleRefreshToken();
     if (fetchRefreshTokenAPI.status === 0) {
-      const response = NextResponse.next();
+      // setTokens(fetchRefreshTokenAPI.data.accessToken, undefined);
+      const response = NextResponse.redirect(request.nextUrl);
       response.cookies.set(
         "accessToken",
         fetchRefreshTokenAPI.data.accessToken,
-        { maxAge: 60 * 15 }
+        { maxAge: 15 * 60 }
       );
       return response;
     }

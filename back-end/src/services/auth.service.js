@@ -2,8 +2,8 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import db from '../models/index.model.js'
 import { createAccountService } from './account.service.js'
-
-const { User, Account, RefreshToken } = db;
+import { Op } from 'sequelize';
+const { User, Account, RefreshToken,OTP } = db;
 
 // Generate JWT tokens
 const generateAccessToken = (user) => jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
@@ -69,4 +69,78 @@ export const refreshTokenService = async (token) => {
     }
 
     return generateAccessToken({ id: userId });
+};
+const OTP_EXPIRATION_TIME = 10 * 60 * 1000; // 10 minutes
+
+export const sendResetPasswordOtp = async (email) => {
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+        return { success: false, message: 'Email not found.' };
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const otp = await OTP.create({
+        user_id: user.id,
+        purpose: 'reset_password',
+        otp_code: otpCode,
+    });
+
+    // Send OTP via email (implement email service here)
+    console.log(`Send OTP: ${otpCode} to ${email}`);
+
+    return { success: true ,data : otp.id};
+};
+
+export const verifyResetPasswordOtp = async (otp_code, email, otp_id) => {
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+        return { success: false, message: 'Email not found.' };
+    }
+    const otp = await OTP.findOne({
+        where: {
+            id: otp_id,
+            otp_code,
+            purpose: 'reset_password',
+            status: 'pending',
+            user_id: user.id,
+            created_at: { 
+                [Op.gte]: new Date(Date.now() - OTP_EXPIRATION_TIME), // OTP được tạo trong vòng 10 phút trước
+            },        },
+    });
+
+    if (!otp) {
+        return false;
+    }
+
+    await otp.update({ status: 'confirmed' });
+    return true;
+};
+
+export const resetPassword = async (otp_id, new_password) => {
+    const otp = await OTP.findOne({
+        where: {
+            id: otp_id,
+            purpose: 'reset_password',
+            status: 'confirmed',
+        },
+    });
+
+    if (!otp) {
+        return { success: false, message: 'Invalid or expired OTP.' };
+    }
+
+    const user = await User.findOne({ where: { id: otp.user_id } });
+
+    if (!user) {
+        return { success: false, message: 'User not found.' };
+    }
+
+    const hashedPassword = await bcrypt.hash(new_password, 10);
+    await user.update({ password: hashedPassword });
+    await otp.update({ status: 'used' });
+
+    return { success: true };
 };

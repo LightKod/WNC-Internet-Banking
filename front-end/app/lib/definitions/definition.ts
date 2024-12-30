@@ -21,3 +21,11 @@ export const linkedLibraryDict: { [key: string]: {
 }
 
 export const linkedLibraryEnum = ["PGP"] as const
+
+export const BASE_URL = 'http://localhost:80/api'
+
+export type APIResponse = {
+    isSuccessful: boolean,
+    error?: any,
+    data?: any
+}

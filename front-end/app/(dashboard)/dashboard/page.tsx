@@ -1,9 +1,11 @@
 import { revalidateDashboard } from "@/app/lib/actions/revalidation";
+import BlockLoading from "@/app/ui/components/dashboard/block_loading";
 import DebtReminder from "@/app/ui/components/dashboard/debt_reminder";
-import MyBalance from "@/app/ui/components/dashboard/my_balance";
+import MyBalanceWrapper from "@/app/ui/components/dashboard/my_balance_wrapper";
 import QuickTransfer from "@/app/ui/components/dashboard/quick_transfer";
 import TransactionHistory from "@/app/ui/components/dashboard/transaction_history";
 import { ArrowPathIcon } from "@heroicons/react/16/solid";
+import { Suspense } from "react";
 
 export default function Page() {
     return (
@@ -19,7 +21,9 @@ export default function Page() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-[3fr_5fr] gap-4">
                 <div className="flex flex-col gap-y-4">
-                    <MyBalance/>
+                    <Suspense fallback={<BlockLoading/>}>
+                        <MyBalanceWrapper/>
+                    </Suspense>
                     <QuickTransfer/>
                 </div>
                 <div className="flex flex-col gap-y-4">

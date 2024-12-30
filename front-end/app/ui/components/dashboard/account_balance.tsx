@@ -42,7 +42,7 @@ export default function AccountBalance({
                     )}
                 </button>
             </div>
-            <div className="text-gray-950 text-xl font-medium">{`${isShowing ? formatMoney(data.balance) : "xxx, xxx"} VND`}</div>
+            <div className="text-gray-950 text-xl font-medium">{`${isShowing ? formatMoney(data.balance.split('.')[0]) : "xxx, xxx"} VND`}</div>
             <div className="flex gap-x-2 justify-between items-center">
                 <span className="text-gray-500 text-sm">{formatAccountNumber(data.accountNumber)}</span>
                 <button onClick={handleCopyAccountNumber} className={clsx(
