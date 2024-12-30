@@ -19,10 +19,10 @@ export const initiateTransfer = async (req, res) => {
         });
 
         if (result.status === statusCode.ERROR) {
-            return res.status(200).json({ data: {}, message: result.message, status: statusCode.ERROR });
+            return res.status(200).json({ data: {}, message: result.message,code: result.code, status: statusCode.ERROR });
         }
 
-        res.status(200).json({ data: result, message: result.message, status: statusCode.SUCCESS });
+        res.status(200).json({ data: result, message: result.message,code: result.code, status: statusCode.SUCCESS });
     } catch (err) {
         console.error('Error during transfer initiation:', err);
         res.status(500).json({ error: 'Failed to initiate transfer', status: statusCode.ERROR });
@@ -38,10 +38,10 @@ export const confirmTransfer = async (req, res) => {
         const result = await transferService.confirmTransfer({ otp_code, transaction_id: transaction_id });
 
         if (result.status === statusCode.ERROR) {
-            return res.status(400).json({ message: result.message, status: statusCode.ERROR });
+            return res.status(400).json({ message: result.message,code: result.code, status: statusCode.ERROR });
         }
 
-        res.status(200).json({ message: 'Transfer completed successfully', status: statusCode.SUCCESS });
+        res.status(200).json({ message: 'Transfer completed successfully',code: result.code, status: statusCode.SUCCESS });
     } catch (err) {
         console.error('Error during transfer confirmation:', err);
         res.status(500).json({ error: 'Failed to complete transfer', status: statusCode.ERROR });
@@ -62,10 +62,10 @@ export const initiateExternalTransfer = async (req, res) => {
             user,
         });
         if (result.status === statusCode.ERROR) {
-            return res.status(400).json({ message: result.message, status: statusCode.ERROR });
+            return res.status(400).json({ message: result.message,code: result.code, status: statusCode.ERROR });
         }
 
-        res.status(200).json({ data: result.data, message: result.message, status: statusCode.SUCCESS });
+        res.status(200).json({ data: result.data, message: result.message,code: result.code, status: statusCode.SUCCESS });
     } catch (err) {
         console.error('Error during external transfer initiation:', err);
         res.status(500).json({ error: 'Failed to initiate external transfer', status: statusCode.ERROR });
@@ -79,10 +79,10 @@ export const confirmExternalTransfer = async (req, res) => {
         const result = await transferService.confirmExternalTransfer({ otp_code, transaction_id, bank_code, signature });
 
         if (result.status === statusCode.ERROR) {
-            return res.status(400).json({ message: result.message, status: statusCode.ERROR });
+            return res.status(400).json({ message: result.message,code: result.code, status: statusCode.ERROR });
         }
 
-        res.status(200).json({ message: result.message, status: statusCode.SUCCESS });
+        res.status(200).json({ message: result.message,code: result.code, status: statusCode.SUCCESS });
     } catch (err) {
         console.error('Error during external transfer confirmation:', err);
         res.status(500).json({ error: 'Failed to confirm external transfer', status: statusCode.ERROR });
@@ -168,6 +168,7 @@ export const deposit = async (req, res) => {
             content: 'Internal deposit',
             transaction_type: 'internal-deposit',
             status: 'SUCCESS',
+            source_bank: bank_code,
         });
         const responseData = { account_number, new_balance: account.balance, bank_code };
         const signedResponse = await generateSignature(responseData, process.env.PRIVATE_KEY, process.env.SIGNATURE_TYPE);

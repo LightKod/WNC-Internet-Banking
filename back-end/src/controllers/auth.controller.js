@@ -11,6 +11,7 @@ import statusCode from '../constants/statusCode.js';
 
 const registerSchema = z.object({
     username: z.string().min(3).max(50, "Username must be between 3 and 50 characters").nonempty("Username is required"),
+    name: z.string().min(3).max(50, "Name must be between 3 and 50 characters").nonempty("Name is required"),
     password: z.string().min(8, "Password must be at least 8 characters long").nonempty("Password is required"),
     email: z.string().email("Invalid email format").nonempty("Email is required"),
     phone_number: z.string().regex(/^[0-9]{10,15}$/, "Phone number must be between 10 and 15 digits").nonempty("Phone number is required"),
@@ -44,10 +45,10 @@ export const loginController = async (req, res) => {
 
 // Register Controller
 export const registerController = async (req, res) => {
-    const { username, password, email, phone_number } = req.body;
+    const { username,name, password, email, phone_number } = req.body;
 
     try {
-        const parsed = registerSchema.safeParse({ username, password, email, phone_number });
+        const parsed = registerSchema.safeParse({ username,name, password, email, phone_number });
 
         if (!parsed.success) {
             return res.status(400).json({
@@ -56,7 +57,7 @@ export const registerController = async (req, res) => {
             });
         }
 
-        const userId = await registerService(username, password, email, phone_number);
+        const userId = await registerService(username,name, password, email, phone_number);
 
         res.status(201).json({
             status: statusCode.SUCCESS,

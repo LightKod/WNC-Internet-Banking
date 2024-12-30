@@ -35,7 +35,7 @@ export const loginService = async (username, password) => {
 };
 
 // Register Service
-export const registerService = async (username, password, email, phone_number) => {
+export const registerService = async (username,name, password, email, phone_number) => {
     const existingUser = await User.findOne({ where: { username } });
     if (existingUser) {
         throw new Error('Username already exists');
@@ -47,6 +47,7 @@ export const registerService = async (username, password, email, phone_number) =
         username,
         password: hashedPassword,
         email,
+        name,
         phone_number,
     });
 

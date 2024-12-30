@@ -21,20 +21,10 @@ export const searchTransactions = async (filters) => {
         }
 
         const offset = (page - 1) * ITEMS_PER_PAGE;
-
+        console.log("whereClause",whereClause);
         const transactions = await Transaction.findAll({
             where: whereClause,
-            attributes: [
-                'id',
-                'source_account',
-                'destination_account',
-                'amount',
-                'transaction_type',
-                'status',
-                'transaction_date',
-                'content',
-                'remarks',
-            ],
+            
             limit: ITEMS_PER_PAGE,
             offset,
             order: [['transaction_date', 'DESC']],

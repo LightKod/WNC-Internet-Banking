@@ -16,6 +16,10 @@ const User = (sequelize) => {
         unique: true,
         allowNull: false,
       },
+      name: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+      },
       password: {
         type: DataTypes.STRING(255),
         allowNull: false,

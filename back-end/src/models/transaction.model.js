@@ -41,6 +41,14 @@ const Transaction = (sequelize) => {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
       },
+      source_bank: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+      },
+      destination_bank: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+      },
       remarks: {
         type: DataTypes.STRING(255),
         allowNull: true,

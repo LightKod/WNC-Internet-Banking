@@ -5,7 +5,20 @@ import statusCode from '../constants/statusCode.js';
 import { generateRequestHash, generateSignature, verifyRequestHash, verifySignature } from '../utils/security.js'
 import axios from 'axios';
 import EmailService from './sendMail.service.js'; // Hàm gửi OTP qua email
-
+const ErrorCodes = {
+    SUCCESS: { code: 0, message: "Success" },
+    INVALID_OTP: { code: 1, message: "Invalid or expired OTP" },
+    OTP_EXPIRED: { code: 2, message: "OTP has expired" },
+    TRANSACTION_NOT_FOUND: { code: 3, message: "Transaction not found or already processed" },
+    INSUFFICIENT_FUNDS: { code: 4, message: "Insufficient funds in source account" },
+    ACCOUNT_NOT_FOUND: { code: 5, message: "Source or destination account not found" },
+    BANK_NOT_LINKED: { code: 6, message: "Bank not linked" },
+    INVALID_ACCOUNT: { code: 7, message: "Invalid account information" },
+    INVALID_AMOUNT: { code: 8, message: "Invalid deposit amount" },
+    DESTINATION_ACCOUNT_INVALID: { code: 9, message: "Invalid destination account" },
+    API_ERROR: { code: 10, message: "Failed to process external API" },
+    UNKNOWN_ERROR: { code: 999, message: "An unknown error occurred" },
+};
 // Bước 1: Khởi tạo chuyển khoản và gửi OTP
 export const initiateTransfer = async ({ source_account_number, destination_account_number, amount, content, fee_payer, user }) => {
     try {
@@ -21,11 +34,11 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
 
         // Kiểm tra điều kiện
         if (!sourceAccount || !destinationAccount) {
-            return { status: statusCode.ERROR, message: 'Invalid account information' };
+            return { status: statusCode.ERROR, ...ErrorCodes.INVALID_ACCOUNT };
         }
 
         if (sourceAccount.balance < amount) {
-            return { status: statusCode.ERROR, message: 'Insufficient funds in source account' };
+            return { status: statusCode.ERROR, ...ErrorCodes.INSUFFICIENT_FUNDS };
         }
 
         // Tạo giao dịch mới
@@ -36,6 +49,8 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
             fee_payer,
             content,
             transaction_type: 'internal',
+            source_bank: process.env.BANK_ID,
+            destination_bank: process.env.BANK_ID,
         });
 
         // Tạo OTP và liên kết với transaction_id
@@ -51,10 +66,10 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
         //Đã test thành công không cần test nữa
         // await EmailService({customerMail:user.email ,otpCode: otpCode,subject:"Email confirm OTP"});
 
-        return { status: statusCode.SUCCESS, data: transaction, message: 'Init transaction success' };
+        return { status: statusCode.SUCCESS,code:0, data: transaction, message: 'Init transaction success' };
     } catch (err) {
         console.error('Error in initiate transfer service:', err);
-        return { status: statusCode.ERROR, message: err.message };
+        return { status: statusCode.ERROR,code:999, message: err.message };
     }
 };
 export const confirmTransfer = async ({ otp_code, transaction_id }) => {
@@ -66,7 +81,7 @@ export const confirmTransfer = async ({ otp_code, transaction_id }) => {
         });
 
         if (!otpRecord) {
-            return { status: statusCode.ERROR, message: 'Invalid or expired OTP' };
+            return { status: statusCode.ERROR, ...ErrorCodes.INVALID_OTP };
         }
 
         // Kiểm tra thời gian OTP còn hiệu lực (5 phút)
@@ -75,7 +90,7 @@ export const confirmTransfer = async ({ otp_code, transaction_id }) => {
         if (Date.now() - otpCreatedAt > OTP_EXPIRY_TIME) {
             otpRecord.status = 'expired';
             await otpRecord.save();
-            return { status: statusCode.ERROR, message: 'OTP has expired' };
+            return { status: statusCode.ERROR, ...ErrorCodes.OTP_EXPIRED };
         }
 
         // Tiến hành chuyển khoản nếu OTP hợp lệ
@@ -83,7 +98,7 @@ export const confirmTransfer = async ({ otp_code, transaction_id }) => {
             where: { id: parseInt(transaction_id), status: "PENDING" },
         });
         if (!transaction) {
-            return { status: statusCode.ERROR, message: 'Transaction not found or already processed' };
+            return { status: statusCode.ERROR, ...ErrorCodes.TRANSACTION_NOT_FOUND };
         }
 
         // Tiến hành cập nhật tài khoản nguồn và đích
@@ -91,12 +106,12 @@ export const confirmTransfer = async ({ otp_code, transaction_id }) => {
         const destinationAccount = await Account.findOne({ where: { account_number: transaction.destination_account } });
 
         if (!sourceAccount || !destinationAccount) {
-            return { status: statusCode.ERROR, message: 'Source or destination account not found' };
+            return { status: statusCode.ERROR, ...ErrorCodes.ACCOUNT_NOT_FOUND };
         }
 
         // Cập nhật số dư tài khoản
         await Account.update(
-            { balance: parseInt(destinationAccount.balance) - parseInt(transaction.amount) },
+            { balance: parseInt(sourceAccount.balance) - parseInt(transaction.amount) },
             { where: { id: sourceAccount.id } }
         );
 
@@ -109,10 +124,10 @@ export const confirmTransfer = async ({ otp_code, transaction_id }) => {
         transaction.status = "SUCCESS";
         await transaction.save();
 
-        return { status: statusCode.SUCCESS, message: 'Transfer completed successfully' };
+        return { status: statusCode.SUCCESS,code:0, message: 'Transfer completed successfully' };
     } catch (err) {
         console.error('Error in confirm transfer service:', err);
-        return { status: statusCode.ERROR, message: err.message };
+        return { status: statusCode.ERROR,code:999, message: err.message };
     }
 };
 export const initiateExternalTransfer = async ({ source_account_number, destination_account_number, amount, bank_code, content, fee_payer, user }) => {
@@ -120,14 +135,17 @@ export const initiateExternalTransfer = async ({ source_account_number, destinat
         // Validate linked bank
         const linkedBank = await LinkedBanks.findOne({ where: { bank_code } });
         if (!linkedBank) {
-            return { status: statusCode.ERROR, message: 'Bank not linked' };
+            return { status: statusCode.ERROR, ...ErrorCodes.BANK_NOT_LINKED };
         }
 
 
         // Retrieve source account
         const sourceAccount = await Account.findOne({ where: { account_number: source_account_number, user_id: user.id } });
-        if (!sourceAccount || sourceAccount.balance < amount) {
-            return { status: statusCode.ERROR, message: 'Insufficient funds or invalid source account' };
+        if (!sourceAccount ) {
+            return { status: statusCode.ERROR, ...ErrorCodes.ACCOUNT_NOT_FOUND };
+        }
+        if(sourceAccount.balance < amount){
+            return { status: statusCode.ERROR, ...ErrorCodes.INSUFFICIENT_FUNDS };
         }
 
         // Check destination account in linked bank
@@ -140,7 +158,7 @@ export const initiateExternalTransfer = async ({ source_account_number, destinat
         });
 
         if (destinationCheckResponse.status !== 200 || !destinationCheckResponse.data) {
-            return { status: statusCode.ERROR, message: 'Invalid destination account' };
+            return { status: statusCode.ERROR, ...ErrorCodes.ACCOUNT_NOT_FOUND };
         }
 
         // Create transaction
@@ -150,6 +168,8 @@ export const initiateExternalTransfer = async ({ source_account_number, destinat
             amount,
             fee_payer,
             content,
+            source_bank: process.env.BANK_ID,
+            destination_bank: bank_code,
             transaction_type: 'external',
         });
         console.log("Transaction created with ID:", transaction);
@@ -163,10 +183,10 @@ export const initiateExternalTransfer = async ({ source_account_number, destinat
         });
         console.log("OTP sent to email " + otpCode)
         // await EmailService({customerMail:user.email ,otpCode: otpCode,subject:"Email confirm OTP"});
-        return { status: statusCode.SUCCESS, data: transaction, message: 'OTP sent to email' };
+        return { status: statusCode.SUCCESS,code:0, data: transaction, message: 'OTP sent to email' };
     } catch (err) {
         console.error('Error in initiateExternalTransfer service:', err);
-        return { status: statusCode.ERROR, message: err.message };
+        return { status: statusCode.ERROR,code:999, message: err.message };
     }
 };
 
@@ -175,7 +195,7 @@ export const confirmExternalTransfer = async ({ otp_code, transaction_id, bank_c
         // Validate linked bank
         const linkedBank = await LinkedBanks.findOne({ where: { bank_code } });
         if (!linkedBank) {
-            return { status: statusCode.ERROR, message: 'Bank not linked' };
+            return { status: statusCode.ERROR, ...ErrorCodes.BANK_NOT_LINKED };
         }
 
         // Validate OTP
@@ -183,20 +203,27 @@ export const confirmExternalTransfer = async ({ otp_code, transaction_id, bank_c
             where: { otp_code, transaction_id, status: 'pending' },
         });
         if (!otpRecord) {
-            return { status: statusCode.ERROR, message: 'Invalid or expired OTP' };
+            return { status: statusCode.ERROR, ...ErrorCodes.INVALID_OTP };
+        }
+        const OTP_EXPIRY_TIME = 5 * 60 * 1000; // 5 phút
+        const otpCreatedAt = otpRecord.created_at.getTime();
+        if (Date.now() - otpCreatedAt > OTP_EXPIRY_TIME) {
+            otpRecord.status = 'expired';
+            await otpRecord.save();
+            return { status: statusCode.ERROR, ...ErrorCodes.OTP_EXPIRED };
         }
 
         // Retrieve transaction
         const transaction = await Transaction.findOne({ where: { id: transaction_id, status: 'PENDING' } });
         if (!transaction) {
-            return { status: statusCode.ERROR, message: 'Transaction not found or already processed' };
+            return { status: statusCode.ERROR, ...ErrorCodes.TRANSACTION_NOT_FOUND };
         }
 
         // Update source account balance
         const sourceAccount = await Account.findOne({ where: { account_number: transaction.source_account } });
         console.log("sourceAccount", sourceAccount)
         if (!sourceAccount || parseFloat(sourceAccount.balance) < parseFloat(transaction.amount)) {
-            return { status: statusCode.ERROR, message: 'Insufficient funds or invalid source account' };
+            return { status: statusCode.ERROR, ...ErrorCodes.INSUFFICIENT_FUNDS };
         }
 
         sourceAccount.balance -= transaction.amount;
@@ -232,10 +259,10 @@ export const confirmExternalTransfer = async ({ otp_code, transaction_id, bank_c
         otpRecord.status = 'used';
         await otpRecord.save();
 
-        return { status: statusCode.SUCCESS, message: 'Transfer completed successfully' };
+        return { status: statusCode.SUCCESS,code:0, message: 'Transfer completed successfully' };
     } catch (err) {
         console.error('Error in confirmExternalTransfer service:', err);
-        return { status: statusCode.ERROR, message: err.message };
+        return { status: statusCode.ERROR,code:999, message: err.message };
     }
 };
 
@@ -294,6 +321,8 @@ export const depositInternal = async ({ infoType, accountInfo, amount }) => {
             content: 'Internal deposit',
             transaction_type: 'internal-deposit',
             status: 'SUCCESS',
+            source_bank: process.env.BANK_ID,
+            destination_bank: process.env.BANK_ID
         });
 
         return { status: statusCode.SUCCESS, data: { account, transaction }, message: 'Deposit successful' };
