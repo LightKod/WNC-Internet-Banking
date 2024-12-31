@@ -135,3 +135,52 @@ export const googleRecaptcha = async (captchaValue: string) => {
         throw error;
     }
 }
+
+export const getTransactions = async ({query, from, to, page}: {query: string, from: string, to: string, page: string}) => {
+    try {
+        const params = new URLSearchParams({query, from, to, page}).toString();
+        const response = await fetch(`${BASE_URL}/transaction/search?${params}`, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+                Authorization: `Bearer ${cookies().get('accessToken')?.value}`
+            }
+        });
+        return (await response.json());
+    } catch(error) {
+        throw error;
+    }
+}
+
+export const getTotalTransactionPages = async ({query, from, to}: {query: string, from: string, to: string}) => {
+    try {
+        const params = new URLSearchParams({query, from, to}).toString();
+        const response = await fetch(`${BASE_URL}/transaction/pages?${params}`, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+                Authorization: `Bearer ${cookies().get('accessToken')?.value}`
+            }
+        })
+        return (await response.json());
+    } catch(error) {
+        throw error;
+    }
+}
+
+export const sendOTP = async (email: string) => {
+    try {
+        const response = await fetch(`${BASE_URL}/auth/send-otp`, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                email
+            })
+        });
+        return (await response.json());
+    } catch(error) {
+        throw error;
+    }
+}

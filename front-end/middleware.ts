@@ -22,8 +22,8 @@ export async function middleware(request: NextRequest) {
       );
       return response;
     }
-    if(fetchRefreshTokenAPI.status === -1) {
-      return NextResponse.redirect(new URL('/login', request.url));
+    if (fetchRefreshTokenAPI.status === -1) {
+      return NextResponse.redirect(new URL("/login", request.url));
     }
   }
   if (pathname.startsWith("/login") && accessToken) {
@@ -39,6 +39,13 @@ export async function middleware(request: NextRequest) {
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
+  if (pathname === "/") {
+    if (accessToken) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    } else {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+  }
 
   NextResponse.next();
 }
@@ -46,6 +53,7 @@ export async function middleware(request: NextRequest) {
 // See "Matching Paths" below to learn more
 export const config = {
   matcher: [
+    "/",
     "/login",
     "/dashboard",
     "/transaction/:path*",

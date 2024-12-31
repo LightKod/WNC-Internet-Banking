@@ -6,6 +6,8 @@ import React, { forwardRef, useContext, useEffect, useImperativeHandle, useState
 import { useForm, UseFormGetValues, UseFormSetValue } from "react-hook-form"
 import { PageContentContext } from "./customer_register_page_content"
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/16/solid"
+import { APIResponse } from "@/app/lib/definitions/definition"
+import { registerCustomerAccount } from "@/app/lib/actions/employee_actions"
 
 interface CustomerRegisterProps {
 }
@@ -23,15 +25,14 @@ export const CustomerRegisterForm = forwardRef<CustomerRegisterRef, CustomerRegi
         throw new Error('Something went wrong')
     }
 
-    const { handleSubmit, register, getValues, formState: { errors } } = useForm<CustomerRegisterFormValues>({
-        resolver: zodResolver(customerRegisterSchema)
+    const { handleSubmit, register, getValues, formState: { errors, isValid } } = useForm<CustomerRegisterFormValues>({
+        resolver: zodResolver(customerRegisterSchema),
+        mode: "onChange"
     })
 
-    const onSubmit = (data: CustomerRegisterFormValues) => {
-        console.log(data)
-
-        // Supposing that the request is successful
-        context.setIsRequestSuccessful(true)
+    const onSubmit = async (data: CustomerRegisterFormValues) => {
+        const result: APIResponse = await registerCustomerAccount(data)
+        context.setIsRequestSuccessful(result)
         context.nextStep()
     }
 
@@ -89,10 +90,11 @@ export const CustomerRegisterForm = forwardRef<CustomerRegisterRef, CustomerRegi
                 </div>
                 <div className="w-full h-full pt-4 md:pl-4 md:pt-0">
                     <div className="flex flex-col gap-y-2">
-                        <button type="button" onClick={handleSubmit(() => {context.nextStep(); context.setIsFormValid(true)})} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 transition-colors duration-300">
+                        <button type="button" onClick={handleSubmit(() => {context.nextStep(); context.setIsFormValid(true)})} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed transition-colors duration-300" disabled={!isValid}>
                             <ArrowRightIcon className="w-4"/>
                             <p>Continue</p>
                         </button>
+                        {!isValid && <p className="text-red-500 text-xs">You have not completed the form yet</p>}
                     </div>
                 </div>
             </form>

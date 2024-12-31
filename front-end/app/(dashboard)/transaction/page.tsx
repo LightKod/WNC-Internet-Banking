@@ -1,3 +1,4 @@
+import { getTotalTransactionPages } from "@/app/lib/actions/api";
 import TransactionTable from "@/app/ui/components/dashboard/transaction_table";
 import Datepicker from "@/app/ui/components/universal/datepicker";
 import Pagination from "@/app/ui/components/universal/pagination";
@@ -14,10 +15,17 @@ export default async function Transaction(props: {
 }) {
   const searchParams = await props.searchParams;
   const query = searchParams?.query || "";
-  const currentPage = Number(searchParams?.page) || 0;
+  const currentPage = Number(searchParams?.page) || 1;
   const today = new Date().toISOString().split("T")[0];
-  const fromDate = searchParams?.from || today;
-  const endDate = searchParams?.from || today;
+  const fromDate = searchParams?.from || '';
+  const endDate = searchParams?.from || '';
+
+  const totalPages = await getTotalTransactionPages({
+    query,
+    from: fromDate,
+    to: endDate,
+  });
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -43,7 +51,7 @@ export default async function Transaction(props: {
         />
       </div>
       <div className="mt-3 justify-self-end mr-3">
-        <Pagination totalPages={3} />
+        <Pagination totalPages={totalPages.data.totalPages} />
       </div>
     </div>
   );

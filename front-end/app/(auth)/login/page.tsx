@@ -6,6 +6,7 @@ import {
   CurrencyEuroIcon,
 } from "@heroicons/react/24/solid";
 import LoginForm from "../../ui/components/auth/login_form";
+import Link from "next/link";
 
 export default function Page() {
   return (
@@ -41,11 +42,11 @@ export default function Page() {
           <LoginForm />
           <p className="text-sm text-center text-gray-500 mt-8">
             Forgotten your password? Click{" "}
-            <a
-              href="/"
+            <Link
+              href="/reset-password"
               className="underline hover:text-blue-500 hover:font-bold transition-colors duration-300">
               here
-            </a>{" "}
+            </Link>{" "}
             to reset your password.
           </p>
         </div>

@@ -6,12 +6,15 @@ import { Page, PageSlider, PageSliderRef } from "../universal/page_slider"
 import { RechargeForm, RechargeRef } from "./recharge_form"
 import ConfirmRecharge from "./confirm_recharge"
 import SuccessfulRequest from "./successful_request"
+import { APIResponse } from "@/app/lib/definitions/definition"
+import FailedRequest from "./failed_request"
 
 interface PageContentContextType {
     nextStep: () => void,
     prevStep: () => void,
     setIsFormValid: React.Dispatch<React.SetStateAction<boolean>>,
-    setIsRequestSuccessful: React.Dispatch<React.SetStateAction<boolean | null>>,
+    isRequestSuccessful: APIResponse | null,
+    setIsRequestSuccessful: React.Dispatch<React.SetStateAction<APIResponse | null>>,
     formRef: RefObject<RechargeRef>,
 }
 
@@ -19,7 +22,7 @@ export const PageContentContext = createContext<PageContentContextType | null>(n
 
 export default function RechargePageContent() {
     const [isFormValid, setIsFormValid] = useState<boolean>(false)
-    const [isRequestSuccessful, setIsRequestSuccessful] = useState<boolean | null>(null)
+    const [isRequestSuccessful, setIsRequestSuccessful] = useState<APIResponse | null>(null)
 
     const stepIndicatorRef = useRef<StepIndicatorRef>(null)
     const pageSliderRef = useRef<PageSliderRef>(null)
@@ -44,6 +47,7 @@ export default function RechargePageContent() {
                 nextStep,
                 prevStep,
                 setIsFormValid,
+                isRequestSuccessful,
                 setIsRequestSuccessful,
                 formRef
             }}>
@@ -55,7 +59,7 @@ export default function RechargePageContent() {
                         {isFormValid && <ConfirmRecharge/>}
                     </Page>
                     <Page>
-                        {isRequestSuccessful === true && <SuccessfulRequest/>}
+                        {isRequestSuccessful?.isSuccessful ? <SuccessfulRequest/> : <FailedRequest/>}
                     </Page>
                 </PageSlider>
             </PageContentContext.Provider>
