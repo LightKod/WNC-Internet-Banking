@@ -1,7 +1,7 @@
 import {
     createDebtService, getDebtsByDebtorService, getDebtByCreditorService,
     setDebtStatusToUnReadService, readDebtService, readAllDebtsService,
-    getDebtByIdService, cancelDebtService
+    getDebtByIdService, cancelDebtService, getAllDebtTransactionsService
 } from '../services/debt.service.js';
 import statusCode from '../constants/statusCode.js';
 import { z } from "zod";
@@ -143,13 +143,13 @@ export const getDebtByIdController = async (req, res) => {
         const debt = await getDebtByIdService(debtId);
 
         res.status(200).json({
-            status: "success",
+            status: statusCode.SUCCESS,
             message: "Debt fetched successfully",
             data: debt,
         });
     } catch (error) {
         res.status(400).json({
-            status: "error",
+            status: statusCode.ERROR,
             message: error.message,
         });
     }
@@ -165,13 +165,31 @@ export const cancelDebtController = async (req, res) => {
         const result = await cancelDebtService(user.id, debtId, cancelNote);
 
         res.status(200).json({
-            status: 'success',
+            status: statusCode.SUCCESS,
             data: result,
         });
     } catch (error) {
         res.status(400).json({
-            status: 'error',
+            status: statusCode.ERROR,
             message: error.message,
         });
     }
 };
+
+export const getAllDebtTransactionsController = async (req, res) => {
+    try {
+        const user = req.user;
+
+        const debts = await getAllDebtTransactionsService(user.id);
+
+        res.status(200).json({
+            status: statusCode.SUCCESS,
+            data: debts,
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: statusCode.ERROR,
+            message: error.message,
+        });
+    }
+}

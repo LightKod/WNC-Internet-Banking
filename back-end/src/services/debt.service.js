@@ -35,12 +35,14 @@ export const createDebtTransactionService = async (user_id, debt_id, transaction
 
 
     const newDebtTransaction = await DebtTransaction.create({
+        user_id,
         debt_id,
         transaction_id,
     })
 
     return newDebtTransaction;
 };
+
 
 export const confirmDebtTransaction = async (debt_id, transaction_id) => {
     const debtTransaction = await DebtTransaction.findOne({
@@ -63,6 +65,14 @@ export const confirmDebtTransaction = async (debt_id, transaction_id) => {
     } catch (error) {
         throw new Error('Failed to confirm debt transaction');
     }
+}
+
+export const getAllDebtTransactionsService = async (user_id) => {
+    const debtTransactions = await DebtTransaction.findAll({
+        where: { user_id: user_id },
+    });
+
+    return debtTransactions;
 }
 
 export const createDebtService = async (user, { debtor_account, amount, description, due_date }) => {

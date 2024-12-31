@@ -9,6 +9,10 @@ const DebtTransaction = (sequelize) => {
                 primaryKey: true,
                 autoIncrement: true,
             },
+            user_id: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
             debt_id: {
                 type: DataTypes.BIGINT,
                 allowNull: false,

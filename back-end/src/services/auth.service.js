@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import db from '../models/index.model.js'
 import { createAccountService } from './account.service.js'
 import { Op } from 'sequelize';
-const { User, Account, RefreshToken,OTP } = db;
+const { User, Account, RefreshToken, OTP } = db;
 
 // Generate JWT tokens
 const generateAccessToken = (user) => jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
@@ -35,7 +35,7 @@ export const loginService = async (username, password) => {
 };
 
 // Register Service
-export const registerService = async (username,name, password, email, phone_number) => {
+export const registerService = async (username, name, password, email, phone_number) => {
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
         throw new Error('email already exists');
@@ -91,7 +91,7 @@ export const sendResetPasswordOtp = async (email) => {
     // Send OTP via email (implement email service here)
     console.log(`Send OTP: ${otpCode} to ${email}`);
 
-    return { success: true ,data : otp.id};
+    return { success: true, data: otp.id };
 };
 
 export const verifyResetPasswordOtp = async (otp_code, email, otp_id) => {
@@ -107,9 +107,10 @@ export const verifyResetPasswordOtp = async (otp_code, email, otp_id) => {
             purpose: 'reset_password',
             status: 'pending',
             user_id: user.id,
-            created_at: { 
+            created_at: {
                 [Op.gte]: new Date(Date.now() - OTP_EXPIRATION_TIME), // OTP được tạo trong vòng 10 phút trước
-            },        },
+            },
+        },
     });
 
     if (!otp) {

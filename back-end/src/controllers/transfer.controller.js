@@ -24,7 +24,7 @@ export const initiateTransfer = async (req, res) => {
         }
 
         if (debt_id) {
-            await createDebtTransactionService(User.id, debt_id, result.data.transaction_id, amount);
+            await createDebtTransactionService(User.id, debt_id, result.data.id, amount);
         }
 
         res.status(200).json({ data: result, message: result.message, code: result.code, status: statusCode.SUCCESS });
