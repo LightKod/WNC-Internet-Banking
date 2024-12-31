@@ -3,7 +3,8 @@ import {
     getAllContactsService,
     deleteContactService,
     checkContactExistsService,
-    getUserContactsByTypeService 
+    getUserContactsByTypeService,
+    updateContactService
 } from "../services/user_contact.service.js";
 import statusCode from "../constants/statusCode.js";
 
@@ -11,7 +12,7 @@ import statusCode from "../constants/statusCode.js";
 export const createNewContactController = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { account_number, nickname, bank_id, bank_name } = req.body;
+        let { account_number, nickname, bank_id, bank_name } = req.body;
         if (!bank_id) bank_id = "";
         if (!bank_name) bank_name = "";
         const newContact = await createNewContactService({
@@ -82,14 +83,34 @@ export const checkContactExistsController = async (req, res) => {
     }
 };
 
-  export const getUserContactsByTypeController = async (req, res) => {
+export const getUserContactsByTypeController = async (req, res) => {
     const { type } = req.query; // `type` là loại danh bạ, `currentBank` là ngân hàng hiện tại
     const currentBank = process.env.BANK_ID;
     try {
-      const contacts = await getUserContactsByTypeService(type, currentBank);
-      return res.status(200).json({ status: statusCode.SUCCESS, data: contacts });
+        const contacts = await getUserContactsByTypeService(type, currentBank);
+        return res.status(200).json({ status: statusCode.SUCCESS, data: contacts });
     } catch (error) {
-      console.error("Error in getUserContactsByTypeController:", error);
-      return res.status(500).json({ status: statusCode.ERROR, message: 'Internal server error' });
+        console.error("Error in getUserContactsByTypeController:", error);
+        return res.status(500).json({ status: statusCode.ERROR, message: 'Internal server error' });
     }
-  };
+};
+
+export const updateContactController = async (req, res) => {
+    const { contactId } = req.params;
+    const userId = req.user.id;
+    const updateData = req.body;
+
+    try {
+        const updatedContact = await updateContactService(contactId, userId, updateData);
+        res.status(200).json({
+            status: statusCode.SUCCESS,
+            message: "Contact updated successfully",
+            data: updatedContact,
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: statusCode.ERROR,
+            message: error.message
+        });
+    }
+};

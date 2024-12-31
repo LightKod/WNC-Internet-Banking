@@ -12,16 +12,6 @@ const createPaymentSchema = z.object({
         .number()
         .positive({ message: "Amount must be a positive number" }),
     description: z.string().optional(),
-    due_date: z
-        .string()
-        .nonempty({ message: "due_date is required" }) // Ensure the string is not empty
-        .refine(
-            (dateString) => {
-                const dueDate = new Date(dateString);
-                return dueDate > new Date(); // Ensure due_date is in the future
-            },
-            { message: "due_date must be a future date" }
-        ),
 });
 
 export const createDebtController = async (req, res) => {
