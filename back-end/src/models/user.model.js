@@ -37,16 +37,16 @@ const User = (sequelize) => {
         defaultValue: DataTypes.NOW,
       },
       role: {
-        type: DataTypes.ENUM("admin", "user","employee"),
+        type: DataTypes.ENUM("admin", "user", "employee"),
         defaultValue: "user",
       },
       status: {
-        type: DataTypes.ENUM("active", "inactive","banned"),
+        type: DataTypes.ENUM("active", "inactive", "banned"),
         defaultValue: "active",
       },
     },
     {
-      tableName: "user",
+      tableName: "users",
       timestamps: false,
     }
   );

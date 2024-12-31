@@ -53,6 +53,7 @@ services:
       POSTGRES_PASSWORD: example
     volumes:
       - postgres-data-rsa:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
   # db-pgp:
   #   container_name: db-pgp
   #   image: postgres
