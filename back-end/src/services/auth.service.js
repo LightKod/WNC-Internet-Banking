@@ -36,9 +36,9 @@ export const loginService = async (username, password) => {
 
 // Register Service
 export const registerService = async (username,name, password, email, phone_number) => {
-    const existingUser = await User.findOne({ where: { username } });
+    const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-        throw new Error('Username already exists');
+        throw new Error('email already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);

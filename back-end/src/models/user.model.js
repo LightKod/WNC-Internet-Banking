@@ -37,8 +37,12 @@ const User = (sequelize) => {
         defaultValue: DataTypes.NOW,
       },
       role: {
-        type: DataTypes.STRING(10),
+        type: DataTypes.ENUM("admin", "user","employee"),
         defaultValue: "user",
+      },
+      status: {
+        type: DataTypes.ENUM("active", "inactive","banned"),
+        defaultValue: "active",
       },
     },
     {
