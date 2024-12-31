@@ -25,7 +25,6 @@ export default async function Transaction(props: {
     from: fromDate,
     to: endDate,
   });
-
   return (
     <div>
       <div className="flex items-center justify-between">

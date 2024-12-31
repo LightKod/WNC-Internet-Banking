@@ -7,8 +7,8 @@ const BASE_URL = 'http://localhost:80/api'
 
 export const login = async ({username, password, captchaValue}: {username: string, password: string, captchaValue: string}) => {
     try {
-        console.log(process.env.RECAPTCHA_SECRET_KEY);
-        console.log(captchaValue);
+        // console.log(process.env.RECAPTCHA_SECRET_KEY);
+        // console.log(captchaValue);
         const captcha = await googleRecaptcha(captchaValue);
         
         if(captcha.success === false) {
