@@ -1,6 +1,6 @@
 'use client'
 
-import { BankAccount, Contact } from "@/app/lib/definitions/definition"
+import { APIResponse, BankAccount, Contact } from "@/app/lib/definitions/definition"
 import { PaymentRequestFormValue, paymentRequestSchema } from "@/app/lib/schemas/schemas"
 import { formatAccountNumber, formatMoney, numberToWords } from "@/app/lib/utilities/utilities"
 import { ArrowRightIcon, XMarkIcon, UsersIcon } from "@heroicons/react/16/solid"
@@ -10,6 +10,7 @@ import { useForm, UseFormGetValues, UseFormSetValue } from "react-hook-form"
 import { PageContentContext } from "./create_payment_request_content"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../universal/tooltip"
 import Link from "next/link"
+import { createPaymentRequest, getInternalUserFromBankAccount, getUserAccounts } from "@/app/lib/actions/actions"
 
 interface PaymentRequestProps {
 }
@@ -29,43 +30,25 @@ export const PaymentRequestForm = forwardRef<PaymentRequestRef, PaymentRequestPr
         throw new Error('Something went wrong')
     }
 
-    const dummyBankAccounts: BankAccount[] = [
-        {
-            accountType: "payment",
-            accountNumber: "111222233334444",
-            balance: "200000"
-        },
-        {
-            accountType: "saving",
-            accountNumber: "246810121416182",
-            balance: "1000000"
-        },
-    ]
-    
-    const { handleSubmit, register, setValue, getValues, watch, formState: { errors } } = useForm<PaymentRequestFormValue>({
-        resolver: zodResolver(paymentRequestSchema)
+    const { handleSubmit, register, setValue, getValues, watch, formState: { errors, isValid } } = useForm<PaymentRequestFormValue>({
+        resolver: zodResolver(paymentRequestSchema),
+        mode: "onChange"
     })
 
+    const [sourceBankAccounts, setSourceBankAccounts] = useState<BankAccount[]>([])
     const [isFetchingReceiver, setIsFetchingReceiver] = useState<boolean>(false)
     const [receiverBankAccount, setReceiverBankAccount] = useState<Contact | null>(null)
 
-    const onSubmit = (data: PaymentRequestFormValue) => {
-        console.log(data)
-
-        // Supposing that the request is successful
-        context.setIsRequestSuccessful(true)
+    const onSubmit = async (data: PaymentRequestFormValue) => {
+        const result: APIResponse = await createPaymentRequest(data)
+        context.setIsRequestSuccessful(result)
         context.nextStep()
     }
 
     const [receiverAccountNumber, amount] = watch(["receiverAccountNumber", "amount"])
     useEffect(() => {
         const fetchReceiver = async () => {
-            const receiver: Contact = {
-                name: "Jerry B.",
-                accountNumber: "123456789101112",
-                bankName: "Internal"
-            }
-
+            const receiver: Contact | null = await getInternalUserFromBankAccount(receiverAccountNumber) 
             setReceiverBankAccount(receiver)
             setIsFetchingReceiver(false)
         }
@@ -79,7 +62,15 @@ export const PaymentRequestForm = forwardRef<PaymentRequestRef, PaymentRequestPr
     }, [receiverAccountNumber])
 
     useEffect(() => {
-        setValue("senderAccountNumber", dummyBankAccounts[0].accountNumber)
+        const fetchSourceAccounts = async () => {
+            const result = await getUserAccounts()
+            setSourceBankAccounts(result)
+            if(result.length !== 0) {
+                setValue("senderAccountNumber", result[0].accountNumber)
+            }
+        }
+    
+        fetchSourceAccounts()
     }, [])
 
     useImperativeHandle(ref, () => ({
@@ -105,7 +96,7 @@ export const PaymentRequestForm = forwardRef<PaymentRequestRef, PaymentRequestPr
                     <div className="flex flex-col gap-y-2">
                         <div className="text-sm text-gray-950 font-semibold">Receive source</div>
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                            {dummyBankAccounts.map((account, index) => (
+                            {sourceBankAccounts.map((account, index) => (
                                 <label key={index} htmlFor={`senderAccountNumber_${index}`} className="group flex gap-x-4 p-4 items-center border-2 border-slate-300 rounded-md hover:border-blue-600 has-[:checked]:border-blue-600 transition-all duration-300 cursor-pointer">
                                     <input {...register("senderAccountNumber")} id={`senderAccountNumber_${index}`} type="radio" value={account.accountNumber} className="peer hidden"/>
                                     <div className="relative w-4 h-4 border-2 border-slate-300 group-hover:border-blue-600 peer-checked:border-blue-600 rounded-full shrink-0 transition-all duration-300
@@ -114,7 +105,7 @@ export const PaymentRequestForm = forwardRef<PaymentRequestRef, PaymentRequestPr
                                         <span className="font-medium text-xs text-gray-500">
                                             {account.accountType === "payment" ? "Payment account" : "Account"}
                                         </span>
-                                        <span className="text-gray-950 font-semibold">{`${formatMoney(account.balance)} VND`}</span>
+                                        <span className="text-gray-950 font-semibold">{`${formatMoney(account.balance.split('.')[0])} VND`}</span>
                                         <span className="text-gray-500 text-sm">{formatAccountNumber(account.accountNumber)}</span>
                                     </div>
                                 </label>
@@ -174,7 +165,7 @@ export const PaymentRequestForm = forwardRef<PaymentRequestRef, PaymentRequestPr
                 </div>
                 <div className="w-full h-full pt-4 md:pl-4 md:pt-0">
                     <div className="flex flex-col gap-y-2">
-                        <button type="button" onClick={handleSubmit(() => {context.nextStep(); context.setIsFormValid(true)})} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 transition-colors duration-300">
+                        <button type="button" onClick={handleSubmit(() => {context.nextStep(); context.setIsFormValid(true)})} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed transition-colors duration-300" disabled={!isValid}>
                             <ArrowRightIcon className="w-4"/>
                             <p>Continue</p>
                         </button>
@@ -182,6 +173,7 @@ export const PaymentRequestForm = forwardRef<PaymentRequestRef, PaymentRequestPr
                             <XMarkIcon className="w-4"/>
                             <p>Cancel</p>
                         </Link>
+                        {!isValid && <p className="text-red-500 text-xs">You have not completed the form yet</p>}
                     </div>
                 </div>
             </form>

@@ -6,6 +6,7 @@ import { PageContentContext } from "./create_payment_request_content"
 import { formatAccountNumber, formatMoney } from "@/app/lib/utilities/utilities"
 import { ArrowLeftIcon, ArrowPathIcon, ArrowRightIcon } from "@heroicons/react/16/solid"
 import Link from "next/link"
+import { revalidatePaymentRequest } from "@/app/lib/actions/revalidation"
 
 export default function SuccessfulRequest() {
     const context = useContext(PageContentContext)
@@ -16,6 +17,10 @@ export default function SuccessfulRequest() {
 
     const formValues = context.formRef.current?.getValues()
     const receiverBankAccount = context.formRef.current?.receiverBankAccount
+
+    const goToPaymentRequest = () => {
+        revalidatePaymentRequest()
+    }
 
     return (
         <div className="flex flex-col gap-y-8 px-8 pb-8">
@@ -63,10 +68,10 @@ export default function SuccessfulRequest() {
                     <ArrowPathIcon className="w-4"/>
                     <p>Make a new request</p>
                 </button>
-                <Link href="/payment-request" className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-slate-200 text-gray-950 text-sm font-medium hover:bg-slate-300 transition-colors duration-300">
+                <button onClick={goToPaymentRequest} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-slate-200 text-gray-950 text-sm font-medium hover:bg-slate-300 transition-colors duration-300">
                     <ArrowRightIcon className="w-4"/>
                     <p>Payment request</p>
-                </Link>
+                </button>
             </div>
         </div>
     )

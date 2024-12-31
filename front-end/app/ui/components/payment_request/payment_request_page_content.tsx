@@ -12,8 +12,16 @@ import { useForm } from "react-hook-form"
 import { cancelPaymentRequestSchema, CancelPaymentRequestFormValue } from "@/app/lib/schemas/schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ArrowRightIcon } from "@heroicons/react/16/solid"
+import { PaymentRequest } from "@/app/lib/definitions/definition"
+import { cancelPaymentRequest } from "@/app/lib/actions/actions"
 
-export default function PaymentRequestPageContent() {
+export default function PaymentRequestPageContent({
+    selfPaymentRequests,
+    otherPaymentRequests
+} : {
+    selfPaymentRequests: PaymentRequest[],
+    otherPaymentRequests: PaymentRequest[]
+}) {
     const [currentPage, setCurrentPage] = useState<number>(0)
     const pageSliderRef = useRef<PageSliderRef>(null)
 
@@ -37,9 +45,8 @@ export default function PaymentRequestPageContent() {
         modalRef.current?.openModal()
     }
 
-    const onSubmit = () => {
-        console.log(`Delete request with id: ${getValues("paymentRequestId")}`)
-
+    const onSubmit = async (data: CancelPaymentRequestFormValue) => {
+        await cancelPaymentRequest(data)
         modalRef.current?.closeModal()
     }
 
@@ -73,18 +80,21 @@ export default function PaymentRequestPageContent() {
                     </Link>
                 </div>
                 <div className="flex flex-col">
-                    <div className="grid grid-cols-[2fr_1fr_1fr] gap-4 items-center mx-4 pb-2 border-b-2 border-slate-100 md:grid-cols-[2fr_1fr_1fr_1fr] md:mx-8">
-                        <span className="text-gray-500 text-sm">Name</span>
-                        <span className="text-gray-500 text-sm hidden md:block">Date</span>
+                    <div className="grid grid-cols-[2fr_1fr_1fr] gap-4 items-center mx-4 pb-2 border-b-2 border-slate-100 md:grid-cols-[2fr_1fr_1fr_1fr] xl:grid-cols-[2fr_1fr_1fr_1fr_1fr] md:mx-8">
+                        <span className="text-gray-500 text-sm">
+                            {currentPage === 0 ? "Debtor" : "Creditor"}
+                        </span>
+                        <span className="text-gray-500 text-sm hidden xl:block">Date</span>
                         <span className="text-gray-500 text-sm text-center">Amount</span>
+                        <span className="text-gray-500 text-sm text-center hidden md:block">Status</span>
                         <span className="text-gray-500 text-sm text-end">Action</span>
                     </div>
                     <PageSlider ref={pageSliderRef}>
                         <Page>
-                            <SelfPaymentRequestList handleOpenModal={handleOpenModal}/>
+                            <SelfPaymentRequestList handleOpenModal={handleOpenModal} selfPaymentRequests={selfPaymentRequests}/>
                         </Page>
                         <Page>
-                            <OtherPaymentRequestList handleOpenModal={handleOpenModal}/>
+                            <OtherPaymentRequestList handleOpenModal={handleOpenModal} otherPaymentRequests={otherPaymentRequests}/>
                         </Page>
                     </PageSlider>
                 </div>

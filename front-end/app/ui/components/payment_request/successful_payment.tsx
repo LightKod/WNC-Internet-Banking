@@ -3,7 +3,7 @@
 import { CheckCircleIcon, CheckIcon, ClipboardIcon, XMarkIcon } from "@heroicons/react/24/outline"
 import { useContext, useState } from "react"
 import { PageContentContext } from "./resolve_payment_request_content"
-import { formatAccountNumber, formatMoney } from "@/app/lib/utilities/utilities"
+import { formatAccountNumber, formatDate, formatMoney } from "@/app/lib/utilities/utilities"
 import clsx from "clsx"
 import { ArrowLeftIcon, ArrowPathIcon, ArrowRightIcon } from "@heroicons/react/16/solid"
 import Link from "next/link"
@@ -16,7 +16,6 @@ export default function SuccessfulPayment() {
     }
 
     const paymentRequest = context.paymentRequest
-    const receiverBankAccount = context.receiverBankAccount
 
     const [isCopied, setIsCopied] = useState<boolean>(false)
 
@@ -35,7 +34,7 @@ export default function SuccessfulPayment() {
             <div className="flex flex-col gap-y-1 items-center p-8 bg-blue-50 rounded-md border-2 border-blue-100">
                 <CheckCircleIcon className="w-24 text-blue-600"/>
                 <p className="text-gray-950 font-semibold">Transfer completed</p>
-                <p className="text-4xl text-blue-600 font-bold">{paymentRequest?.isSelfFeePayment === "true" ? `${formatMoney((BigInt(paymentRequest!.amount) + BigInt(15000)).toString())} VND` : `${formatMoney(paymentRequest!.amount.toString())} VND`}</p>
+                <p className="text-4xl text-blue-600 font-bold">{`${formatMoney(paymentRequest.amount.split('.')[0])} VND`}</p>
                 <div className="flex gap-x-2 items-center justify-center">
                     <p className="text-sm text-gray-500">{`Transaction ID: ${context.transactionId}`}</p>
                     <button onClick={handleCopyTransactionId} className={clsx(
@@ -58,37 +57,33 @@ export default function SuccessfulPayment() {
                 <div className="flex flex-col gap-y-4">
                     <div className="flex flex-col gap-y-0.5">
                         <div className="text-sm text-gray-950 font-semibold">Transfer source</div>
-                        <div className="text-gray-500">{formatAccountNumber(paymentRequest!.senderAccountNumber)}</div>
+                        <div className="text-gray-500">{formatAccountNumber(paymentRequest.debtorAccountNumber)}</div>
                     </div>
                     <div className="flex flex-col gap-y-0.5">
-                        <div className="text-sm text-gray-950 font-semibold">Receiver's account number</div>
-                        <div className="text-gray-500">{formatAccountNumber(paymentRequest!.receiverAccountNumber)}</div>
+                        <div className="text-sm text-gray-950 font-semibold">Creditor's account number</div>
+                        <div className="text-gray-500">{formatAccountNumber(paymentRequest.creditorAccountNumber)}</div>
                     </div>
                     <div className="flex flex-col gap-y-0.5">
-                        <div className="text-sm text-gray-950 font-semibold">Receiver's name</div>
-                        <div className="text-blue-600">{receiverBankAccount?.name}</div>
+                        <div className="text-sm text-gray-950 font-semibold">Creditor's name</div>
+                        <div className="text-blue-600">{paymentRequest.creditorName}</div>
                     </div>
                     <div className="flex flex-col gap-y-0.5">
-                        <div className="text-sm text-gray-950 font-semibold">Transfer type</div>
+                        <div className="text-sm text-gray-950 font-semibold">Transaction type</div>
                         <div className="text-gray-500">Debt payment</div>
                     </div>
                 </div>
                 <div className="flex flex-col gap-y-4">
                     <div className="flex flex-col gap-y-0.5">
+                        <div className="text-sm text-gray-950 font-semibold">Created date</div>
+                        <div className="text-blue-600">{formatDate(paymentRequest.createdDate)}</div>
+                    </div>
+                    <div className="flex flex-col gap-y-0.5">
                         <div className="text-sm text-gray-950 font-semibold">Transfer amount</div>
-                        <div className="text-blue-600">{`${formatMoney(paymentRequest!.amount.toString())} VND`}</div>
+                        <div className="text-blue-600">{`${formatMoney(paymentRequest.amount.split('.')[0])} VND`}</div>
                     </div>
                     <div className="flex flex-col gap-y-0.5">
-                        <div className="text-sm text-gray-950 font-semibold">Transfer fee</div>
-                        <div className="text-blue-600">{paymentRequest?.isSelfFeePayment === "true" ? `${formatMoney("15000")} VND` : "0 VND"}</div>
-                    </div>
-                    <div className="flex flex-col gap-y-0.5">
-                        <div className="text-sm text-gray-950 font-semibold">Total</div>
-                        <div className="text-blue-600">{paymentRequest?.isSelfFeePayment === "true" ? `${formatMoney((BigInt(paymentRequest!.amount) + BigInt(15000)).toString())} VND` : `${formatMoney(paymentRequest!.amount.toString())} VND`}</div>
-                    </div>
-                    <div className="flex flex-col gap-y-0.5">
-                        <div className="text-sm text-gray-950 font-semibold">Transfer note</div>
-                        <div className="text-gray-500">{paymentRequest?.transferNote}</div>
+                        <div className="text-sm text-gray-950 font-semibold">Note</div>
+                        <div className="text-gray-500">{paymentRequest.description}</div>
                     </div>
                 </div>
             </div>
