@@ -1,6 +1,69 @@
 import db from '../models/index.model.js';
 import { getPaymentAccountsByUserIdService } from './account.service.js';
-const { Debt, Account } = db;
+const { Debt, Account, DebtTransaction } = db;
+
+export const createDebtTransactionService = async (user_id, debt_id, transaction_id, amount) => {
+    const userAccount = await getPaymentAccountsByUserIdService(user_id);
+
+    if (!userAccount) {
+        throw new Error('User account not found');
+    }
+
+    const debt = await Debt.findOne({
+        where: { id: debt_id },
+    });
+
+    if (!debt) {
+        throw new Error('Debt not found');
+    }
+
+    if (debt.debtor_account !== userAccount.account_number) {
+        throw new Error('You are not authorized to pay this debt');
+    }
+
+    if (debt.status === 'PAID') {
+        throw new Error('This debt is already paid');
+    }
+
+    if (debt.status === 'CANCELED') {
+        throw new Error('This debt has been canceled');
+    }
+
+    if (debt.amount > amount) {
+        throw new Error('Amount paid is less than the debt amount');
+    }
+
+
+    const newDebtTransaction = await DebtTransaction.create({
+        debt_id,
+        transaction_id,
+    })
+
+    return newDebtTransaction;
+};
+
+export const confirmDebtTransaction = async (debt_id, transaction_id) => {
+    const debtTransaction = await DebtTransaction.findOne({
+        where: {
+            debt_id,
+            transaction_id,
+        },
+    });
+
+    if (!debtTransaction) {
+        throw new Error('Debt transaction not found');
+    }
+
+    try {
+        const updatedDebtTransaction = await DebtTransaction.update(
+            { status: 'PAID' },
+            { where: { id: debtTransaction.id } }
+        );
+        return updatedDebtTransaction;
+    } catch (error) {
+        throw new Error('Failed to confirm debt transaction');
+    }
+}
 
 export const createDebtService = async (user, { debtor_account, amount, description, due_date }) => {
     const userAccount = await getPaymentAccountsByUserIdService(user.id);
@@ -61,7 +124,7 @@ export const setDebtStatusToUnReadService = async (user_id) => {
     const userAccount = await getPaymentAccountsByUserIdService(user_id);
     const debtorAccount = userAccount.account_number;
     const debts = await Debt.update({
-        status: 'UNREAD',
+        status: 'PENDING',
     }, {
         where: {
             debtor_account: debtorAccount,
