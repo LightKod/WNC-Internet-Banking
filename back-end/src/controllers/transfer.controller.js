@@ -1,11 +1,12 @@
 import transferService from '../services/transfer.service.js';
 import statusCode from '../constants/statusCode.js';
 import { verifySignature, verifyRequestHash, generateSignature } from '../utils/security.js';
+import { createDebtTransactionService, confirmDebtTransaction } from '../services/debt.service.js';
 import db from '../models/index.model.js';
-const { Transaction} = db;
+const { Transaction, DebtTransaction } = db;
 // Bước 1: Yêu cầu chuyển khoản và gửi OTP
 export const initiateTransfer = async (req, res) => {
-    const { source_account_number, destination_account_number, amount, content, fee_payer } = req.body;
+    const { source_account_number, destination_account_number, amount, content, fee_payer, debt_id } = req.body;
     const User = req.user; // Lấy user_id từ JWT token
     try {
         // Khởi tạo giao dịch và gửi OTP
@@ -19,10 +20,14 @@ export const initiateTransfer = async (req, res) => {
         });
 
         if (result.status === statusCode.ERROR) {
-            return res.status(200).json({ data: {}, message: result.message,code: result.code, status: statusCode.ERROR });
+            return res.status(200).json({ data: {}, message: result.message, code: result.code, status: statusCode.ERROR });
         }
 
-        res.status(200).json({ data: result, message: result.message,code: result.code, status: statusCode.SUCCESS });
+        if (debt_id) {
+            await createDebtTransactionService(User.id, debt_id, result.data.id, amount);
+        }
+
+        res.status(200).json({ data: result, message: result.message, code: result.code, status: statusCode.SUCCESS });
     } catch (err) {
         console.error('Error during transfer initiation:', err);
         res.status(500).json({ error: 'Failed to initiate transfer', status: statusCode.ERROR });
@@ -31,17 +36,21 @@ export const initiateTransfer = async (req, res) => {
 
 // Bước 2: Xác nhận OTP và thực hiện chuyển khoản
 export const confirmTransfer = async (req, res) => {
-    const { otp_code, transaction_id } = req.body;
+    const { otp_code, transaction_id, debt_id } = req.body;
 
     try {
         // Xác nhận OTP và thực hiện chuyển khoản
         const result = await transferService.confirmTransfer({ otp_code, transaction_id: transaction_id });
 
         if (result.status === statusCode.ERROR) {
-            return res.status(400).json({ message: result.message,code: result.code, status: statusCode.ERROR });
+            return res.status(400).json({ message: result.message, code: result.code, status: statusCode.ERROR });
         }
 
-        res.status(200).json({ message: 'Transfer completed successfully',code: result.code, status: statusCode.SUCCESS });
+        if (debt_id) {
+            await confirmDebtTransaction(debt_id, transaction_id);
+        }
+
+        res.status(200).json({ message: 'Transfer completed successfully', code: result.code, status: statusCode.SUCCESS });
     } catch (err) {
         console.error('Error during transfer confirmation:', err);
         res.status(500).json({ error: 'Failed to complete transfer', status: statusCode.ERROR });
@@ -62,10 +71,10 @@ export const initiateExternalTransfer = async (req, res) => {
             user,
         });
         if (result.status === statusCode.ERROR) {
-            return res.status(400).json({ message: result.message,code: result.code, status: statusCode.ERROR });
+            return res.status(400).json({ message: result.message, code: result.code, status: statusCode.ERROR });
         }
 
-        res.status(200).json({ data: result.data, message: result.message,code: result.code, status: statusCode.SUCCESS });
+        res.status(200).json({ data: result.data, message: result.message, code: result.code, status: statusCode.SUCCESS });
     } catch (err) {
         console.error('Error during external transfer initiation:', err);
         res.status(500).json({ error: 'Failed to initiate external transfer', status: statusCode.ERROR });
@@ -79,10 +88,10 @@ export const confirmExternalTransfer = async (req, res) => {
         const result = await transferService.confirmExternalTransfer({ otp_code, transaction_id, bank_code, signature });
 
         if (result.status === statusCode.ERROR) {
-            return res.status(400).json({ message: result.message,code: result.code, status: statusCode.ERROR });
+            return res.status(400).json({ message: result.message, code: result.code, status: statusCode.ERROR });
         }
 
-        res.status(200).json({ message: result.message,code: result.code, status: statusCode.SUCCESS });
+        res.status(200).json({ message: result.message, code: result.code, status: statusCode.SUCCESS });
     } catch (err) {
         console.error('Error during external transfer confirmation:', err);
         res.status(500).json({ error: 'Failed to confirm external transfer', status: statusCode.ERROR });
@@ -105,7 +114,7 @@ export const accountInfo = async (req, res) => {
         }
 
         const payload = { bank_code, account_number, timestamp };
-        const isHashValid =  verifyRequestHash(payload, linkedBank.secret_key, hash);
+        const isHashValid = verifyRequestHash(payload, linkedBank.secret_key, hash);
         if (!isHashValid) {
             return res.status(400).json({ error: 'Invalid request hash' });
         }
@@ -140,7 +149,7 @@ export const deposit = async (req, res) => {
         }
 
         const payload = { bank_code, account_number, amount, timestamp };
-        const isHashValid =  verifyRequestHash(payload, linkedBank.secret_key, hash);
+        const isHashValid = verifyRequestHash(payload, linkedBank.secret_key, hash);
         if (!isHashValid) {
             return res.status(400).json({ error: 'Invalid request hash' });
         }
@@ -157,7 +166,7 @@ export const deposit = async (req, res) => {
 
         const balance = parseFloat(account.balance); // Chuyển đổi balance sang số
         const depositAmount = parseFloat(amount); // Chuyển đổi amount sang số
-        
+
         account.balance = (balance + depositAmount).toFixed(2); // Làm tròn đến 2 chữ số thập phân
         await account.save();
         const transaction = await Transaction.create({
@@ -224,4 +233,4 @@ export const depositInternal = async (req, res) => {
     }
 };
 
-export default {depositInternal, initiateTransfer, confirmTransfer, initiateExternalTransfer, confirmExternalTransfer, accountInfo, deposit, linkBank };
+export default { depositInternal, initiateTransfer, confirmTransfer, initiateExternalTransfer, confirmExternalTransfer, accountInfo, deposit, linkBank };

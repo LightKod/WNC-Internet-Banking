@@ -9,6 +9,7 @@ import Debt from "./debt.model.js";
 import OTP from "./otp.model.js"
 import LinkedBanks from "./linked_banks.model.js"
 import UserContact from "./user_contact.js";
+import DebtTransaction from "./debt_transaction.model.js";
 
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
@@ -35,5 +36,6 @@ db.OTP = OTP(sequelize);
 db.Debt = Debt(sequelize)
 db.LinkedBanks = LinkedBanks(sequelize)
 db.UserContact = UserContact(sequelize)
+db.DebtTransaction = DebtTransaction(sequelize)
 
 export default db;

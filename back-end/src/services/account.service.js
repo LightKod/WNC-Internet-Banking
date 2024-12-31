@@ -1,5 +1,5 @@
 import db from "../models/index.model.js";
-const { Account, User,LinkedBanks } = db;
+const { Account, User, LinkedBanks } = db;
 import statusCode from "../constants/statusCode.js";
 export const getAccountsByUserIdService = async (userId) => {
     const accounts = await Account.findAll({
@@ -27,7 +27,7 @@ export const createAccountService = async (userId) => {
 
     const nextAccountNumber = lastAccount
         ? (Number(lastAccount.account_number) + 1).toString()
-        : "1000000000000";
+        : "100000000000";
 
     // Create new account with the next account number
     const account = await Account.create({
@@ -69,8 +69,8 @@ export const getUserDataByAccountNumberService = async (accountNumber) => {
 };
 export const getBankAccountByAccountNumber = async (bank_code, accountNumber) => {
     try {
-      // Tìm tài khoản ngân hàng trong cơ sở dữ liệu
-      const linkedBank = await LinkedBanks.findOne({ where: { bank_code } });
+        // Tìm tài khoản ngân hàng trong cơ sở dữ liệu
+        const linkedBank = await LinkedBanks.findOne({ where: { bank_code } });
         if (!linkedBank) {
             return { status: statusCode.ERROR, message: 'Bank not linked' };
         }
@@ -86,16 +86,16 @@ export const getBankAccountByAccountNumber = async (bank_code, accountNumber) =>
             return { status: statusCode.ERROR, message: 'Invalid destination account' };
         }
         const data = destinationCheckResponse.data;
-  
-      // Trả về thông tin tài khoản ngân hàng
-      return {
-        account_number: data.account_number,
-        bank_name: linkedBank.bank_name,
-        bank_code: data.bank_code,
-        balance: data.balance,
-      };
+
+        // Trả về thông tin tài khoản ngân hàng
+        return {
+            account_number: data.account_number,
+            bank_name: linkedBank.bank_name,
+            bank_code: data.bank_code,
+            balance: data.balance,
+        };
     } catch (error) {
-      console.error("Error in getBankAccountByAccountNumber:", error);
-      throw error; // Có thể xử lý thêm tùy theo yêu cầu
+        console.error("Error in getBankAccountByAccountNumber:", error);
+        throw error; // Có thể xử lý thêm tùy theo yêu cầu
     }
-  };
+};
