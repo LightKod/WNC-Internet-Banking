@@ -3,7 +3,8 @@ import {
     getAllContactsService,
     deleteContactService,
     checkContactExistsService,
-    getUserContactsByTypeService
+    getUserContactsByTypeService,
+    updateContactService
 } from "../services/user_contact.service.js";
 import statusCode from "../constants/statusCode.js";
 
@@ -91,5 +92,25 @@ export const getUserContactsByTypeController = async (req, res) => {
     } catch (error) {
         console.error("Error in getUserContactsByTypeController:", error);
         return res.status(500).json({ status: statusCode.ERROR, message: 'Internal server error' });
+    }
+};
+
+export const updateContactController = async (req, res) => {
+    const { contactId } = req.params;
+    const userId = req.user.id;
+    const updateData = req.body;
+
+    try {
+        const updatedContact = await updateContactService(contactId, userId, updateData);
+        res.status(200).json({
+            status: statusCode.SUCCESS,
+            message: "Contact updated successfully",
+            data: updatedContact,
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: statusCode.ERROR,
+            message: error.message
+        });
     }
 };
