@@ -5,6 +5,8 @@ import statusCode from '../constants/statusCode.js';
 import { generateRequestHash, generateSignature, verifyRequestHash, verifySignature } from '../utils/security.js'
 import axios from 'axios';
 import EmailService from './sendMail.service.js'; // Hàm gửi OTP qua email
+import getExternalTransferTemplateByBankCode from '../middleware/allLinkedBank.js';
+
 const ErrorCodes = {
     SUCCESS: { code: 0, message: "Success" },
     INVALID_OTP: { code: 1, message: "Invalid or expired OTP" },
@@ -66,10 +68,10 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
         //Đã test thành công không cần test nữa
         // await EmailService({customerMail:user.email ,otpCode: otpCode,subject:"Email confirm OTP"});
 
-        return { status: statusCode.SUCCESS,code:0, data: transaction, message: 'Init transaction success' };
+        return { status: statusCode.SUCCESS, code: 0, data: transaction, message: 'Init transaction success' };
     } catch (err) {
         console.error('Error in initiate transfer service:', err);
-        return { status: statusCode.ERROR,code:999, message: err.message };
+        return { status: statusCode.ERROR, code: 999, message: err.message };
     }
 };
 export const confirmTransfer = async ({ otp_code, transaction_id }) => {
@@ -124,14 +126,15 @@ export const confirmTransfer = async ({ otp_code, transaction_id }) => {
         transaction.status = "SUCCESS";
         await transaction.save();
 
-        return { status: statusCode.SUCCESS,code:0, message: 'Transfer completed successfully' };
+        return { status: statusCode.SUCCESS, code: 0, message: 'Transfer completed successfully' };
     } catch (err) {
         console.error('Error in confirm transfer service:', err);
-        return { status: statusCode.ERROR,code:999, message: err.message };
+        return { status: statusCode.ERROR, code: 999, message: err.message };
     }
 };
 export const initiateExternalTransfer = async ({ source_account_number, destination_account_number, amount, bank_code, content, fee_payer, user }) => {
     try {
+        const transferTemplate = getExternalTransferTemplateByBankCode(bank_code);
         // Validate linked bank
         const linkedBank = await LinkedBanks.findOne({ where: { bank_code } });
         if (!linkedBank) {
@@ -141,18 +144,20 @@ export const initiateExternalTransfer = async ({ source_account_number, destinat
 
         // Retrieve source account
         const sourceAccount = await Account.findOne({ where: { account_number: source_account_number, user_id: user.id } });
-        if (!sourceAccount ) {
+        if (!sourceAccount) {
             return { status: statusCode.ERROR, ...ErrorCodes.ACCOUNT_NOT_FOUND };
         }
-        if(sourceAccount.balance < amount){
+        if (sourceAccount.balance < amount) {
             return { status: statusCode.ERROR, ...ErrorCodes.INSUFFICIENT_FUNDS };
         }
 
         // Check destination account in linked bank
         const destinationCheckPayload = { bank_code: process.env.BANK_ID, account_number: destination_account_number, timestamp: Date.now() };
-        const destinationHash = generateRequestHash(destinationCheckPayload, linkedBank.secret_key);
+        const destinationHash = generateRequestHash(transferTemplate.getValidateHash({
+            destinationCheckPayload, secret_key: linkedBank.secret_key
+        }));
 
-        const destinationCheckResponse = await axios.post(linkedBank.account_info_api_url, {
+        const destinationCheckResponse = await axios.post(linkedBank.account_info_api_url, { //getUserAccountBody(payload)
             ...destinationCheckPayload,
             hash: destinationHash,
         });
@@ -183,15 +188,16 @@ export const initiateExternalTransfer = async ({ source_account_number, destinat
         });
         console.log("OTP sent to email " + otpCode)
         // await EmailService({customerMail:user.email ,otpCode: otpCode,subject:"Email confirm OTP"});
-        return { status: statusCode.SUCCESS,code:0, data: transaction, message: 'OTP sent to email' };
+        return { status: statusCode.SUCCESS, code: 0, data: transaction, message: 'OTP sent to email' };
     } catch (err) {
         console.error('Error in initiateExternalTransfer service:', err);
-        return { status: statusCode.ERROR,code:999, message: err.message };
+        return { status: statusCode.ERROR, code: 999, message: err.message };
     }
 };
 
 export const confirmExternalTransfer = async ({ otp_code, transaction_id, bank_code }) => {
     try {
+        const transferTemplate = getExternalTransferTemplateByBankCode(bank_code);
         // Validate linked bank
         const linkedBank = await LinkedBanks.findOne({ where: { bank_code } });
         if (!linkedBank) {
@@ -237,11 +243,11 @@ export const confirmExternalTransfer = async ({ otp_code, transaction_id, bank_c
             timestamp: Date.now(),
         };
 
-        const depositHash = generateRequestHash(depositPayload, linkedBank.secret_key);
+        const depositHash = generateRequestHash(depositPayload, linkedBank.secret_key); //transferTemplate.getValidateHash(payload)
 
-        const depositSignature = await generateSignature(depositPayload, process.env.PRIVATE_KEY, process.env.SIGNATURE_TYPE);
+        const depositSignature = await generateSignature(depositPayload, process.env.PRIVATE_KEY, process.env.SIGNATURE_TYPE); //transferTemplate.getValidateSignature(payload)
         console.log("depositSignature", depositSignature)
-        const depositResponse = await axios.post(linkedBank.deposit_api_url, {
+        const depositResponse = await axios.post(linkedBank.deposit_api_url, { //getTransferDepositBody(payload)
             ...depositPayload,
             hash: depositHash,
             signature: depositSignature,
@@ -259,10 +265,10 @@ export const confirmExternalTransfer = async ({ otp_code, transaction_id, bank_c
         otpRecord.status = 'used';
         await otpRecord.save();
 
-        return { status: statusCode.SUCCESS,code:0, message: 'Transfer completed successfully' };
+        return { status: statusCode.SUCCESS, code: 0, message: 'Transfer completed successfully' };
     } catch (err) {
         console.error('Error in confirmExternalTransfer service:', err);
-        return { status: statusCode.ERROR,code:999, message: err.message };
+        return { status: statusCode.ERROR, code: 999, message: err.message };
     }
 };
 
@@ -285,13 +291,13 @@ export const depositInternal = async ({ infoType, accountInfo, amount }) => {
                 where: { username: accountInfo },
             });
 
-            if (!targetUser ) {
+            if (!targetUser) {
                 return { status: statusCode.ERROR, message: 'No payment account found for this username' };
             }
 
             account = await Account.findOne({
-            where: { user_id: targetUser.id, account_type: 'payment' },
-           })
+                where: { user_id: targetUser.id, account_type: 'payment' },
+            })
 
             if (!account) {
                 return { status: statusCode.ERROR, message: 'No payment account found for this username' };
@@ -307,10 +313,10 @@ export const depositInternal = async ({ infoType, accountInfo, amount }) => {
         console.log(account);
         const balance = parseFloat(account.balance); // Chuyển đổi balance sang số
         const depositAmount = parseFloat(amount); // Chuyển đổi amount sang số
-        
+
         account.balance = (balance + depositAmount).toFixed(2); // Làm tròn đến 2 chữ số thập phân
         await account.save();
-        
+
 
         // Lưu thông tin giao dịch
         const transaction = await Transaction.create({
@@ -331,4 +337,4 @@ export const depositInternal = async ({ infoType, accountInfo, amount }) => {
         return { status: statusCode.ERROR, message: 'Failed to process deposit' };
     }
 };
-export default { depositInternal,initiateTransfer, confirmTransfer, initiateExternalTransfer, confirmExternalTransfer };
+export default { depositInternal, initiateTransfer, confirmTransfer, initiateExternalTransfer, confirmExternalTransfer };
