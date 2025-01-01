@@ -61,7 +61,7 @@ export const getInternalUserFromBankAccount = async (accountNumber: string) => {
         return {
             name: data.data.username,
             accountNumber: data.data.account_number,
-            bankName: "Internal"
+            bankName: "Bankit!"
         }
     } catch(error) {
         throw error
@@ -243,6 +243,31 @@ export const cancelPaymentRequest = async (data: CancelPaymentRequestFormValue) 
 
         revalidatePath('/payment-request')
         redirect('/payment-request')
+    } catch(error) {
+        throw error
+    }
+}
+
+export const getInternalContacts = async () => {
+    try {
+        const response = await fetch(`${BASE_URL}/user-contacts/contacts?type=internal`, {
+            cache: 'no-store',
+            headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                'Content-type': 'application/json'
+            }
+        })
+
+        if(!response.ok) {
+            goToLogin()
+        }
+
+        const data = await response.json()
+        return data.data.map((contact:any) => ({
+            name: contact.nickname,
+            bankName: contact.bank_name,
+            accountNumber: contact.account_number
+        }))
     } catch(error) {
         throw error
     }

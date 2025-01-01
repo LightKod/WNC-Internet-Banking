@@ -35,7 +35,9 @@ export default function HorizontalBar({
                 <Dropdown>
                     <DropdownTrigger>
                         <button type="button" className="group flex items-center gap-x-1.5 px-1.5 py-1 rounded-md border-2 border-slate-200 hover:border-blue-600 transition-colors duration-300">
-                            <div className="flex-none w-8 h-8 rounded-full bg-slate-100"/>
+                            <div className="flex items-center justify-center flex-none w-8 h-8 rounded-full bg-slate-200 text-gray-950 text-sm font-semibold">
+                                {userName.charAt(0).toUpperCase()}
+                            </div>
                             <div className="flex flex-col gap-y-0.5 justify-center items-start">
                                 <span className="text-gray-950 font-bold text-[0.688rem] leading-3">{userName}</span>
                                 <span className="text-gray-500 text-[0.688rem] leading-3">{userRole.charAt(0).toUpperCase() + userRole.slice(1)}</span>
