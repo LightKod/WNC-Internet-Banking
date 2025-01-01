@@ -13,6 +13,8 @@ import Modal, { ModalRef } from "../universal/modal"
 import { APIResponse, Contact } from "@/app/lib/definitions/definition"
 import { formatAccountNumber } from "@/app/lib/utilities/utilities"
 import { InterbankTransferForm, InterbankTransferRef } from "./interbank_transfer_form"
+import { getInternalContacts } from "@/app/lib/actions/actions"
+import ContactModalLoading from "../universal/contact_modal_loading"
 
 interface PageContentContextType {
     nextStep: () => void,
@@ -79,30 +81,13 @@ export default function TransferPageContent() {
 
     useEffect(() => {
         const fetchContactList = async () => {
+            let result: Contact[] = []
             // Fetch internal contacts
             if(transferType === "internal") {
-                console.log("Fetch for internal contacts")
+                result = await getInternalContacts()
             } else {
                 console.log("Fetch for interbank accounts")
             }
-
-            const result: Contact[] = [
-                {
-                    name: "Jerry B.",
-                    bankName: "",
-                    accountNumber: "123456789101"
-                },
-                {
-                    name: "Andy R.",
-                    bankName: "",
-                    accountNumber: "987654321987"
-                },
-                {
-                    name: "Meo meo",
-                    bankName: "",
-                    accountNumber: "486215793852"
-                }
-            ]
 
             setContactList(result)
             setIsFetchingContactList(false)
@@ -182,12 +167,14 @@ export default function TransferPageContent() {
             </div>
             <Modal ref={modalRef} size="sm" heading="Choose a receiver">
                 {isFetchingContactList ? (
-                    <div>Loading...</div>
+                    <ContactModalLoading/>
                 ) : (
                     <div className="flex flex-col divide-y-2 divide-slate-100 overflow-y-auto">
                         {contactList.map((contact) => (
-                            <button onClick={() => handleSelectReceiver(contact.accountNumber)} key={contact.accountNumber} className="group flex gap-x-4 items-center p-4 rounded-md hover:bg-slate-200 transition-all duration-300">
-                                <div className="w-12 h-12 rounded-full bg-slate-500"/>
+                            <button onClick={() => handleSelectReceiver(contact.accountNumber)} key={contact.accountNumber} className="group flex gap-x-4 items-center p-4 rounded-md hover:bg-slate-100 transition-all duration-300">
+                                <div className="flex items-center justify-center flex-none w-12 h-12 rounded-full bg-slate-300 text-gray-950 font-semibold">
+                                    {contact.name.charAt(0).toUpperCase()}
+                                 </div>
                                 <div className="flex flex-col gap-y-0.5 items-start">
                                     <span className="text-gray-500 font-semibold group-hover:text-gray-950 transition-all duration-300">{contact.name}</span>
                                     <span className="text-gray-400 text-sm group-hover:text-gray-500 transition-all duration-300">{contact.bankName}</span>
