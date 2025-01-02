@@ -3,6 +3,8 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import cors from "cors";
 import 'dotenv/config'
+import { swaggerDocs } from './src/config/swagger.js';
+import swaggerUi from 'swagger-ui-express';
 
 import db from "./src/models/index.model.js";
 import authRouter from "./src/routes/auth.route.js";
@@ -60,7 +62,11 @@ app.use("/api/linked-banks", linkbankRoute);
 app.use('/api/check-role', protectRoute, (req, res) => {
   res.status(200).json({ role: req.user.role });
 });
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 var port = 80;
+
+
 
 app.listen(port, function () {
   console.log(`Server is running on port ${port}`);
