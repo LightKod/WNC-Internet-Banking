@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import MiniNavBar from "./mini_navbar";
 import { Dropdown, DropdownContent, DropdownTrigger } from "../universal/dropdown";
 import Link from "next/link";
+import { handleLogout } from "@/app/lib/actions/actions";
 
 // should be a client component
 // fetch for user's info for avatar button
@@ -53,7 +54,7 @@ export default function HorizontalBar({
                                 <KeyIcon className="w-4"/>
                                 <p>Change Password</p>
                             </Link>
-                            <button type="button" className="px-4 py-3 flex flex-row gap-2 items-center text-sm text-gray-500 font-medium bg-white hover:text-red-500 hover:bg-red-50 transition-all duration-300">
+                            <button onClick={() => handleLogout()} type="button" className="px-4 py-3 flex flex-row gap-2 items-center text-sm text-gray-500 font-medium bg-white hover:text-red-500 hover:bg-red-50 transition-all duration-300">
                                 <ArrowRightStartOnRectangleIcon className="w-4"/>
                                 <p>Log Out</p>
                             </button>

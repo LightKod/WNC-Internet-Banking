@@ -184,3 +184,22 @@ export const sendOTP = async (email: string) => {
         throw error;
     }
 }
+
+export const updateContact = async (contactId: number, {nickname, account_number}: {nickname: string, account_number: string}) => {
+    try {
+        const response = await fetch(`${BASE_URL}/user-contacts/${contactId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-type': 'application/json',
+                Authorization: `Bearer ${cookies().get('accessToken')?.value}`
+            },
+            body: JSON.stringify({
+                nickname,
+                account_number
+            })
+        });
+        return (await response.json());
+    } catch(error) {
+        throw error;
+    }
+}

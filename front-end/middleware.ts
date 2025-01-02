@@ -20,6 +20,7 @@ export async function middleware(request: NextRequest) {
         fetchRefreshTokenAPI.data.accessToken,
         { maxAge: 15 * 60 }
       );
+      console.log('handle refresh token API');
       return response;
     }
     if (fetchRefreshTokenAPI.status === -1) {

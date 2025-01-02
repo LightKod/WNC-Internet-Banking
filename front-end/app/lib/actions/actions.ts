@@ -188,3 +188,9 @@ export const addContact = async (accountNumber: string, nickName: string, bankId
         throw error
     }
 }
+
+export const handleLogout = () => {
+    cookies().delete('accessToken');
+    cookies().delete('refreshToken');
+    redirect('/login');
+}
