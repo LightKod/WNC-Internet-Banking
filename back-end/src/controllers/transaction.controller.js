@@ -1,8 +1,8 @@
-import { searchTransactions,getTotalPages  } from '../services/transaction.service.js';
+import { searchTransactions, getTotalPages } from '../services/transaction.service.js';
 import statusCode from '../constants/statusCode.js';
 
 export const searchTransactionsController = async (req, res) => {
-    const { page = 1, query = '', from, to } = req.query;
+    const { page = 1, query = '', from, to, bank, type } = req.query;
 
     try {
         const filters = {
@@ -10,21 +10,16 @@ export const searchTransactionsController = async (req, res) => {
             query,
             from,
             to,
+            bank,
+            type,
         };
 
         const transactions = await searchTransactions(filters);
+        res.status(200).json({
+            status: statusCode.SUCCESS,
+            data: { transactions },
+        });
 
-        if (transactions.length > 0) {
-            res.status(200).json({
-                status: statusCode.SUCCESS,
-                data: { transactions },
-            });
-        } else {
-            res.status(404).json({
-                status: statusCode.ERROR,
-                message: 'No transactions found',
-            });
-        }
     } catch (error) {
         console.error('Error in searchTransactionsController:', error);
         res.status(500).json({
@@ -35,10 +30,10 @@ export const searchTransactionsController = async (req, res) => {
 };
 
 export const getTotalPagesController = async (req, res) => {
-    const { query = '', from, to } = req.query;
+    const { query = '', from, to, bank, type } = req.query;
 
     try {
-        const filters = { query, from, to };
+        const filters = { query, from, to, bank, type };
         const totalPages = await getTotalPages(filters);
 
         res.status(200).json({
