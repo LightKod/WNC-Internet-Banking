@@ -75,6 +75,8 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
             }
         }
 
+        const transactionType = debt_id ? 'debt-payment' : 'internal';
+
         // Tạo giao dịch mới
         const transaction = await Transaction.create({
             source_account: sourceAccount.account_number,

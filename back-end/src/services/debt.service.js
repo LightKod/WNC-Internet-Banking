@@ -1,6 +1,7 @@
 import db from '../models/index.model.js';
 import { getPaymentAccountsByUserIdService } from './account.service.js';
 const { Debt, Account, DebtTransaction } = db;
+import { Op } from 'sequelize';
 
 export const createDebtTransactionService = async (user_id, debt_id, transaction_id) => {
     const newDebtTransaction = await DebtTransaction.create({
@@ -113,7 +114,9 @@ export const setDebtStatusToUnReadService = async (user_id) => {
     }, {
         where: {
             debtor_account: debtorAccount,
-            status: { $or: ['NEW', 'UNREAD_PAID'] },
+            status: {
+                [Op.or]: ['NEW', 'UNREAD_PAID'],
+            },
         },
     });
     return debts;
