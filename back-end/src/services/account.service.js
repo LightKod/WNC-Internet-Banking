@@ -1,7 +1,7 @@
 import db from "../models/index.model.js";
 const { Account, User, LinkedBanks } = db;
 import statusCode from "../constants/statusCode.js";
-import {getExternalTransferTemplateByBankCode} from "../middleware/allLinkedBank.js";
+import getExternalTransferTemplateByBankCode from "../middleware/allLinkedBank.js";
 export const getAccountsByUserIdService = async (userId) => {
     const accounts = await Account.findAll({
         where: { user_id: userId },
