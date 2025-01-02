@@ -1,7 +1,7 @@
 
 export default class ExternalTransferTemplate {
     constructor() {
-        if (new.target === ExternalTransfer) {
+        if (new.target === ExternalTransferTemplate) {
             throw new Error("Cannot instantiate an abstract class directly.");
         }
     }
@@ -10,15 +10,15 @@ export default class ExternalTransferTemplate {
         throw new Error("Abstract method 'getValidateHash' must be implemented in the subclass.");
     }
 
-    getValidateSignature(payload) {
+    async getValidateSignature(payload) {
         throw new Error("Abstract method 'getValidateSignature' must be implemented in the subclass.");
     }
 
-    getUserAccountBody(payload) {
+    async getUserAccount(data, url, secretKey)  {
         throw new Error("Abstract method 'getTransferInitateBodyRespon' must be implemented in the subclass.");
     }
 
-    getTransferDepositBody(payload) {
+    async getTransferDepositBody(data, url, secretKey) {
         throw new Error("Abstract method 'getTransferDepositBody' must be implemented in the subclass.");
     }
 

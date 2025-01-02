@@ -5,7 +5,7 @@ import statusCode from '../constants/statusCode.js';
 import { generateRequestHash, generateSignature, verifyRequestHash, verifySignature } from '../utils/security.js'
 import axios from 'axios';
 import EmailService from './sendMail.service.js'; // Hàm gửi OTP qua email
-import getExternalTransferTemplateByBankCode from '../middleware/allLinkedBank.js';
+import { getExternalTransferTemplateByBankCode } from '../middleware/allLinkedBank.js';
 
 const ErrorCodes = {
     SUCCESS: { code: 0, message: "Success" },
