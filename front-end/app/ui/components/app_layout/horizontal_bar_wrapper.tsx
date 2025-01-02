@@ -47,7 +47,7 @@ export default async function HorizontalBarWrapper() {
         }
 
         const data = await response.json()
-        userName = data.data.user.username
+        userName = data.data.user.name
     } catch(error) {
         throw error
     }

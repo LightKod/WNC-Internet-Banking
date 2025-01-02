@@ -7,8 +7,8 @@ const BASE_URL = 'http://localhost:80/api'
 
 export const login = async ({username, password, captchaValue}: {username: string, password: string, captchaValue: string}) => {
     try {
-        console.log(process.env.RECAPTCHA_SECRET_KEY);
-        console.log(captchaValue);
+        // console.log(process.env.RECAPTCHA_SECRET_KEY);
+        // console.log(captchaValue);
         const captcha = await googleRecaptcha(captchaValue);
         
         if(captcha.success === false) {
@@ -179,6 +179,26 @@ export const sendOTP = async (email: string) => {
                 email
             })
         });
+        return (await response.json());
+    } catch(error) {
+        throw error;
+    }
+}
+
+export const updateContact = async (contactId: number, {nickname, account_number}: {nickname: string, account_number?: string}) => {
+    try {
+        const response = await fetch(`${BASE_URL}/user-contacts/${contactId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-type': 'application/json',
+                Authorization: `Bearer ${cookies().get('accessToken')?.value}`
+            },
+            body: JSON.stringify({
+                nickname,
+                account_number
+            })
+        });
+        revalidatePath('/contacts')
         return (await response.json());
     } catch(error) {
         throw error;

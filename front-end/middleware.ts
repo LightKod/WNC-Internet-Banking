@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const accessToken = cookies().get("accessToken")?.value;
   const refreshToken = cookies().get("refreshToken")?.value;
-  console.log(accessToken);
+  // console.log(accessToken);
   let role = null;
   if (!accessToken && refreshToken) {
     const fetchRefreshTokenAPI = await handleRefreshToken();
@@ -20,6 +20,7 @@ export async function middleware(request: NextRequest) {
         fetchRefreshTokenAPI.data.accessToken,
         { maxAge: 15 * 60 }
       );
+      console.log('handle refresh token API');
       return response;
     }
     if (fetchRefreshTokenAPI.status === -1) {

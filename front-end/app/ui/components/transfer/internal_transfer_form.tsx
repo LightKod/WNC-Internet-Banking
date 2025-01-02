@@ -41,9 +41,17 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
     const onSubmit = async (data: InternalTransferFormValues) => {
         console.log(data)
         const transactionId = await internalTransfer(data)
-        if(transactionId !== "-1") {
+        if(!transactionId.status) {
             context.setTransactionId(transactionId)
             context.nextStep()
+        } else {
+            context.setIsTransactionSuccessful({
+                isSuccessful: false,
+                error: {
+                    code: transactionId.code,
+                    message: transactionId.message
+                }
+            })
         }
     }
 
@@ -142,7 +150,9 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
                             {receiverBankAccount && (
                                 <>
                                     <div className="flex gap-x-4 items-center border-2 border-slate-300 rounded-md p-4 bg-slate-50">
-                                        <div className="w-12 h-12 rounded-full bg-slate-500"/>
+                                        <div className="flex items-center justify-center flex-none w-12 h-12 rounded-full bg-slate-300 text-gray-950 font-semibold">
+                                            {receiverBankAccount.name.charAt(0).toUpperCase()}
+                                        </div>
                                         <div className="flex flex-col gap-y-0.5">
                                             <span className="text-gray-950 font-semibold">{receiverBankAccount.name}</span>
                                             <span className="text-gray-500 text-sm">{receiverBankAccount.bankName}</span>

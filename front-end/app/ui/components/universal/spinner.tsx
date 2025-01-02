@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Spinner() {
+export default function Spinner({heading}: {heading: string}) {
   return (
     <>
       <div role="status" className="flex items-center gap-3">
@@ -19,7 +19,7 @@ export default function Spinner() {
             fill="currentFill"
           />
         </svg>
-        <span>Logging in...</span>
+        <span>{heading}</span>
       </div>
     </>
   );

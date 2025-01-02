@@ -59,10 +59,45 @@ export const getInternalUserFromBankAccount = async (accountNumber: string) => {
 
         const data = await response.json()
         return {
-            name: data.data.username,
+            name: data.data.name,
             accountNumber: data.data.account_number,
             bankName: "Bankit!"
         }
+    } catch(error) {
+        throw error
+    }
+}
+
+export const getInterbankUserFromBankAccount = async (accountNumber: string, bankCode: string) => {
+    try {
+        const response = await fetch(`${BASE_URL}/account/external/account`, {
+            cache: 'no-store',
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                bank_code: bankCode, 
+                account_number: accountNumber
+            })
+        })
+
+        if(response.status === 404) {
+            return null
+        }
+
+        if(!response.ok) {
+            goToLogin()
+        }
+
+        const data = await response.json()
+        // return {
+        //     name: data.data.username,
+        //     accountNumber: data.data.account_number,
+        //     bankName: "Bankit!"
+        // }
+        console.log(data)
     } catch(error) {
         throw error
     }
@@ -92,7 +127,11 @@ export const internalTransfer = async (data: InternalTransferFormValues) => {
 
         const result = await response.json()
         if(result.status === -1) {
-            return "-1"
+            return {
+                status: "-1",
+                message: result.message,
+                code: result.code
+            }
         }
         else {
             return result.data.data.id.toString()
@@ -118,9 +157,13 @@ export const confirmInternalTransfer = async (id: string, otp: string) => {
         })
 
         if(response.status === 400) {
+            const data = await response.json()
             return {
                 isSuccessful: false,
-                error: "Something went wrong"
+                error: {
+                    code: data.code,
+                    message: data.message
+                }
             }
         }
 
@@ -189,6 +232,7 @@ export const addContact = async (accountNumber: string, nickName: string, bankId
         throw error
     }
 }
+
 
 export const createPaymentRequest = async (data: PaymentRequestFormValue) => {
     try {
@@ -271,4 +315,11 @@ export const getInternalContacts = async () => {
     } catch(error) {
         throw error
     }
+}
+
+
+export const handleLogout = () => {
+    cookies().delete('accessToken');
+    cookies().delete('refreshToken');
+    redirect('/login');
 }

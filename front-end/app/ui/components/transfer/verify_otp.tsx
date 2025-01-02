@@ -1,8 +1,8 @@
 'use client'
 
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { PageContentContext } from "./transfer_page_content"
-import { OTPInput } from "../universal/otp_input"
+import { OTPInput, OTPInputRef } from "../universal/otp_input"
 import { ArrowRightIcon, XMarkIcon } from "@heroicons/react/16/solid"
 import { confirmInternalTransfer } from "@/app/lib/actions/actions"
 import { APIResponse } from "@/app/lib/definitions/definition"
@@ -17,6 +17,8 @@ export default function VerifyOTP() {
     const [otp, setOtp] = useState<string>("")
     const [timeLeft, setTimeLeft] = useState(30)
     const [canResend, setCanResend] = useState(false)
+    const [otpError, setOtpError] = useState<string | null>(null)
+    const otpRef = useRef<OTPInputRef>(null)
 
     useEffect(() => {
         if (timeLeft === 0) {
@@ -43,6 +45,14 @@ export default function VerifyOTP() {
         if(response.isSuccessful) {
             context.setIsTransactionSuccessful(response)
             context.nextStep()
+        } else {
+            if(response.error.code === 1 || response.error.code === 2) {
+                otpRef.current?.clearOtp()
+                setOtpError(response.error.message)
+            } else {
+                context.setIsTransactionSuccessful(response)
+                context.nextStep()
+            }
         }
     }
 
@@ -57,7 +67,7 @@ export default function VerifyOTP() {
             </div>
             <div className="grid grid-cols-1 divide-y-2 divide-slate-100 md:grid-cols-[2fr_1fr] md:divide-x-2 md:divide-y-0 ">
                 <div className="flex flex-col gap-y-4 pb-4 md:pr-4 md:pb-0">
-                    <OTPInput length={6} setOtp={setOtp}/>
+                    <OTPInput ref={otpRef} length={6} setOtp={setOtp}/>
                     <div className="text-sm text-gray-500 text-center">Have not received an email yet? {' '}
                         {canResend ? (
                             <button onClick={handleResend} className="text-sm text-gray-500 hover:text-blue-600 font-medium transition-all duration-300">Resend OTP</button>
@@ -78,6 +88,7 @@ export default function VerifyOTP() {
                             <XMarkIcon className="w-4"/>
                             <p>Cancel transfer</p>
                         </button>
+                        {otpError && <p className="text-red-500 text-xs">{otpError}</p>}
                     </div>
                 </div>
             </div>

@@ -7,12 +7,14 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { linkedLibraryDict } from "@/app/lib/definitions/definition";
 import { addContact } from "@/app/lib/actions/api";
+import Toast, { ToastRef } from "../universal/toast";
+import Spinner from "../universal/spinner";
 
 const AddContactSchema = z.object({
   cardNumber: z
     .string({ message: "Require Card Number" })
     .min(12, { message: "Card Number must be exactly 12 character" })
-    .max(12, {message: "Card Number must be exactly 12 character"}),
+    .max(12, { message: "Card Number must be exactly 12 character" }),
   nickname: z
     .string({ message: "Require Nickname" })
     .min(1, { message: "Required Nickname" }),
@@ -29,35 +31,51 @@ export default function AddContact() {
     modalRef.current?.openModal();
   };
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
+    reset,
   } = useForm<AddContactInput>({
     resolver: zodResolver(AddContactSchema),
   });
 
-  const onSubmit: SubmitHandler<AddContactInput> = async (data: AddContactInput) => {
+  const onSubmit: SubmitHandler<AddContactInput> = async (
+    data: AddContactInput
+  ) => {
     console.log(data);
     try {
+      setLoading(true);
       const response = await addContact({
         account_number: data.cardNumber,
         nickname: data.nickname,
         bank_id: 1,
-        bank_name: data.bank
+        bank_name: data.bank,
       });
       console.log(response);
       modalRef.current?.closeModal();
-    } catch(error) {
+      reset();
+      openToast();
+    } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const toastRef = useRef<ToastRef>(null);
+
+  const openToast = () => {
+    toastRef.current?.openToast();
   };
 
   const cardNumber = watch("cardNumber");
   useEffect(() => {
     if (cardNumber?.length === 12) {
-      console.log('check existence')
+      console.log("check existence");
     }
   }, [cardNumber]);
 
@@ -139,11 +157,20 @@ export default function AddContact() {
               </p>
             )}
           </div>
-          <button className="w-full mt-3 py-2 font-bold rounded text-white bg-gradient-to-tr from-blue-800 via-blue-600 to-blue-800 bg-[length:100%_300%] bg-[100%_100%] hover:bg-[100%_0%] hover:scale-[1.03] transition-all duration-300">
-            Add Contact
+          <button className="w-full flex justify-center items-center mt-3 py-2 font-bold rounded text-white bg-gradient-to-tr from-blue-800 via-blue-600 to-blue-800 bg-[length:100%_300%] bg-[100%_100%] hover:bg-[100%_0%] hover:scale-[1.03] transition-all duration-300">
+            {loading ? (
+              <Spinner heading="Adding Contact ..." />
+            ) : (
+              <span>Add Contact</span>
+            )}
           </button>
         </form>
       </Modal>
+      <Toast ref={toastRef} heading="Notification">
+        <div className="flex flex-col gap-y-2">
+          <p className="text-xs text-gray-950">Add new contact successfully</p>
+        </div>
+      </Toast>
     </div>
   );
 }
