@@ -185,7 +185,7 @@ export const sendOTP = async (email: string) => {
     }
 }
 
-export const updateContact = async (contactId: number, {nickname, account_number}: {nickname: string, account_number: string}) => {
+export const updateContact = async (contactId: number, {nickname, account_number}: {nickname: string, account_number?: string}) => {
     try {
         const response = await fetch(`${BASE_URL}/user-contacts/${contactId}`, {
             method: 'PUT',
@@ -198,6 +198,7 @@ export const updateContact = async (contactId: number, {nickname, account_number
                 account_number
             })
         });
+        revalidatePath('/contacts')
         return (await response.json());
     } catch(error) {
         throw error;

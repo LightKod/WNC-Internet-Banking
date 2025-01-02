@@ -34,7 +34,7 @@ export default async function TransactionTable({
     page: currentPage.toString(),
   });
   console.log(transactions);
-  if(transactions.status === 0) {
+  if(transactions.status === 0 && transactions.data.transactions.length !== 0) {
     return (
       <table className="table-auto w-full bg-white select-none">
         <thead>

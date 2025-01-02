@@ -1,25 +1,44 @@
-'use client';
+"use client";
 import React, { useRef } from "react";
 import AlertDialog, { AlertDialogRef } from "../universal/alert_dialog";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import { deleteContact } from "@/app/lib/actions/api";
+import Toast, { ToastRef } from "../universal/toast";
 
-export default function DeleteContact({contactId, nickname}: {contactId: number, nickname: string}) {
+export default function DeleteContact({
+  contactId,
+  nickname,
+}: {
+  contactId: number;
+  nickname: string;
+}) {
   const alertRef = useRef<AlertDialogRef>(null);
 
   const openDialog = () => {
     alertRef.current?.openDialog();
   };
 
+  const toastRef = useRef<ToastRef>(null);
+
+  const openToast = () => {
+    toastRef.current?.openToast();
+  };
+
   const handleDeleteContact = async () => {
+    let response;
     try {
-        const response = await deleteContact(contactId);
-        console.log(response);
-        alertRef.current?.closeDialog;
-    } catch(error) {
-        console.log(error);
+      response = await deleteContact(contactId);
+      console.log(response);
+      alertRef.current?.closeDialog;
+      
+    } catch (error) {
+      console.log(error);
     }
-  }
+    if(response.status === 0) {
+      console.log('here');
+      setInterval(() => { openToast();}, 1000);
+    }
+  };
 
   return (
     <>
@@ -35,11 +54,21 @@ export default function DeleteContact({contactId, nickname}: {contactId: number,
         ref={alertRef}
         heading="Confirm Delete"
         onConfirm={() => {
-            handleDeleteContact();
+          handleDeleteContact();
         }}
         onCancel={() => alertRef.current?.closeDialog}>
-        Are you sure to delete {nickname} ?
+        <span>
+          Are you sure to delete <span className="font-bold">{nickname}</span> ?
+        </span>
       </AlertDialog>
+      <Toast ref={toastRef} heading="Notification">
+        <div className="flex flex-col gap-y-2">
+          <p className="text-xs text-gray-950">
+            Delete contact <span className="font-bold">{nickname}</span>{" "}
+            successfully
+          </p>
+        </div>
+      </Toast>
     </>
   );
 }
