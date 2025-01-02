@@ -59,7 +59,7 @@ export const getInternalUserFromBankAccount = async (accountNumber: string) => {
 
         const data = await response.json()
         return {
-            name: data.data.username,
+            name: data.data.name,
             accountNumber: data.data.account_number,
             bankName: "Bankit!"
         }

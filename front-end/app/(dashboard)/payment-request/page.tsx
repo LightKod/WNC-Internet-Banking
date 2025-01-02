@@ -50,7 +50,7 @@ export default async function Page() {
                 const accountData = await accountResponse.json()
                 return {
                     id: paymentRequest.id,
-                    name: accountData.data.username,
+                    name: accountData.data.name,
                     accountNumber: accountData.data.account_number,
                     createdDate: splitDatetimeString(paymentRequest.created_at),
                     amount: paymentRequest.amount,
@@ -103,7 +103,7 @@ export default async function Page() {
                 const accountData = await accountResponse.json()
                 return {
                     id: paymentRequest.id,
-                    name: accountData.data.username,
+                    name: accountData.data.name,
                     accountNumber: accountData.data.account_number,
                     createdDate: splitDatetimeString(paymentRequest.created_at),
                     amount: paymentRequest.amount,

@@ -2,7 +2,13 @@ import { revalidateManageEmployee } from "@/app/lib/actions/revalidation";
 import ManageEmployeePageContent from "@/app/ui/components/manage_employee/manage_employee_page_content";
 import { ArrowPathIcon } from "@heroicons/react/16/solid";
 
-export default function Page() {
+export default function Page({
+    searchParams 
+}: {
+    searchParams?: { 
+        query?:string;
+        page?:string 
+}}) {
     return (
         <div className="flex flex-col gap-y-4">
             <div className="flex justify-between items-center">
@@ -14,7 +20,7 @@ export default function Page() {
                     </button>
                 </form>
             </div>
-            <ManageEmployeePageContent/>
+            <ManageEmployeePageContent searchParams={searchParams}/>
         </div>
     )
 }

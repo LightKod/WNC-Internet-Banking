@@ -50,3 +50,10 @@ export type DetailedPaymentRequest = {
     createdDate: string,
     status: string
 }
+
+export type Employee = {
+    id: string,
+    name: string,
+    email: string,
+    status: string
+}
