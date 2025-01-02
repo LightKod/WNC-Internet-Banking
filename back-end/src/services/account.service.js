@@ -53,7 +53,7 @@ export const getUserDataByAccountNumberService = async (accountNumber) => {
 
     const user = await User.findOne({
         where: { id: account.user_id },
-        attributes: ["username"],
+        attributes: ["username", "name"],
     });
 
     if (!user) {
@@ -62,6 +62,7 @@ export const getUserDataByAccountNumberService = async (accountNumber) => {
 
     return {
         username: user.username,
+        name: user.name,
         bank_name: process.env.BANK_NAME,
         bank_id: process.env.BANK_ID,
         account_number: account.account_number,
