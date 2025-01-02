@@ -233,6 +233,7 @@ export const addContact = async (accountNumber: string, nickName: string, bankId
     }
 }
 
+
 export const createPaymentRequest = async (data: PaymentRequestFormValue) => {
     try {
         const response = await fetch(`${BASE_URL}/debt`, {
@@ -314,4 +315,11 @@ export const getInternalContacts = async () => {
     } catch(error) {
         throw error
     }
+}
+
+
+export const handleLogout = () => {
+    cookies().delete('accessToken');
+    cookies().delete('refreshToken');
+    redirect('/login');
 }

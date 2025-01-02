@@ -112,7 +112,7 @@ export default function LoginForm() {
       <button
         type="submit"
         className="w-full flex justify-center items-center rounded-lg py-3 bg-blue-600 text-blue-50 font-bold hover:bg-blue-800 transition-colors duration-300">
-        {loading ? <Spinner /> : <div>Log In</div>}
+        {loading ? <Spinner heading="Logging in ..." /> : <div>Log In</div>}
       </button>
     </form>
   );
