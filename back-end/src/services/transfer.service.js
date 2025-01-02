@@ -1,11 +1,12 @@
 
 import db from '../models/index.model.js'
-const { OTP, Transaction, Account, LinkedBanks, User } = db;
+const { OTP, Transaction, Account, LinkedBanks, User, Debt } = db;
 import statusCode from '../constants/statusCode.js';
 import { generateRequestHash, generateSignature, verifyRequestHash, verifySignature } from '../utils/security.js'
 import axios from 'axios';
 import EmailService from './sendMail.service.js'; // Hàm gửi OTP qua email
 import getExternalTransferTemplateByBankCode from '../middleware/allLinkedBank.js';
+import { createDebtTransactionService, confirmDebtTransaction } from './debt.service.js';
 
 const ErrorCodes = {
     SUCCESS: { code: 0, message: "Success" },
@@ -19,10 +20,14 @@ const ErrorCodes = {
     INVALID_AMOUNT: { code: 8, message: "Invalid deposit amount" },
     DESTINATION_ACCOUNT_INVALID: { code: 9, message: "Invalid destination account" },
     API_ERROR: { code: 10, message: "Failed to process external API" },
+    DEBT_NOT_FOUND: { code: 11, message: "Debt not found" },
+    DEBT_USER_ERROR: { code: 12, message: "You are not the debtor of this debt" },
+    DEBT_END: { code: 13, message: "Debt is paid or canceled" },
+    DEBT_INSUFFICIENT: { code: 13, message: "Amount is not enough to pay debt" },
     UNKNOWN_ERROR: { code: 999, message: "An unknown error occurred" },
 };
 // Bước 1: Khởi tạo chuyển khoản và gửi OTP
-export const initiateTransfer = async ({ source_account_number, destination_account_number, amount, content, fee_payer, user }) => {
+export const initiateTransfer = async ({ source_account_number, destination_account_number, amount, content, fee_payer, user, debt_id }) => {
     try {
         // Truy xuất thông tin tài khoản nguồn và đích
         const sourceAccount = await Account.findOne({
@@ -43,6 +48,35 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
             return { status: statusCode.ERROR, ...ErrorCodes.INSUFFICIENT_FUNDS };
         }
 
+        if (debt_id) {
+            const userAccount = sourceAccount;
+            const debt = await Debt.findOne({
+                where: { id: debt_id },
+            });
+
+            if (!debt) {
+                return { status: statusCode.ERROR, ...ErrorCodes.DEBT_NOT_FOUND };
+            }
+
+            if (debt.debtor_account !== userAccount.account_number) {
+                return { status: statusCode.ERROR, ...ErrorCodes.DEBT_USER_ERROR };
+            }
+
+            if (debt.status === 'PAID') {
+                return { status: statusCode.ERROR, ...ErrorCodes.DEBT_END };
+            }
+
+            if (debt.status === 'CANCELED') {
+                return { status: statusCode.ERROR, ...ErrorCodes.DEBT_END };
+            }
+
+            if (debt.amount > amount) {
+                return { status: statusCode.ERROR, ...ErrorCodes.DEBT_INSUFFICIENT };
+            }
+        }
+
+        const transactionType = debt_id ? 'debt-payment' : 'internal';
+
         // Tạo giao dịch mới
         const transaction = await Transaction.create({
             source_account: sourceAccount.account_number,
@@ -54,6 +88,10 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
             source_bank: process.env.BANK_ID,
             destination_bank: process.env.BANK_ID,
         });
+
+        if (debt_id) {
+            await createDebtTransactionService(user.id, debt_id, transaction.id);
+        }
 
         // Tạo OTP và liên kết với transaction_id
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString(); // Tạo OTP ngẫu nhiên
@@ -74,7 +112,7 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
         return { status: statusCode.ERROR, code: 999, message: err.message };
     }
 };
-export const confirmTransfer = async ({ otp_code, transaction_id }) => {
+export const confirmTransfer = async ({ otp_code, transaction_id, debt_id }) => {
     try {
         // Kiểm tra OTP
         const otpRecord = await OTP.findOne({
@@ -121,6 +159,15 @@ export const confirmTransfer = async ({ otp_code, transaction_id }) => {
             { balance: parseInt(destinationAccount.balance) + parseInt(transaction.amount) },
             { where: { id: destinationAccount.id } }
         );
+
+        if (debt_id) {
+            try {
+
+                await confirmDebtTransaction(debt_id, transaction_id);
+            } catch (err) {
+                console.log("Debt payment error:", err);
+            }
+        }
 
         // Cập nhật trạng thái giao dịch
         transaction.status = "SUCCESS";
@@ -225,7 +272,7 @@ export const confirmExternalTransfer = async ({ otp_code, transaction_id, bank_c
             return { status: statusCode.ERROR, ...ErrorCodes.INSUFFICIENT_FUNDS };
         }
 
-        
+
 
         // Call linked bank API to deposit into destination account
         const depositPayload = {
