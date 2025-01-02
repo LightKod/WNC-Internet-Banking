@@ -94,10 +94,11 @@ export default function ConfirmTransfer() {
                             <ArrowRightIcon className="w-4"/>
                             <p>Continue</p>
                         </button>
-                        <button type="button" onClick={() => {context.prevStep(); context.setIsFormValid(false)}} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-slate-200 text-gray-950 text-sm font-medium hover:bg-slate-300 transition-colors duration-300">
+                        <button type="button" onClick={() => {context.prevStep(); context.setIsFormValid(false); context.setIsTransactionSuccessful(null)}} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-slate-200 text-gray-950 text-sm font-medium hover:bg-slate-300 transition-colors duration-300">
                             <ArrowLeftIcon className="w-4"/>
                             <p>Back</p>
                         </button>
+                        {context.isTransactionSuccessful && !context.isTransactionSuccessful?.isSuccessful && <p className="text-red-500 text-xs">{context.isTransactionSuccessful?.error.message + ". Go back and edit the form before submitting again"}</p>}
                     </div>
                 </div>
             </div>

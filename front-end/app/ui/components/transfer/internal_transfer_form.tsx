@@ -41,9 +41,17 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
     const onSubmit = async (data: InternalTransferFormValues) => {
         console.log(data)
         const transactionId = await internalTransfer(data)
-        if(transactionId !== "-1") {
+        if(!transactionId.status) {
             context.setTransactionId(transactionId)
             context.nextStep()
+        } else {
+            context.setIsTransactionSuccessful({
+                isSuccessful: false,
+                error: {
+                    code: transactionId.code,
+                    message: transactionId.message
+                }
+            })
         }
     }
 

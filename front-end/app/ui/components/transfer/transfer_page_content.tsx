@@ -24,6 +24,7 @@ interface PageContentContextType {
     setIsFormValid: React.Dispatch<React.SetStateAction<boolean>>,
     transactionId: string,
     setTransactionId: React.Dispatch<React.SetStateAction<string>>,
+    isTransactionSuccessful: APIResponse | null,
     setIsTransactionSuccessful: React.Dispatch<React.SetStateAction<APIResponse | null>>,
     internalFormRef: RefObject<InternalTransferRef>,
     interbankFormRef: RefObject<InterbankTransferRef>
@@ -112,6 +113,7 @@ export default function TransferPageContent() {
                     setIsFormValid,
                     transactionId,
                     setTransactionId,
+                    isTransactionSuccessful,
                     setIsTransactionSuccessful,
                     internalFormRef,
                     interbankFormRef,
@@ -160,7 +162,7 @@ export default function TransferPageContent() {
                             {transactionId !== "" && <VerifyOTP/>}
                         </Page>
                         <Page>
-                            {isTransactionSuccessful?.isSuccessful && <SuccessfulTransfer/>}
+                            {isTransactionSuccessful?.isSuccessful ? <SuccessfulTransfer/> : <FailedTransfer/>}
                         </Page>
                     </PageSlider>
                 </PageContentContext.Provider>
