@@ -1,6 +1,6 @@
-import TransferTemplate from './TransferTemplate';
+import ExternalTransferTemplate from './ExternalTransferTemplate.js';
 
-export default class BankATransferTemplate extends TransferTemplate {
+export default class BankATransferTemplate extends ExternalTransferTemplate {
     getValidateHash(payload) {
         throw new Error("Abstract method 'getValidateHash' must be implemented in the subclass.");
     }
