@@ -32,14 +32,17 @@ async function generatePGPSignature(message, privateKeyArmored) {
 export default class BankATransferTemplate extends ExternalTransferTemplate {
   getValidateHash(payload) {
     const { time, domain, secretKey } = payload;
-    const dataToHash = `${domain}|${time}|${secretKey}`;
+    const dataToHash = `${domain}${time}${secretKey}`;
+    console.log("dataToHash",dataToHash);
     return createHmac("sha256", secretKey).update(dataToHash).digest("hex");
   }
 
   async getValidateSignature(payload) {
-    const { data } = payload;
-    const message = JSON.stringify(data);
-    const signature = await generatePGPSignature(message, process.env.PRIVATE_KEY);
+    const message = JSON.stringify(payload);
+    const  privateKey =  Buffer.from(process.env.PRIVATE_KEY, 'base64').toString('ascii');
+
+    const signature = await generatePGPSignature(message, privateKey);
+    console.log("signature generated",payload);
     return signature;
   }
 
@@ -51,16 +54,18 @@ export default class BankATransferTemplate extends ExternalTransferTemplate {
       const time = Date.now();
       const dataToHash = { time, domain, secretKey };
       const hash = this.getValidateHash(dataToHash);
+      console.log("hash",hash);
+      console.log("url",url);
       const response = await axios.post(url, {
         payload: {
           accountNumber: account_number,
         },
         time,
         token: hash,
-        domain,
+        domain:"http://back-end-pgp:3001/",
       });
-
-      return response.data;
+      console.log("response",response.data);
+      return response.data.account;
     } catch (error) {
       console.error("Error fetching user account:", error.message);
       throw new Error("Failed to fetch user account data");
@@ -71,7 +76,7 @@ export default class BankATransferTemplate extends ExternalTransferTemplate {
         try {
            const { source_account_number, destination_account_number, amount,content} = data;
            const payload = {
-            amount,
+            amount: parseInt(amount),
             accountNumber: destination_account_number,
             srcAccount: source_account_number,
             content
@@ -82,12 +87,13 @@ export default class BankATransferTemplate extends ExternalTransferTemplate {
            const dataToHash = { time, domain, secretKey };
            const hash = this.getValidateHash(dataToHash);
            const signature = await this.getValidateSignature(payload);
+           console.log("signature",signature);
            const response = await axios.post(url, {
              payload,
              time,
              token: hash,
-             domain,
-             signature
+             domain:"http://back-end-pgp:3001/",
+             signature: signature
            })
             return response.data;
           } catch (error) {

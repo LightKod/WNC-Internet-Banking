@@ -75,17 +75,17 @@ export const getBankAccountByAccountNumber = async (bank_code, accountNumber) =>
         if (!linkedBank) {
             return { status: statusCode.ERROR, message: 'Bank not linked' };
         }
-        const destinationCheckPayload = { bank_code: process.env.BANK_ID, account_number: destination_account_number, timestamp: Date.now() };
+        const destinationCheckPayload = { bank_code: process.env.BANK_ID, account_number: accountNumber, timestamp: Date.now() };
         const bankConfig = getExternalTransferTemplateByBankCode(bank_code);
         
-        const data = bankConfig.getUserAccount(destinationCheckPayload, linkedBank.account_info_api_url, linkedBank.secret_key);
+        const data = await bankConfig.getUserAccount(destinationCheckPayload, linkedBank.account_info_api_url, linkedBank.secret_key);
 
         // Trả về thông tin tài khoản ngân hàng
         return {
-            account_number: data.account_number,
+            account_number: data.accountNumber,
             bank_name: linkedBank.bank_name,
-            bank_code: data.bank_code,
-            balance: data.balance,
+            bank_code: bank_code,
+            name: data.fullName,
         };
     } catch (error) {
         console.error("Error in getBankAccountByAccountNumber:", error);

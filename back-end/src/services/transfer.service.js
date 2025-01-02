@@ -153,16 +153,9 @@ export const initiateExternalTransfer = async ({ source_account_number, destinat
 
         // Check destination account in linked bank
         const destinationCheckPayload = { bank_code: process.env.BANK_ID, account_number: destination_account_number, timestamp: Date.now() };
-        const destinationHash = generateRequestHash(transferTemplate.getValidateHash({
-            destinationCheckPayload, secret_key: linkedBank.secret_key
-        }));
+        const data = await transferTemplate.getUserAccount(destinationCheckPayload, linkedBank.account_info_api_url, linkedBank.secret_key);
 
-        const destinationCheckResponse = await axios.post(linkedBank.account_info_api_url, { //getUserAccountBody(payload)
-            ...destinationCheckPayload,
-            hash: destinationHash,
-        });
-
-        if (destinationCheckResponse.status !== 200 || !destinationCheckResponse.data) {
+        if (!data) {
             return { status: statusCode.ERROR, ...ErrorCodes.ACCOUNT_NOT_FOUND };
         }
 
@@ -232,31 +225,22 @@ export const confirmExternalTransfer = async ({ otp_code, transaction_id, bank_c
             return { status: statusCode.ERROR, ...ErrorCodes.INSUFFICIENT_FUNDS };
         }
 
-        sourceAccount.balance -= transaction.amount;
-        await sourceAccount.save();
+        
 
         // Call linked bank API to deposit into destination account
         const depositPayload = {
             bank_code: process.env.BANK_ID,
+            source_account_number: sourceAccount.account_number,
+            destination_account_number: transaction.destination_account,
+            content: transaction.content,
             account_number: transaction.destination_account,
             amount: transaction.amount,
             timestamp: Date.now(),
         };
 
-        const depositHash = generateRequestHash(depositPayload, linkedBank.secret_key); //transferTemplate.getValidateHash(payload)
-
-        const depositSignature = await generateSignature(depositPayload, process.env.PRIVATE_KEY, process.env.SIGNATURE_TYPE); //transferTemplate.getValidateSignature(payload)
-        console.log("depositSignature", depositSignature)
-        const depositResponse = await axios.post(linkedBank.deposit_api_url, { //getTransferDepositBody(payload)
-            ...depositPayload,
-            hash: depositHash,
-            signature: depositSignature,
-        });
-
-        if (depositResponse.status !== 200 || !depositResponse.data) {
-            throw new Error('Failed to deposit into destination account');
-        }
-
+        const data = await transferTemplate.getTransferDepositBody(depositPayload, linkedBank.deposit_api_url, linkedBank.secret_key);
+        sourceAccount.balance -= transaction.amount;
+        await sourceAccount.save();
         // Mark transaction as completed
         transaction.status = 'SUCCESS';
         await transaction.save();
