@@ -103,7 +103,7 @@ export const paymentRequestSchema = z.object({
     senderAccountNumber: z.string({
         invalid_type_error: "Invalid data",
         required_error: "This field is required"
-    }).length(15, {
+    }).length(12, {
         message: "Invalid account number"
     }),
     receiverAccountNumber: z.string({

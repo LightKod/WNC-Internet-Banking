@@ -4,7 +4,7 @@ import { getAccessToken } from "../utilities/server_utilities";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { InternalTransferFormValues } from "../schemas/schemas";
+import { CancelPaymentRequestFormValue, InternalTransferFormValues, PaymentRequestFormValue } from "../schemas/schemas";
 
 const BASE_URL = 'http://localhost:80/api'
 
@@ -59,9 +59,9 @@ export const getInternalUserFromBankAccount = async (accountNumber: string) => {
 
         const data = await response.json()
         return {
-            name: data.data.username,
+            name: data.data.name,
             accountNumber: data.data.account_number,
-            bankName: "Internal"
+            bankName: "Bankit!"
         }
     } catch(error) {
         throw error
@@ -128,6 +128,7 @@ export const confirmInternalTransfer = async (id: string, otp: string) => {
             goToLogin()
         }
 
+        revalidatePath("/dashboard")
         return {
             isSuccessful: true
         }
@@ -188,6 +189,91 @@ export const addContact = async (accountNumber: string, nickName: string, bankId
         throw error
     }
 }
+
+
+export const createPaymentRequest = async (data: PaymentRequestFormValue) => {
+    try {
+        const response = await fetch(`${BASE_URL}/debt`, {
+            cache: 'no-store',
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                debtor_account: data.receiverAccountNumber,
+                amount: data.amount,
+                description: data.requestNote
+            })
+        })
+
+        if(!response.ok) {
+            const result = await response.json()
+            return {
+                isSuccessful: false,
+                error: result.message
+            }
+        }
+
+        return {
+            isSuccessful: true
+        }
+    } catch(error) {
+        throw error
+    }
+}
+
+export const cancelPaymentRequest = async (data: CancelPaymentRequestFormValue) => {
+    try {
+        const response = await fetch(`${BASE_URL}/debt/cancel`, {
+            cache: 'no-store',
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                debtId: data.paymentRequestId, 
+                cancelNote: data.content
+            })
+        })
+
+        if(!response.ok) {
+            return
+        }
+
+        revalidatePath('/payment-request')
+        redirect('/payment-request')
+    } catch(error) {
+        throw error
+    }
+}
+
+export const getInternalContacts = async () => {
+    try {
+        const response = await fetch(`${BASE_URL}/user-contacts/contacts?type=internal`, {
+            cache: 'no-store',
+            headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                'Content-type': 'application/json'
+            }
+        })
+
+        if(!response.ok) {
+            goToLogin()
+        }
+
+        const data = await response.json()
+        return data.data.map((contact:any) => ({
+            name: contact.nickname,
+            bankName: contact.bank_name,
+            accountNumber: contact.account_number
+        }))
+    } catch(error) {
+        throw error
+    }
+}
+
 
 export const handleLogout = () => {
     cookies().delete('accessToken');

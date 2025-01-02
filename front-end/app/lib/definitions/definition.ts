@@ -29,3 +29,31 @@ export type APIResponse = {
     error?: any,
     data?: any
 }
+
+export type PaymentRequest = {
+    id: string,
+    name: string,
+    accountNumber: string,
+    createdDate: string,
+    amount: string,
+    status: string
+}
+
+export type DetailedPaymentRequest = {
+    id: string,
+    creditorAccountNumber: string,
+    debtorAccountNumber: string,
+    creditorName: string,
+    amount: string,
+    description: string,
+    cancelNote?: string,
+    createdDate: string,
+    status: string
+}
+
+export type Employee = {
+    id: string,
+    name: string,
+    email: string,
+    status: string
+}

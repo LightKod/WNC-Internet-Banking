@@ -28,19 +28,6 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
     if(!context){
         throw new Error('Something went wrong')
     }
-    
-    const dummyBankAccounts: BankAccount[] = [
-        {
-            accountType: "payment",
-            accountNumber: "111222233334444",
-            balance: "200000"
-        },
-        {
-            accountType: "saving",
-            accountNumber: "246810121416182",
-            balance: "1000000"
-        },
-    ]
 
     const { handleSubmit, register, setValue, getValues, watch, formState: { errors, isValid } } = useForm<InternalTransferFormValues>({
         resolver: zodResolver(internalTransferSchema),
@@ -155,7 +142,9 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
                             {receiverBankAccount && (
                                 <>
                                     <div className="flex gap-x-4 items-center border-2 border-slate-300 rounded-md p-4 bg-slate-50">
-                                        <div className="w-12 h-12 rounded-full bg-slate-500"/>
+                                        <div className="flex items-center justify-center flex-none w-12 h-12 rounded-full bg-slate-300 text-gray-950 font-semibold">
+                                            {receiverBankAccount.name.charAt(0).toUpperCase()}
+                                        </div>
                                         <div className="flex flex-col gap-y-0.5">
                                             <span className="text-gray-950 font-semibold">{receiverBankAccount.name}</span>
                                             <span className="text-gray-500 text-sm">{receiverBankAccount.bankName}</span>

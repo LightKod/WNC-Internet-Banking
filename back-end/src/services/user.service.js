@@ -1,5 +1,6 @@
 import db from "../models/index.model.js";
 import bcrypt from "bcrypt";
+import { Op } from 'sequelize';
 
 const { User } = db;
 
@@ -8,7 +9,7 @@ export const getUserDetails = async (userId) => {
     try {
         const user = await User.findOne({
             where: { id: userId },
-            attributes: ['id', 'username', 'email', 'phone_number', 'created_at'],
+            attributes: ['id', 'username', "name", 'email', 'phone_number', 'created_at'],
         });
 
         return user ? user : null;
@@ -21,14 +22,14 @@ export const listEmployees = async ({ page, limit, search }) => {
     const offset = (page - 1) * limit;
     const whereClause = {
         role: "employee",
-        ...(search && { name: { [Op.like]: `%${search}%` } }),
+        ...(search && { name: { [Op.iLike]: `%${search}%` } }),
     };
 
     const employees = await User.findAndCountAll({
         where: whereClause,
         offset,
         limit: parseInt(limit),
-        attributes: ["id", "username", "name", "email", "phone_number", "created_at"],
+        attributes: ["id", "username", "name", "email", "phone_number", "created_at", "status"],
     });
 
     return {
@@ -38,8 +39,8 @@ export const listEmployees = async ({ page, limit, search }) => {
         limit: parseInt(limit),
     };
 };
-export const assignEmployee = async (userId) => {
-    const user = await User.findOne({ where: { id: userId } });
+export const assignEmployee = async (username) => {
+    const user = await User.findOne({ where: { username: username } });
 
     if (user) {
         user.role = "employee";

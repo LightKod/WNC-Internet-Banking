@@ -1,8 +1,122 @@
 import { revalidatePaymentRequest } from "@/app/lib/actions/revalidation"
+import { BASE_URL, PaymentRequest } from "@/app/lib/definitions/definition"
+import { getAccessToken } from "@/app/lib/utilities/server_utilities"
+import { splitDatetimeString } from "@/app/lib/utilities/utilities"
 import PaymentRequestPageContent from "@/app/ui/components/payment_request/payment_request_page_content"
 import { ArrowPathIcon } from "@heroicons/react/16/solid"
 
-export default function Page() {
+export default async function Page() {
+    let selfPaymentRequests: PaymentRequest[] = []
+    let otherPaymentRequests: PaymentRequest[] = []
+
+    try {
+        const response = await fetch(`${BASE_URL}/debt/user/creditor`, {
+            cache: 'no-store',
+            headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                'Content-type': 'application/json'
+            }
+        })
+
+        if(response.status === 401) {
+            throw new Error("401")
+        }
+
+        if(!response.ok) {
+            throw new Error("Something went wrong")
+        }
+
+        const data = await response.json()
+        // console.log(data)
+        selfPaymentRequests = await Promise.all(
+            data.data.map(async (paymentRequest:any) => {
+                const debtorAccount = paymentRequest.debtor_account
+                const accountResponse = await fetch(`${BASE_URL}/account/user/${debtorAccount}`, {
+                    cache: 'no-store',
+                    headers: {
+                        Authorization: `Bearer ${getAccessToken()}`,
+                        'Content-type': 'application/json'
+                    }
+                })
+            
+                if(accountResponse.status === 404) {
+                    throw new Error("401")
+                }
+            
+                if(!accountResponse.ok) {
+                    throw new Error("Something went wrong")
+                }
+            
+                const accountData = await accountResponse.json()
+                return {
+                    id: paymentRequest.id,
+                    name: accountData.data.name,
+                    accountNumber: accountData.data.account_number,
+                    createdDate: splitDatetimeString(paymentRequest.created_at),
+                    amount: paymentRequest.amount,
+                    status: paymentRequest.status
+                }
+            })
+        )
+    } catch(error) {
+        throw error
+    }
+
+    try {
+        const response = await fetch(`${BASE_URL}/debt/user/debtor`, {
+            cache: 'no-store',
+            headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                'Content-type': 'application/json'
+            }
+        })
+
+        if(response.status === 401) {
+            throw new Error("401")
+        }
+
+        if(!response.ok) {
+            throw new Error("Something went wrong")
+        }
+
+        const data = await response.json()
+        // console.log(data)
+        otherPaymentRequests = await Promise.all(
+            data.data.map(async (paymentRequest:any) => {
+                const creditorAccount = paymentRequest.creditor_account
+                const accountResponse = await fetch(`${BASE_URL}/account/user/${creditorAccount}`, {
+                    cache: 'no-store',
+                    headers: {
+                        Authorization: `Bearer ${getAccessToken()}`,
+                        'Content-type': 'application/json'
+                    }
+                })
+            
+                if(accountResponse.status === 404) {
+                    throw new Error("401")
+                }
+            
+                if(!accountResponse.ok) {
+                    throw new Error("Something went wrong")
+                }
+            
+                const accountData = await accountResponse.json()
+                return {
+                    id: paymentRequest.id,
+                    name: accountData.data.name,
+                    accountNumber: accountData.data.account_number,
+                    createdDate: splitDatetimeString(paymentRequest.created_at),
+                    amount: paymentRequest.amount,
+                    status: paymentRequest.status
+                }
+            })
+        )
+    } catch(error) {
+        throw error
+    }
+
+    // console.log(selfPaymentRequests)
+
     return (
         <div className="flex flex-col gap-y-4">
             <div className="flex justify-between items-center">
@@ -14,7 +128,7 @@ export default function Page() {
                     </button>
                 </form>
             </div>
-            <PaymentRequestPageContent/>
+            <PaymentRequestPageContent selfPaymentRequests={selfPaymentRequests} otherPaymentRequests={otherPaymentRequests}/>
         </div>
     )
 }

@@ -4,17 +4,19 @@ import { createContext, RefObject, useEffect, useRef, useState } from "react"
 import { StepIndicator, StepIndicatorRef } from "../universal/step_indicator"
 import { Page, PageSlider, PageSliderRef } from "../universal/page_slider"
 import Modal, { ModalRef } from "../universal/modal"
-import { Contact } from "@/app/lib/definitions/definition"
+import { APIResponse, Contact } from "@/app/lib/definitions/definition"
 import { PaymentRequestForm, PaymentRequestRef } from "./payment_request_form"
 import { formatAccountNumber } from "@/app/lib/utilities/utilities"
 import ConfirmPaymentRequest from "./confirm_payment_request"
 import SuccessfulRequest from "./successful_request"
+import FailedRequest from "./failed_request"
 
 interface PageContentContextType {
     nextStep: () => void,
     prevStep: () => void,
     setIsFormValid: React.Dispatch<React.SetStateAction<boolean>>,
-    setIsRequestSuccessful: React.Dispatch<React.SetStateAction<boolean | null>>,
+    isRequestSuccessful: APIResponse | null,
+    setIsRequestSuccessful: React.Dispatch<React.SetStateAction<APIResponse | null>>,
     formRef: RefObject<PaymentRequestRef>,
     handleOpenModal: () => void
 }
@@ -23,7 +25,7 @@ export const PageContentContext = createContext<PageContentContextType | null>(n
 
 export default function CreatePaymentRequestContent() {
     const [isFormValid, setIsFormValid] = useState<boolean>(false)
-    const [isRequestSuccessful, setIsRequestSuccessful] = useState<boolean | null>(null)
+    const [isRequestSuccessful, setIsRequestSuccessful] = useState<APIResponse | null>(null)
 
     const stepIndicatorRef = useRef<StepIndicatorRef>(null)
     const pageSliderRef = useRef<PageSliderRef>(null)
@@ -93,6 +95,7 @@ export default function CreatePaymentRequestContent() {
                     nextStep,
                     prevStep,
                     setIsFormValid,
+                    isRequestSuccessful,
                     setIsRequestSuccessful,
                     formRef,
                     handleOpenModal
@@ -105,7 +108,7 @@ export default function CreatePaymentRequestContent() {
                             {isFormValid && <ConfirmPaymentRequest/>}
                         </Page>
                         <Page>
-                            {isRequestSuccessful && <SuccessfulRequest/>}
+                            {isRequestSuccessful?.isSuccessful ? <SuccessfulRequest/> : <FailedRequest/>}
                         </Page>
                     </PageSlider>
                 </PageContentContext.Provider>

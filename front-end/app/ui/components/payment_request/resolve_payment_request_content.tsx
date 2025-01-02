@@ -4,7 +4,7 @@ import { createContext, useRef, useState } from "react"
 import { StepIndicator, StepIndicatorRef } from "../universal/step_indicator"
 import { Page, PageSlider, PageSliderRef } from "../universal/page_slider"
 import { InternalTransferFormValues } from "@/app/lib/schemas/schemas"
-import { Contact } from "@/app/lib/definitions/definition"
+import { Contact, DetailedPaymentRequest } from "@/app/lib/definitions/definition"
 import ReviewPaymentRequest from "./review_payment_request"
 import VerifyOTP from "./verify_otp"
 import SuccessfulPayment from "./successful_payment"
@@ -16,8 +16,7 @@ interface PageContentContextType {
     id: string,
     transactionId: string,
     setTransactionId: React.Dispatch<React.SetStateAction<string>>,
-    paymentRequest: InternalTransferFormValues,
-    receiverBankAccount: Contact,
+    paymentRequest: DetailedPaymentRequest
     onConfirm: () => void
 }
 
@@ -25,12 +24,10 @@ export const PageContentContext = createContext<PageContentContextType | null>(n
 
 export default function ResolvePaymentRequestContent({
     id,
-    paymentRequest,
-    receiverBankAccount
+    paymentRequest
 } : {
     id: string,
-    paymentRequest: InternalTransferFormValues,
-    receiverBankAccount: Contact
+    paymentRequest: DetailedPaymentRequest
 }) {
     const [isTransactionSuccessful, setIsTransactionSuccessful] = useState<boolean | null>(null)
     const [transactionId, setTransactionId] = useState<string>("")
@@ -66,7 +63,6 @@ export default function ResolvePaymentRequestContent({
                 transactionId,
                 setTransactionId,
                 paymentRequest,
-                receiverBankAccount,
                 onConfirm
             }}>
                 <PageSlider ref={pageSliderRef}>

@@ -45,19 +45,19 @@ export default function SuccessfulTransfer() {
     const [isContactSaved, setIsContactSaved] = useState<boolean>(false)
 
     const handleSaveContact = async () => {
-        // if(context.transferType === "internal") {
-        //     const result = await addContact(receiverBankAccount!.accountNumber, receiverBankAccount!.name, "", "")
-        //     if(result === true) {
-        //         setIsContactSaved(true)
-        //     }
-        // }
+        if(context.transferType === "internal") {
+            const result = await addContact(receiverBankAccount!.accountNumber, receiverBankAccount!.name, "RSA", "Bankit!")
+            if(result === true) {
+                setIsContactSaved(true)
+            }
+        }
         setIsContactSaved(true)
     }
 
     useEffect(() => {
         const checkExistence = async () => {
             if(context.transferType === "internal") {
-                const result = await checkContactExistence(receiverBankAccount!.accountNumber, "")
+                const result = await checkContactExistence(receiverBankAccount!.accountNumber, "RSA")
                 setIsSaveContactShowing(!result)
             }
         }
@@ -70,7 +70,7 @@ export default function SuccessfulTransfer() {
             <div className="flex flex-col gap-y-1 items-center p-8 bg-blue-50 rounded-md border-2 border-blue-100">
                 <CheckCircleIcon className="w-24 text-blue-600"/>
                 <p className="text-gray-950 font-semibold">Transfer completed</p>
-                <p className="text-4xl text-blue-600 font-bold">{formValues?.isSelfFeePayment === "true" ? `${formatMoney((BigInt(formValues!.amount) + BigInt(15000)).toString())} VND` : `${formatMoney(formValues!.amount.toString())} VND`}</p>
+                <p className="text-4xl text-blue-600 font-bold">{`${formatMoney(formValues!.amount.toString())} VND`}</p>
                 <div className="flex gap-x-2 items-center justify-center">
                     <p className="text-sm text-gray-500">{`Transaction ID: ${context.transactionId}`}</p>
                     <button onClick={handleCopyTransactionId} className={clsx(

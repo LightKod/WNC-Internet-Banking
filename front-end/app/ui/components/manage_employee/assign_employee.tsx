@@ -7,6 +7,7 @@ import Modal, { ModalRef } from "../universal/modal"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AssignEmployeeFormValues, assignEmployeeSchema } from "@/app/lib/schemas/schemas"
+import { assignEmployee } from "@/app/lib/actions/admin_actions"
 
 export default function AssignEmployee() {
     const { handleSubmit, register, setValue, reset, getValues, formState: { errors } } = useForm<AssignEmployeeFormValues>({
@@ -18,8 +19,8 @@ export default function AssignEmployee() {
         modalRef.current?.openModal()
     }
 
-    const onSubmit = () => {
-        console.log(`Assign this username to be employee: ${getValues("username")}`)
+    const onSubmit = (data: AssignEmployeeFormValues) => {
+        assignEmployee(data)
 
         modalRef.current?.closeModal()
     }

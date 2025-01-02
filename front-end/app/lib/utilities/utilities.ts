@@ -31,6 +31,11 @@ export const formatDate = (dateString: string): string => {
     return `${parseInt(day, 10)} ${monthName} ${year}`;
 }
 
+export const splitDatetimeString = (datetimeString: string): string => {
+    const [date] = datetimeString.split('T')
+    return date
+}
+
 export const numberToWords = (numberString: string): string => {
     if (!/^\d+$/.test(numberString)) {
         return ""

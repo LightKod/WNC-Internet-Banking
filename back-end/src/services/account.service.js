@@ -1,6 +1,7 @@
 import db from "../models/index.model.js";
 const { Account, User, LinkedBanks } = db;
 import statusCode from "../constants/statusCode.js";
+import getExternalTransferTemplateByBankCode from "../middleware/allLinkedBank.js";
 export const getAccountsByUserIdService = async (userId) => {
     const accounts = await Account.findAll({
         where: { user_id: userId },
@@ -53,7 +54,7 @@ export const getUserDataByAccountNumberService = async (accountNumber) => {
 
     const user = await User.findOne({
         where: { id: account.user_id },
-        attributes: ["username"],
+        attributes: ["username", "name"],
     });
 
     if (!user) {
@@ -62,6 +63,7 @@ export const getUserDataByAccountNumberService = async (accountNumber) => {
 
     return {
         username: user.username,
+        name: user.name,
         bank_name: process.env.BANK_NAME,
         bank_id: process.env.BANK_ID,
         account_number: account.account_number,
@@ -75,17 +77,9 @@ export const getBankAccountByAccountNumber = async (bank_code, accountNumber) =>
             return { status: statusCode.ERROR, message: 'Bank not linked' };
         }
         const destinationCheckPayload = { bank_code: process.env.BANK_ID, account_number: destination_account_number, timestamp: Date.now() };
-        const destinationHash = generateRequestHash(destinationCheckPayload, linkedBank.secret_key);
-
-        const destinationCheckResponse = await axios.post(linkedBank.account_info_api_url, {
-            ...destinationCheckPayload,
-            hash: destinationHash,
-        });
-
-        if (destinationCheckResponse.status !== 200 || !destinationCheckResponse.data) {
-            return { status: statusCode.ERROR, message: 'Invalid destination account' };
-        }
-        const data = destinationCheckResponse.data;
+        const bankConfig = getExternalTransferTemplateByBankCode(bank_code);
+        
+        const data = bankConfig.getUserAccount(destinationCheckPayload, linkedBank.account_info_api_url, linkedBank.secret_key);
 
         // Trả về thông tin tài khoản ngân hàng
         return {

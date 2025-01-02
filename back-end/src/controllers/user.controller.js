@@ -43,10 +43,10 @@ export const listEmployeesController = async (req, res) => {
     }
 };
 export const assignEmployeeController = async (req, res) => {
-    const { userId } = req.body;
+    const { username } = req.body;
 
     try {
-        const user = await assignEmployee(userId);
+        const user = await assignEmployee(username);
         if (user) {
             res.status(200).json({
                 status: statusCode.SUCCESS,
