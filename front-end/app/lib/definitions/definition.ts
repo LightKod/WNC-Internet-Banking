@@ -7,20 +7,21 @@ export type BankAccount = {
 export type Contact = {
     name: string,
     accountNumber: string,
-    bankName: string
+    bankName: string,
+    bankCode?: string
 }
 
 export const linkedLibraryDict: { [key: string]: {
     name: string,
     accountLength: number
 } } = {
-    "PGP": {
-        name: "Bankit! PGP",
+    "RSA": {
+        name: "Bank A",
         accountLength: 12
     }
 }
 
-export const linkedLibraryEnum = ["PGP"] as const
+export const linkedLibraryEnum = ["RSA"] as const
 
 export const BASE_URL = 'http://localhost:80/api'
 

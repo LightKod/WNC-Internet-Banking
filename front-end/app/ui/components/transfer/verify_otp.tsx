@@ -4,7 +4,7 @@ import { useContext, useEffect, useRef, useState } from "react"
 import { PageContentContext } from "./transfer_page_content"
 import { OTPInput, OTPInputRef } from "../universal/otp_input"
 import { ArrowRightIcon, XMarkIcon } from "@heroicons/react/16/solid"
-import { confirmInternalTransfer } from "@/app/lib/actions/actions"
+import { confirmInterbankTransfer, confirmInternalTransfer } from "@/app/lib/actions/actions"
 import { APIResponse } from "@/app/lib/definitions/definition"
 
 export default function VerifyOTP() {
@@ -41,17 +41,34 @@ export default function VerifyOTP() {
     const handleSubmitOtp = async () => {
         // Send the otp via server actions and receive the response
         // Check if there is any otp's error and stop the code here
-        const response: APIResponse = await confirmInternalTransfer(context.transactionId, otp)
-        if(response.isSuccessful) {
-            context.setIsTransactionSuccessful(response)
-            context.nextStep()
-        } else {
-            if(response.error.code === 1 || response.error.code === 2) {
-                otpRef.current?.clearOtp()
-                setOtpError(response.error.message)
-            } else {
+        if(context.transferType === "internal") {
+            const response: APIResponse = await confirmInternalTransfer(context.transactionId, otp)
+            if(response.isSuccessful) {
                 context.setIsTransactionSuccessful(response)
                 context.nextStep()
+            } else {
+                if(response.error.code === 1 || response.error.code === 2) {
+                    otpRef.current?.clearOtp()
+                    setOtpError(response.error.message)
+                } else {
+                    context.setIsTransactionSuccessful(response)
+                    context.nextStep()
+                }
+            }
+        }
+        else {
+            const response: APIResponse = await confirmInterbankTransfer(context.transactionId, otp, context.interbankFormRef.current?.getValues("bankCode") || "")
+            if(response.isSuccessful) {
+                context.setIsTransactionSuccessful(response)
+                context.nextStep()
+            } else {
+                if(response.error.code === 1 || response.error.code === 2) {
+                    otpRef.current?.clearOtp()
+                    setOtpError(response.error.message)
+                } else {
+                    context.setIsTransactionSuccessful(response)
+                    context.nextStep()
+                }
             }
         }
     }

@@ -4,7 +4,8 @@ import { getAccessToken } from "../utilities/server_utilities";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { CancelPaymentRequestFormValue, InternalTransferFormValues, PaymentRequestFormValue } from "../schemas/schemas";
+import { CancelPaymentRequestFormValue, InterbankTransferFormValues, InternalTransferFormValues, PaymentRequestFormValue } from "../schemas/schemas";
+import { linkedLibraryDict } from "../definitions/definition";
 
 const BASE_URL = 'http://localhost:80/api'
 
@@ -92,12 +93,12 @@ export const getInterbankUserFromBankAccount = async (accountNumber: string, ban
         }
 
         const data = await response.json()
-        // return {
-        //     name: data.data.username,
-        //     accountNumber: data.data.account_number,
-        //     bankName: "Bankit!"
-        // }
         console.log(data)
+        return {
+            name: data.data.name,
+            accountNumber: data.data.account_number,
+            bankName: linkedLibraryDict[data.data.bank_code].name || "Unknown"
+        }
     } catch(error) {
         throw error
     }
@@ -153,6 +154,85 @@ export const confirmInternalTransfer = async (id: string, otp: string) => {
             body: JSON.stringify({
                 otp_code: otp,
                 transaction_id: id
+            })
+        })
+
+        if(response.status === 400) {
+            const data = await response.json()
+            return {
+                isSuccessful: false,
+                error: {
+                    code: data.code,
+                    message: data.message
+                }
+            }
+        }
+
+        if(!response.ok) {
+            goToLogin()
+        }
+
+        revalidatePath("/dashboard")
+        return {
+            isSuccessful: true
+        }
+    } catch(error) {
+        throw error
+    }
+}
+
+export const interbankTransfer = async (data: InterbankTransferFormValues) => {
+    try {
+        const response = await fetch(`${BASE_URL}/transfer/external/initiate`, {
+            cache: 'no-store',
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                source_account_number: data.senderAccountNumber, 
+                destination_account_number: data.receiverAccountNumber, 
+                amount: data.amount, 
+                content: data.transferNote, 
+                fee_payer: data.isSelfFeePayment === "true" ? "sender" : "receiver",
+                bank_code: data.bankCode
+            })
+        })
+
+        if(!response.ok) {
+            goToLogin()
+        }
+
+        const result = await response.json()
+        if(result.status === -1) {
+            return {
+                status: "-1",
+                message: result.message,
+                code: result.code
+            }
+        }
+        else {
+            return result.data.id.toString()
+        }
+    } catch(error) {
+        throw error
+    }
+}
+
+export const confirmInterbankTransfer = async (id: string, otp: string, bankCode: string) => {
+    try {
+        const response = await fetch(`${BASE_URL}/transfer/external/confirm`, {
+            cache: 'no-store',
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                otp_code: otp,
+                transaction_id: id,
+                bank_code: bankCode
             })
         })
 
@@ -317,6 +397,31 @@ export const getInternalContacts = async () => {
     }
 }
 
+export const getInterbankContacts = async () => {
+    try {
+        const response = await fetch(`${BASE_URL}/user-contacts/contacts?type=external`, {
+            cache: 'no-store',
+            headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                'Content-type': 'application/json'
+            }
+        })
+
+        if(!response.ok) {
+            goToLogin()
+        }
+
+        const data = await response.json()
+        return data.data.map((contact:any) => ({
+            name: contact.nickname,
+            bankName: contact.bank_name,
+            accountNumber: contact.account_number,
+            bankCode: contact.bank_id
+        }))
+    } catch(error) {
+        throw error
+    }
+}
 
 export const handleLogout = () => {
     cookies().delete('accessToken');

@@ -46,18 +46,27 @@ export default function SuccessfulTransfer() {
 
     const handleSaveContact = async () => {
         if(context.transferType === "internal") {
-            const result = await addContact(receiverBankAccount!.accountNumber, receiverBankAccount!.name, "RSA", "Bankit!")
+            const result = await addContact(receiverBankAccount!.accountNumber, receiverBankAccount!.name, "PGP", "Bankit!")
             if(result === true) {
                 setIsContactSaved(true)
             }
         }
-        setIsContactSaved(true)
+        else {
+            const result = await addContact(receiverBankAccount!.accountNumber, receiverBankAccount!.name, formValues!.bankCode, linkedLibraryDict[formValues!.bankCode].name)
+            if(result === true) {
+                setIsContactSaved(true)
+            }
+        }
     }
 
     useEffect(() => {
         const checkExistence = async () => {
             if(context.transferType === "internal") {
-                const result = await checkContactExistence(receiverBankAccount!.accountNumber, "RSA")
+                const result = await checkContactExistence(receiverBankAccount!.accountNumber, "PGP")
+                setIsSaveContactShowing(!result)
+            }
+            else {
+                const result = await checkContactExistence(receiverBankAccount!.accountNumber, formValues!.bankCode)
                 setIsSaveContactShowing(!result)
             }
         }

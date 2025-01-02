@@ -10,10 +10,10 @@ import VerifyOTP from "./verify_otp"
 import SuccessfulTransfer from "./successful_transfer"
 import FailedTransfer from "./failed_transfer"
 import Modal, { ModalRef } from "../universal/modal"
-import { APIResponse, Contact } from "@/app/lib/definitions/definition"
+import { APIResponse, Contact, linkedLibraryEnum } from "@/app/lib/definitions/definition"
 import { formatAccountNumber } from "@/app/lib/utilities/utilities"
 import { InterbankTransferForm, InterbankTransferRef } from "./interbank_transfer_form"
-import { getInternalContacts } from "@/app/lib/actions/actions"
+import { getInterbankContacts, getInternalContacts } from "@/app/lib/actions/actions"
 import ContactModalLoading from "../universal/contact_modal_loading"
 
 interface PageContentContextType {
@@ -68,13 +68,13 @@ export default function TransferPageContent() {
         modalRef.current?.openModal()
     }
 
-    const handleSelectReceiver = (accountNumber: string) => {
+    const handleSelectReceiver = (contact: Contact) => {
         if(transferType === "internal") {
-            internalFormRef.current?.setValue("receiverAccountNumber", accountNumber)
+            internalFormRef.current?.setValue("receiverAccountNumber", contact.accountNumber)
         }
         else if (transferType === "interbank") {
-            interbankFormRef.current?.setValue("receiverAccountNumber", accountNumber)
-            interbankFormRef.current?.setValue("bankCode", "PGP")
+            interbankFormRef.current?.setValue("receiverAccountNumber", contact.accountNumber)
+            interbankFormRef.current?.setValue("bankCode", contact.bankCode as (typeof linkedLibraryEnum)[number] || "RSA")
         }
 
         modalRef.current?.closeModal()
@@ -87,7 +87,7 @@ export default function TransferPageContent() {
             if(transferType === "internal") {
                 result = await getInternalContacts()
             } else {
-                console.log("Fetch for interbank accounts")
+                result = await getInterbankContacts()
             }
 
             setContactList(result)
@@ -173,7 +173,7 @@ export default function TransferPageContent() {
                 ) : (
                     <div className="flex flex-col divide-y-2 divide-slate-100 overflow-y-auto">
                         {contactList.map((contact) => (
-                            <button onClick={() => handleSelectReceiver(contact.accountNumber)} key={contact.accountNumber} className="group flex gap-x-4 items-center p-4 rounded-md hover:bg-slate-100 transition-all duration-300">
+                            <button onClick={() => handleSelectReceiver(contact)} key={contact.accountNumber} className="group flex gap-x-4 items-center p-4 rounded-md hover:bg-slate-100 transition-all duration-300">
                                 <div className="flex items-center justify-center flex-none w-12 h-12 rounded-full bg-slate-300 text-gray-950 font-semibold">
                                     {contact.name.charAt(0).toUpperCase()}
                                  </div>

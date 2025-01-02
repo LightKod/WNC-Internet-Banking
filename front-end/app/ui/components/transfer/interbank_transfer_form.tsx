@@ -9,7 +9,7 @@ import React, { forwardRef, useContext, useEffect, useImperativeHandle, useState
 import { useForm, UseFormGetValues, UseFormSetValue } from "react-hook-form"
 import { PageContentContext } from "./transfer_page_content"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../universal/tooltip"
-import { getInterbankUserFromBankAccount, getUserAccounts } from "@/app/lib/actions/actions"
+import { getInterbankUserFromBankAccount, getUserAccounts, interbankTransfer } from "@/app/lib/actions/actions"
 
 interface InterbankTransferProps {
 }
@@ -39,22 +39,26 @@ export const InterbankTransferForm = forwardRef<InterbankTransferRef, InterbankT
     const [receiverBankAccount, setReceiverBankAccount] = useState<Contact | null>(null)
 
 
-    const onSubmit = (data: InterbankTransferFormValues) => {
-        console.log(data)
-        context.setTransactionId("1")
-        context.nextStep()
+    const onSubmit = async (data: InterbankTransferFormValues) => {
+        const transactionId = await interbankTransfer(data)
+        if(!transactionId.status) {
+            context.setTransactionId(transactionId)
+            context.nextStep()
+        } else {
+            context.setIsTransactionSuccessful({
+                isSuccessful: false,
+                error: {
+                    code: transactionId.code,
+                    message: transactionId.message
+                }
+            })
+        }
     }
 
     const [receiverAccountNumber, amount, bankCode] = watch(["receiverAccountNumber", "amount", "bankCode"])
     useEffect(() => {
         const fetchReceiver = async () => {
-            await getInterbankUserFromBankAccount(receiverAccountNumber, bankCode)
-            const receiver: Contact = {
-                name: "Jerry B.",
-                accountNumber: "123456789101",
-                bankName: "Bankit! PGP"
-            }
-
+            const receiver: Contact | null = await getInterbankUserFromBankAccount(receiverAccountNumber, bankCode)
             setReceiverBankAccount(receiver)
             setIsFetchingReceiver(false)
         }
@@ -168,7 +172,9 @@ export const InterbankTransferForm = forwardRef<InterbankTransferRef, InterbankT
                             {receiverBankAccount && (
                                 <>
                                     <div className="flex gap-x-4 items-center border-2 border-slate-300 rounded-md p-4 bg-slate-50">
-                                        <div className="w-12 h-12 rounded-full bg-slate-500"/>
+                                        <div className="flex items-center justify-center flex-none w-12 h-12 rounded-full bg-slate-300 text-gray-950 font-semibold">
+                                            {receiverBankAccount.name.charAt(0).toUpperCase()}
+                                        </div>
                                         <div className="flex flex-col gap-y-0.5">
                                             <span className="text-gray-950 font-semibold">{receiverBankAccount.name}</span>
                                             <span className="text-gray-500 text-sm">{receiverBankAccount.bankName}</span>

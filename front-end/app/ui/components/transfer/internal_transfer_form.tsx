@@ -39,7 +39,6 @@ export const InternalTransferForm = forwardRef<InternalTransferRef, InternalTran
     const [receiverBankAccount, setReceiverBankAccount] = useState<Contact | null>(null)
 
     const onSubmit = async (data: InternalTransferFormValues) => {
-        console.log(data)
         const transactionId = await internalTransfer(data)
         if(!transactionId.status) {
             context.setTransactionId(transactionId)

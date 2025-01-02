@@ -25,7 +25,7 @@ services:
     build:
       context: back-end
     ports:
-      - "3001:80" # PGP backend sẽ sử dụng cổng 3001
+      - "80:80" # PGP backend sẽ sử dụng cổng 3001
     environment:
       POSTGRES_HOST: db-pgp
       POSTGRES_DB: db

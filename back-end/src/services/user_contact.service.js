@@ -1,5 +1,6 @@
 import db from "../models/index.model.js";
 const { UserContact } = db;
+import { Op } from 'sequelize';
 
 // Service for creating a new contact
 export const createNewContactService = async (contactData) => {
