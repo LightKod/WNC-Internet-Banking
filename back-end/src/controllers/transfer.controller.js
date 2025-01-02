@@ -16,15 +16,12 @@ export const initiateTransfer = async (req, res) => {
             amount,
             content,
             fee_payer,
-            user: User
+            user: User,
+            debt_id
         });
 
         if (result.status === statusCode.ERROR) {
             return res.status(200).json({ data: {}, message: result.message, code: result.code, status: statusCode.ERROR });
-        }
-
-        if (debt_id) {
-            await createDebtTransactionService(User.id, debt_id, result.data.id, amount);
         }
 
         res.status(200).json({ data: result, message: result.message, code: result.code, status: statusCode.SUCCESS });

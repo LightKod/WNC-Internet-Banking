@@ -2,38 +2,7 @@ import db from '../models/index.model.js';
 import { getPaymentAccountsByUserIdService } from './account.service.js';
 const { Debt, Account, DebtTransaction } = db;
 
-export const createDebtTransactionService = async (user_id, debt_id, transaction_id, amount) => {
-    const userAccount = await getPaymentAccountsByUserIdService(user_id);
-
-    if (!userAccount) {
-        throw new Error('User account not found');
-    }
-
-    const debt = await Debt.findOne({
-        where: { id: debt_id },
-    });
-
-    if (!debt) {
-        throw new Error('Debt not found');
-    }
-
-    if (debt.debtor_account !== userAccount.account_number) {
-        throw new Error('You are not authorized to pay this debt');
-    }
-
-    if (debt.status === 'PAID') {
-        throw new Error('This debt is already paid');
-    }
-
-    if (debt.status === 'CANCELED') {
-        throw new Error('This debt has been canceled');
-    }
-
-    if (debt.amount > amount) {
-        throw new Error('Amount paid is less than the debt amount');
-    }
-
-
+export const createDebtTransactionService = async (user_id, debt_id, transaction_id) => {
     const newDebtTransaction = await DebtTransaction.create({
         user_id,
         debt_id,
@@ -61,6 +30,12 @@ export const confirmDebtTransaction = async (debt_id, transaction_id) => {
             { status: 'PAID' },
             { where: { id: debtTransaction.id } }
         );
+
+        const updatedDebt = await Debt.update(
+            { status: 'UNREAD_PAID' },
+            { where: { id: debt_id } }
+        );
+
         return updatedDebtTransaction;
     } catch (error) {
         throw new Error('Failed to confirm debt transaction');
@@ -138,7 +113,7 @@ export const setDebtStatusToUnReadService = async (user_id) => {
     }, {
         where: {
             debtor_account: debtorAccount,
-            status: 'NEW',
+            status: { $or: ['NEW', 'UNREAD_PAID'] },
         },
     });
     return debts;
