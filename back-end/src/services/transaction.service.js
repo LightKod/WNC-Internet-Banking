@@ -1,15 +1,29 @@
 import db from '../models/index.model.js';
 import { Op } from 'sequelize';
 
-const { Transaction } = db;
+const { Transaction, Account } = db;
 const ITEMS_PER_PAGE = 5;
 
-export const searchTransactions = async (filters) => {
+export const searchTransactions = async (filters, user_id) => {
     try {
         const { page = 1, query, from, to, bank, type } = filters;
+        const accounts = await Account.findAll({
+            where: { user_id },
+            attributes: ["account_number"],
+        });
 
+        const accountNumbers = accounts.map((account) => account.account_number);
+
+        if (accountNumbers.length === 0) {
+            // Nếu user không có tài khoản nào, trả về danh sách rỗng
+            return [];
+        }
+        
         const whereClause = {};
-
+        whereClause[Op.or] = [
+            { source_account: { [Op.in]: accountNumbers } },
+            { destination_account: { [Op.in]: accountNumbers } },
+        ];
         // Add content filter
         if (query) {
             whereClause.content = { [Op.like]: `%${query}%` };
@@ -56,12 +70,23 @@ export const searchTransactions = async (filters) => {
     }
 };
 
-export const getTotalPages = async (filters) => {
+export const getTotalPages = async (filters, user_id) => {
     try {
-        const { query, from, to, bank, type } = filters;
-
+        const { query, from, to, bank, type } = filters
         const whereClause = {};
-
+        const accounts = await Account.findAll({
+            where: { user_id },
+            attributes: ["account_number"],
+        });
+        const accountNumbers = accounts.map((account) => account.account_number);
+        if (accountNumbers.length === 0) {
+            // Nếu user không có tài khoản nào, trả về danh sách rỗng
+            return 0;
+        }
+        whereClause[Op.or] = [
+            { source_account: { [Op.in]: accountNumbers } },
+            { destination_account: { [Op.in]: accountNumbers } },
+        ];
         // Add content filter
         if (query) {
             whereClause.content = { [Op.like]: `%${query}%` };
