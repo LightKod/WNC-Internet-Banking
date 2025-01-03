@@ -33,7 +33,7 @@ export default function SuccessfulPayment() {
         <div className="flex flex-col gap-y-8 px-8 pb-8">
             <div className="flex flex-col gap-y-1 items-center p-8 bg-blue-50 rounded-md border-2 border-blue-100">
                 <CheckCircleIcon className="w-24 text-blue-600"/>
-                <p className="text-gray-950 font-semibold">Transfer completed</p>
+                <p className="text-gray-950 font-semibold">Transaction completed</p>
                 <p className="text-4xl text-blue-600 font-bold">{`${formatMoney(paymentRequest.amount.split('.')[0])} VND`}</p>
                 <div className="flex gap-x-2 items-center justify-center">
                     <p className="text-sm text-gray-500">{`Transaction ID: ${context.transactionId}`}</p>

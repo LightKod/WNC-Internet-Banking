@@ -31,18 +31,18 @@ export default function SelfPaymentRequestList({
                     <div className={clsx(
                         "px-2.5 py-1 place-self-center text-xs text-center font-medium rounded-md md:text-sm hidden md:block",
                         {
-                            "bg-blue-100 text-blue-500": paymentRequest.status === "PAID",
+                            "bg-blue-100 text-blue-500": paymentRequest.status === "PAID" || paymentRequest.status === "UNREAD_PAID",
                             "bg-red-100 text-red-500": paymentRequest.status === "CANCELED",
-                            "bg-green-100 text-green-500": paymentRequest.status !== "PAID" && paymentRequest.status !=="CANCELED"
+                            "bg-green-100 text-green-500": paymentRequest.status === "NEW" || paymentRequest.status === "PENDING"
                         }
                     )}>
-                        {paymentRequest.status === "PAID" ? "Resolved" : paymentRequest.status === "CANCELED" ? "Canceled" : "Pending"}
+                        {(paymentRequest.status === "PAID" || paymentRequest.status === "UNREAD_PAID") ? "Resolved" : paymentRequest.status === "CANCELED" ? "Canceled" : "Pending"}
                     </div>
                     <div className="flex justify-end items-center">
-                        {paymentRequest.status !== "PAID" && paymentRequest.status !== "CANCELED" && (
-                                <button type="button" onClick={() => handleOpenModal(paymentRequest.id)} className="text-gray-500 p-2 border-2 border-slate-300 rounded-md shrink-0 hover:text-gray-950 hover:border-red-600 transition-all duration-300">
-                                    <TrashIcon className="w-4"/>
-                                </button>
+                        {paymentRequest.status !== "PAID" && paymentRequest.status !== "UNREAD_PAID" && paymentRequest.status !== "CANCELED" && (
+                            <button type="button" onClick={() => handleOpenModal(paymentRequest.id)} className="text-gray-500 p-2 border-2 border-slate-300 rounded-md shrink-0 hover:text-gray-950 hover:border-red-600 transition-all duration-300">
+                                <TrashIcon className="w-4"/>
+                            </button>
                         )}
                     </div>
                 </div>

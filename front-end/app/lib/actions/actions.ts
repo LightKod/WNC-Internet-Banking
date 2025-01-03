@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { CancelPaymentRequestFormValue, InterbankTransferFormValues, InternalTransferFormValues, PaymentRequestFormValue } from "../schemas/schemas";
-import { linkedLibraryDict } from "../definitions/definition";
+import { DetailedPaymentRequest, linkedLibraryDict } from "../definitions/definition";
 
 const BASE_URL = 'http://localhost:80/api'
 
@@ -254,6 +254,125 @@ export const confirmInterbankTransfer = async (id: string, otp: string, bankCode
         revalidatePath("/dashboard")
         return {
             isSuccessful: true
+        }
+    } catch(error) {
+        throw error
+    }
+}
+
+export const resolvePaymentRequest = async (paymentRequest: DetailedPaymentRequest) => {
+    try {
+        const response = await fetch(`${BASE_URL}/transfer/internal/initiate`, {
+            cache: 'no-store',
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                source_account_number: paymentRequest.debtorAccountNumber, 
+                destination_account_number: paymentRequest.creditorAccountNumber, 
+                amount: paymentRequest.amount, 
+                content: `Resolve for debt #${paymentRequest.id}`, 
+                fee_payer: "sender",
+                debt_id: paymentRequest.id
+            })
+        })
+
+        if(!response.ok) {
+            goToLogin()
+        }
+
+        const result = await response.json()
+        if(result.status === -1) {
+            return {
+                status: "-1",
+                message: result.message,
+                code: result.code
+            }
+        }
+        else {
+            return result.data.data.id.toString()
+        }
+    } catch(error) {
+        throw error
+    }
+}
+
+export const confirmResolvePaymentRequest = async (id: string, otp: string, debtId: string) => {
+    try {
+        const response = await fetch(`${BASE_URL}/transfer/internal/confirm`, {
+            cache: 'no-store',
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                otp_code: otp,
+                transaction_id: id,
+                debt_id: debtId
+            })
+        })
+
+        if(response.status === 400) {
+            const data = await response.json()
+            return {
+                isSuccessful: false,
+                error: {
+                    code: data.code,
+                    message: data.message
+                }
+            }
+        }
+
+        if(!response.ok) {
+            goToLogin()
+        }
+
+        revalidatePath("/payment-request")
+        return {
+            isSuccessful: true
+        }
+    } catch(error) {
+        throw error
+    }
+}
+
+export const checkNewPaymentRequestNotification = async () => {
+    try {
+        const unreadPaidRequestResponse = await fetch(`${BASE_URL}/debt/user/creditor`, {
+            cache: 'no-store',
+            headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                'Content-type': 'application/json'
+            }
+        })
+
+        if(!unreadPaidRequestResponse.ok) {
+            return ""
+        }
+
+        const unreadPaidRequestData = await unreadPaidRequestResponse.json()
+        if(unreadPaidRequestData.data.some((item: any) => item.status === "UNREAD_PAID")) {
+            return "UNREAD_PAID"
+        }
+
+        const newRequestResponse = await fetch(`${BASE_URL}/debt/user/debtor`, {
+            cache: 'no-store',
+            headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                'Content-type': 'application/json'
+            }
+        })
+
+        if(!newRequestResponse.ok) {
+            return ""
+        }
+
+        const newRequestData = await newRequestResponse.json()
+        if(newRequestData.data.some((item: any) => item.status === "NEW")) {
+            return "NEW"
         }
     } catch(error) {
         throw error

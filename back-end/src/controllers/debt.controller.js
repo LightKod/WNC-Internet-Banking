@@ -1,7 +1,8 @@
 import {
     createDebtService, getDebtsByDebtorService, getDebtByCreditorService,
     setDebtStatusToUnReadService, readDebtService, readAllDebtsService,
-    getDebtByIdService, cancelDebtService, getAllDebtTransactionsService
+    getDebtByIdService, cancelDebtService, getAllDebtTransactionsService,
+    setDebtStatusToPaidService
 } from '../services/debt.service.js';
 import statusCode from '../constants/statusCode.js';
 import { z } from "zod";
@@ -83,6 +84,7 @@ export const getDebtByCreditorController = async (req, res) => {
         const user_id = req.user.id;
 
         const debts = await getDebtByCreditorService(user_id);
+        await setDebtStatusToPaidService(user_id);
 
         res.status(200).json({
             status: statusCode.SUCCESS,

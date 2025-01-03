@@ -17,8 +17,8 @@ export default function FailedPayment() {
         <div className="flex flex-col gap-y-8 px-8 pb-8">
             <div className="flex flex-col gap-y-1 items-center p-8 bg-red-50 rounded-md border-2 border-red-100">
                     <XCircleIcon className="w-24 text-red-600"/>
-                    <p className="text-gray-950 font-semibold">Transfer failed</p>
-                    <p className="text-sm text-gray-500">Your bank account does not have enough money for this transaction</p>
+                    <p className="text-gray-950 font-semibold">Transaction failed</p>
+                    <p className="text-sm text-gray-500">{context.isTransactionSuccessful?.error.message}</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

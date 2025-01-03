@@ -70,7 +70,7 @@ export default async function Page({
         throw error
     }
 
-    console.log(paymentRequest)
+    // console.log(paymentRequest)
 
     return (
         <div className="flex flex-col gap-y-4">

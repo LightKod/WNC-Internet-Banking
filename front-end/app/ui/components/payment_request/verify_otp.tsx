@@ -1,10 +1,12 @@
 'use client'
 
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { PageContentContext } from "./resolve_payment_request_content"
-import { OTPInput } from "../universal/otp_input"
+import { OTPInput, OTPInputRef } from "../universal/otp_input"
 import { ArrowRightIcon, XMarkIcon } from "@heroicons/react/16/solid"
 import Link from "next/link"
+import { APIResponse } from "@/app/lib/definitions/definition"
+import { confirmResolvePaymentRequest } from "@/app/lib/actions/actions"
 
 export default function VerifyOTP() {
     const context = useContext(PageContentContext)
@@ -16,6 +18,8 @@ export default function VerifyOTP() {
     const [otp, setOtp] = useState<string>("")
     const [timeLeft, setTimeLeft] = useState(30)
     const [canResend, setCanResend] = useState(false)
+    const [otpError, setOtpError] = useState<string | null>(null)
+        const otpRef = useRef<OTPInputRef>(null)
 
     useEffect(() => {
         if (timeLeft === 0) {
@@ -35,14 +39,23 @@ export default function VerifyOTP() {
         setTimeLeft(30)
     }
 
-    const handleSubmitOtp = () => {
+    const handleSubmitOtp = async () => {
         console.log(otp)
         // Send the otp via server actions and receive the response
         // Check if there is any otp's error and stop the code here
-
-        // Suppose it's successful
-        context.setIsTransactionSuccessful(true)
-        context.nextStep()
+        const response: APIResponse = await confirmResolvePaymentRequest(context.transactionId, otp, context.paymentRequest.id)
+        if(response.isSuccessful) {
+            context.setIsTransactionSuccessful(response)
+            context.nextStep()
+        } else {
+            if(response.error.code === 1 || response.error.code === 2) {
+                otpRef.current?.clearOtp()
+                setOtpError(response.error.message)
+            } else {
+                context.setIsTransactionSuccessful(response)
+                context.nextStep()
+            }
+        }
     }
 
     return (
@@ -56,7 +69,7 @@ export default function VerifyOTP() {
             </div>
             <div className="grid grid-cols-1 divide-y-2 divide-slate-100 md:grid-cols-[2fr_1fr] md:divide-x-2 md:divide-y-0 ">
                 <div className="flex flex-col gap-y-4 pb-4 md:pr-4 md:pb-0">
-                    <OTPInput length={4} setOtp={setOtp}/>
+                    <OTPInput ref={otpRef} length={6} setOtp={setOtp}/>
                     <p className="text-sm text-gray-500 text-center">Have not received an email yet? {' '}
                         {canResend ? (
                             <button onClick={handleResend} className="text-sm text-gray-500 hover:text-blue-600 font-medium transition-all duration-300">Resend OTP</button>
@@ -69,7 +82,7 @@ export default function VerifyOTP() {
                 </div>
                 <div className="w-full h-full pt-4 md:pl-4 md:pt-0">
                     <div className="flex flex-col gap-y-2">
-                        <button onClick={handleSubmitOtp} type="button" className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed transition-colors duration-300" disabled={otp.length !== 4}>
+                        <button onClick={handleSubmitOtp} type="button" className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed transition-colors duration-300" disabled={otp.length !== 6}>
                             <ArrowRightIcon className="w-4"/>
                             <p>Continue</p>
                         </button>
@@ -77,6 +90,7 @@ export default function VerifyOTP() {
                             <XMarkIcon className="w-4"/>
                             <p>Cancel transfer</p>
                         </Link>
+                        {otpError && <p className="text-red-500 text-xs">{otpError}</p>}
                     </div>
                 </div>
             </div>
