@@ -86,8 +86,9 @@ export const checkContactExistsController = async (req, res) => {
 export const getUserContactsByTypeController = async (req, res) => {
     const { type } = req.query; // `type` là loại danh bạ, `currentBank` là ngân hàng hiện tại
     const currentBank = process.env.BANK_ID;
+    const userId = req.user.id;
     try {
-        const contacts = await getUserContactsByTypeService(type, currentBank);
+        const contacts = await getUserContactsByTypeService(type, currentBank,userId);
         return res.status(200).json({ status: statusCode.SUCCESS, data: contacts });
     } catch (error) {
         console.error("Error in getUserContactsByTypeController:", error);

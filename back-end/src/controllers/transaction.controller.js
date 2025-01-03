@@ -3,7 +3,7 @@ import statusCode from '../constants/statusCode.js';
 
 export const searchTransactionsController = async (req, res) => {
     const { page = 1, query = '', from, to, bank, type } = req.query;
-
+    const user_id = req.user.id;
     try {
         const filters = {
             page: parseInt(page, 10),
@@ -14,7 +14,7 @@ export const searchTransactionsController = async (req, res) => {
             type,
         };
 
-        const transactions = await searchTransactions(filters);
+        const transactions = await searchTransactions(filters,user_id);
         res.status(200).json({
             status: statusCode.SUCCESS,
             data: { transactions },
@@ -31,10 +31,10 @@ export const searchTransactionsController = async (req, res) => {
 
 export const getTotalPagesController = async (req, res) => {
     const { query = '', from, to, bank, type } = req.query;
-
+    const user_id = req.user.id;
     try {
         const filters = { query, from, to, bank, type };
-        const totalPages = await getTotalPages(filters);
+        const totalPages = await getTotalPages(filters,user_id);
 
         res.status(200).json({
             status: statusCode.SUCCESS,
