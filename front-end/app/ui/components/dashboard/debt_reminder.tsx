@@ -3,6 +3,7 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../universal/tooltip"
 import { ArrowRightIcon } from "@heroicons/react/16/solid"
+import Link from "next/link"
 
 export default function DebtReminder() {
     return (
@@ -21,11 +22,10 @@ export default function DebtReminder() {
                 </div>
             </div>
 
-
-            <button className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 transition-colors duration-300">
+            <Link href="/payment-request" className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 transition-colors duration-300">
                 <ArrowRightIcon className="w-4"/>
                 <p>View all payment requests</p>
-            </button>
+            </Link>
         </div>
     )
 }

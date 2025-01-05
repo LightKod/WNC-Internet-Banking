@@ -3,7 +3,9 @@ import BlockLoading from "@/app/ui/components/dashboard/block_loading";
 import DebtReminder from "@/app/ui/components/dashboard/debt_reminder";
 import MyBalanceWrapper from "@/app/ui/components/dashboard/my_balance_wrapper";
 import QuickTransfer from "@/app/ui/components/dashboard/quick_transfer";
+import QuickTransferWrapper from "@/app/ui/components/dashboard/quick_transfer_wrapper";
 import TransactionHistory from "@/app/ui/components/dashboard/transaction_history";
+import TransactionHistoryWrapper from "@/app/ui/components/dashboard/transaction_history_wrapper";
 import { ArrowPathIcon } from "@heroicons/react/16/solid";
 import { Suspense } from "react";
 
@@ -24,11 +26,15 @@ export default function Page() {
                     <Suspense fallback={<BlockLoading/>}>
                         <MyBalanceWrapper/>
                     </Suspense>
-                    <QuickTransfer/>
+                    <Suspense fallback={<BlockLoading/>}>
+                        <QuickTransferWrapper/>
+                    </Suspense>
+                    <DebtReminder/>
                 </div>
                 <div className="flex flex-col gap-y-4">
-                    <TransactionHistory/>
-                    <DebtReminder/>
+                    <Suspense fallback={<BlockLoading/>}>
+                        <TransactionHistoryWrapper/>
+                    </Suspense>
                 </div>
             </div>
         </div>

@@ -15,7 +15,7 @@ export default function Error({
   reset: () => void
 }) {
   return (
-    <div className="h-screen flex flex-col p-16 gap-y-4 items-center justify-center text-gray-950 lg:px-48">
+    <div className="h-full flex flex-col p-16 gap-y-4 items-center justify-center text-gray-950 lg:px-48">
       <FaceFrownIcon className="w-16"/>
       <div className="flex flex-col gap-y-2 items-center">
         <h2 className="font-semibold">

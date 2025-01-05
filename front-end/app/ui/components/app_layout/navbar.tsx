@@ -26,7 +26,7 @@ export default function NavBar({
                                     "border-2 rounded-md border-slate-100 bg-slate-50 text-gray-950 font-semibold": pathname.includes(path.href)
                                 }
                             )}>
-                                {pathname.includes(path.href) ? (
+                                {pathname.startsWith(path.href) ? (
                                     <LitIcon className="w-5 flex-none"/>
                                 ) : (
                                     <Icon className="w-5 flex-none"/>

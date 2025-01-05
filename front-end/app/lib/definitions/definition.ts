@@ -58,3 +58,13 @@ export type Employee = {
     email: string,
     status: string
 }
+
+export type Transaction = {
+    id: string,
+    accountNumber?: string,
+    transactionName: string,
+    transactionType: string,
+    transactionDate: string,
+    amount: string,
+    isReceive: boolean
+}
