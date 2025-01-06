@@ -1,14 +1,14 @@
 import express from 'express';
 import transferController from '../controllers/transfer.controller.js';
 import passport from "passport";
-
+import { checkRole } from '../middleware/checkRole.js';
 const router = express.Router();
 const protectRoute = passport.authenticate('jwt', { session: false });
 
 //Internal
 router.post('/internal/initiate', protectRoute, transferController.initiateTransfer);
 router.post('/internal/confirm', protectRoute, transferController.confirmTransfer);
-router.post('/internal/deposit', protectRoute, transferController.depositInternal);
+router.post('/internal/deposit', protectRoute,checkRole('employee'), transferController.depositInternal);
 
 //External
 router.post('/external/initiate', protectRoute, transferController.initiateExternalTransfer);
