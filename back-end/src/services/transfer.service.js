@@ -84,7 +84,7 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
             amount,
             fee_payer,
             content,
-            transaction_type: 'internal',
+            transaction_type: transactionType,
             source_bank: process.env.BANK_ID,
             destination_bank: process.env.BANK_ID,
         });

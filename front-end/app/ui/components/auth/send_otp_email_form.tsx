@@ -1,10 +1,12 @@
 "use client";
+import { PageContentContext } from "@/app/(auth)/reset-password/page";
 import { sendOTP } from "@/app/lib/actions/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { useContext, useEffect, useState } from "react";
+import { useForm, UseFormGetValues, UseFormSetValue } from "react-hook-form";
 import { z } from "zod";
+import Spinner from "../universal/spinner";
 
 const sendOTPEmailForm = z.object({
   email: z
@@ -14,24 +16,43 @@ const sendOTPEmailForm = z.object({
 
 type sendOTPEmailInput = z.infer<typeof sendOTPEmailForm>;
 
+export interface SendOTPEmailFormRef {
+  setValue: UseFormSetValue<sendOTPEmailInput>;
+  getValues: UseFormGetValues<sendOTPEmailInput>;
+}
+
 export default function SendOTPEmailForm() {
   const [countdown, setCountdown] = useState<number | undefined>(undefined);
+  const [otpSent, setOtpSent] = useState<boolean>(false);
+  const context = useContext(PageContentContext);
+  const [loading, setLoading] = useState<boolean>(false);
+
   const {
     register,
     handleSubmit,
+    setError,
+    getValues,
     formState: { errors },
   } = useForm<sendOTPEmailInput>({
     resolver: zodResolver(sendOTPEmailForm),
   });
   const onSubmit = async (data: sendOTPEmailInput) => {
-    setCountdown(10);
     try {
+      setLoading(true);
       const response = await sendOTP(data.email);
+      console.log(response);
       if (response.status === 0) {
+        setCountdown(10);
+        setOtpSent(true);
+        context?.setOtpId(response.data);
+        context?.setEmail(data.email);
       } else {
+        setError("email", { message: response.message });
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -42,6 +63,9 @@ export default function SendOTPEmailForm() {
     const interval = setInterval(() => {
       setCountdown((prev) => {
         if (prev && prev > 0) {
+          if (prev === 1) {
+            setOtpSent(false);
+          }
           return prev - 1;
         } else if (prev === 0) {
           clearInterval(interval);
@@ -52,7 +76,7 @@ export default function SendOTPEmailForm() {
     return () => clearInterval(interval);
   }, [countdown]);
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="">
+    <form onSubmit={handleSubmit(onSubmit)} className="mt-3">
       <div className="relative z-0 w-full flex flex-col">
         <input
           id="Email"
@@ -69,20 +93,29 @@ export default function SendOTPEmailForm() {
         {errors.email?.message && (
           <p className="text-xs text-red-700 mt-2">{errors.email.message}</p>
         )}
+        {otpSent && (
+          <p className="text-xs text-green-700 mt-2">
+            OTP code has been sent to your email !
+          </p>
+        )}
       </div>
       <button
         className={clsx(
           {
-            "bg-gradient-to-tr from-blue-800 via-blue-600 to-blue-800 bg-[length:100%_300%] bg-[100%_100%] hover:bg-[100%_0%] hover:scale-[1.03] transition-all duration-300":
+            "flex justify-center items-center bg-gradient-to-tr from-blue-800 via-blue-600 to-blue-800 bg-[length:100%_300%] bg-[100%_100%] hover:bg-[100%_0%] hover:scale-[1.03] transition-all duration-300":
               !countdown,
             "bg-blue-800": countdown,
           },
           "w-full mt-3 py-2 rounded text-white "
         )}
         disabled={countdown !== undefined}>
-        {countdown
-          ? `You can resend in ${countdown}`
-          : "Send me a reset password email"}
+        {loading ? (
+          <Spinner heading="Sending OTP email ..." />
+        ) : countdown ? (
+          `You can resend in ${countdown}`
+        ) : (
+          "Send me a reset password email"
+        )}
       </button>
     </form>
   );

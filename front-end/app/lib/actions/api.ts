@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { Role, User } from "../definitions/definition";
 
 const BASE_URL = 'http://localhost:80/api'
 
@@ -34,21 +35,31 @@ export const login = async ({username, password, captchaValue}: {username: strin
         const dataJson = await response.json();
         cookies().set('accessToken', dataJson.data.accessToken, { maxAge: 15 * 60 });
         cookies().set('refreshToken', dataJson.data.refreshToken, {maxAge: 60 * 60 * 24 * 7});
-        redirect('/dashboard');
+        // redirect('/dashboard');
+        // console.log(dataJson);
+        const fetchUserInfo = await getUserInfo();
+        const userInfo: User = fetchUserInfo.data.user;
+        const role: Role = await checkRole();
+        // console.log(role);
+        return {
+            status: dataJson.status,
+            user: userInfo,
+            role
+        }
     } catch(error) {
         throw error;
     }
 }
 
-export const checkRole = async (accessToken: string) => {
+export const checkRole = async () => {
     try {
         const response = await fetch(`${BASE_URL}/check-role`, {
             headers: {
-                Authorization: `Bearer ${accessToken}`,
+                Authorization: `Bearer ${cookies().get('accessToken')?.value}`,
                 'Content-type': 'application/json'
             }
         });
-        return response;
+        return (await response.json());
     } catch(error) {
         throw error;
     }
@@ -72,7 +83,7 @@ export const handleRefreshToken = async () => {
     }
 }
 
-export const addContact = async ({ account_number, nickname, bank_id, bank_name }: { account_number: string, nickname: string, bank_id?: number, bank_name: string }) => {
+export const addContact = async ({ account_number, nickname, bank_id, bank_name }: { account_number: string, nickname: string, bank_id: string, bank_name: string }) => {
     try {
         const response = await fetch(`${BASE_URL}/user-contacts`, {
             method: 'POST',
@@ -199,6 +210,58 @@ export const updateContact = async (contactId: number, {nickname, account_number
             })
         });
         revalidatePath('/contacts')
+        return (await response.json());
+    } catch(error) {
+        throw error;
+    }
+}
+
+export const verifyOtp = async ({otp_code, email, otp_id}: {otp_code: string, email: string, otp_id: number}) =>  {
+    try {
+        const response = await fetch(`${BASE_URL}/auth/verify-otp`, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                otp_code,
+                email,
+                otp_id
+            })
+        })
+        return (await response.json());
+    } catch(error) {
+        throw error;
+    }
+}
+
+export const resetPassword = async ({otp_id, new_password}: {otp_id: number, new_password: string}) => {
+    try {
+        const response = await fetch(`${BASE_URL}/auth/reset-password`, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                otp_id,
+                new_password
+            })
+        });
+        return (await response.json());
+    } catch(error) {
+        throw error;
+    }
+}
+
+export const getUserInfo = async () => {
+    try {
+        const response = await fetch(`${BASE_URL}/user/info`, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+                Authorization: `Bearer ${cookies().get('accessToken')?.value}`
+            }
+        });
         return (await response.json());
     } catch(error) {
         throw error;

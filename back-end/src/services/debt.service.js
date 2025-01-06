@@ -114,9 +114,21 @@ export const setDebtStatusToUnReadService = async (user_id) => {
     }, {
         where: {
             debtor_account: debtorAccount,
-            status: {
-                [Op.or]: ['NEW', 'UNREAD_PAID'],
-            },
+            status: 'NEW',
+        },
+    });
+    return debts;
+}
+
+export const setDebtStatusToPaidService = async (user_id) => {
+    const userAccount = await getPaymentAccountsByUserIdService(user_id);
+    const creditorAccount = userAccount.account_number;
+    const debts = await Debt.update({
+        status: 'PAID',
+    }, {
+        where: {
+            creditor_account: creditorAccount,
+            status: 'UNREAD_PAID',
         },
     });
     return debts;

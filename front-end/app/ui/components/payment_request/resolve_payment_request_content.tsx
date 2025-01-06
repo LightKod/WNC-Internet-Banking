@@ -3,16 +3,18 @@
 import { createContext, useRef, useState } from "react"
 import { StepIndicator, StepIndicatorRef } from "../universal/step_indicator"
 import { Page, PageSlider, PageSliderRef } from "../universal/page_slider"
-import { InternalTransferFormValues } from "@/app/lib/schemas/schemas"
-import { Contact, DetailedPaymentRequest } from "@/app/lib/definitions/definition"
+import { APIResponse, DetailedPaymentRequest } from "@/app/lib/definitions/definition"
 import ReviewPaymentRequest from "./review_payment_request"
 import VerifyOTP from "./verify_otp"
 import SuccessfulPayment from "./successful_payment"
+import { resolvePaymentRequest } from "@/app/lib/actions/actions"
+import FailedPayment from "./failed_payment"
 
 interface PageContentContextType {
     nextStep: () => void,
     prevStep: () => void,
-    setIsTransactionSuccessful: React.Dispatch<React.SetStateAction<boolean | null>>,
+    isTransactionSuccessful: APIResponse | null,
+    setIsTransactionSuccessful: React.Dispatch<React.SetStateAction<APIResponse | null>>,
     id: string,
     transactionId: string,
     setTransactionId: React.Dispatch<React.SetStateAction<string>>,
@@ -29,7 +31,7 @@ export default function ResolvePaymentRequestContent({
     id: string,
     paymentRequest: DetailedPaymentRequest
 }) {
-    const [isTransactionSuccessful, setIsTransactionSuccessful] = useState<boolean | null>(null)
+    const [isTransactionSuccessful, setIsTransactionSuccessful] = useState<APIResponse | null>(null)
     const [transactionId, setTransactionId] = useState<string>("")
 
     const stepIndicatorRef = useRef<StepIndicatorRef>(null)
@@ -45,9 +47,21 @@ export default function ResolvePaymentRequestContent({
         pageSliderRef.current?.prevPage()
     }
 
-    const onConfirm = () => {
-        setTransactionId(id)
-        nextStep()
+    const onConfirm = async () => {
+        const transactionId = await resolvePaymentRequest(paymentRequest)
+        if(!transactionId.status) {
+            setIsTransactionSuccessful(null)
+            setTransactionId(transactionId)
+            nextStep()
+        } else {
+            setIsTransactionSuccessful({
+                isSuccessful: false,
+                error: {
+                    code: transactionId.code,
+                    message: transactionId.message
+                }
+            })
+        }
     }
 
     return (
@@ -58,6 +72,7 @@ export default function ResolvePaymentRequestContent({
             <PageContentContext.Provider value={{
                 nextStep,
                 prevStep,
+                isTransactionSuccessful,
                 setIsTransactionSuccessful,
                 id,
                 transactionId,
@@ -73,7 +88,7 @@ export default function ResolvePaymentRequestContent({
                         {transactionId !== "" && <VerifyOTP/>}
                     </Page>
                     <Page>
-                        {isTransactionSuccessful === true && <SuccessfulPayment/>}
+                        {isTransactionSuccessful?.isSuccessful ? <SuccessfulPayment/> : <FailedPayment/>}
                     </Page>
                 </PageSlider>
             </PageContentContext.Provider>

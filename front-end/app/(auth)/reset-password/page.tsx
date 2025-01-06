@@ -8,16 +8,21 @@ import {
   StepIndicatorRef,
 } from "@/app/ui/components/universal/step_indicator";
 import { KeyIcon } from "@heroicons/react/24/solid";
-import { createContext, useRef } from "react";
+import React, { createContext, MutableRefObject, RefObject, useRef, useState } from "react";
 import { Page } from "../../ui/components/universal/page_slider";
 import ResetPasswordOTPVerify from "@/app/ui/components/auth/reset_password_otp_verification";
 import ResetPasswordForm from "@/app/ui/components/auth/reset_password_form";
 import { LockClosedIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
+import { SendOTPEmailFormRef } from "@/app/ui/components/auth/send_otp_email_form";
 
 interface PageContentContextType {
   nextStep: () => void;
   prevStep: () => void;
+  otpId: number | null;
+  setOtpId: React.Dispatch<React.SetStateAction<number | null>>;
+  email: string | null;
+  setEmail: React.Dispatch<React.SetStateAction<string | null>>
 }
 
 export const PageContentContext = createContext<PageContentContextType | null>(
@@ -27,6 +32,8 @@ export const PageContentContext = createContext<PageContentContextType | null>(
 export default function ResetPassword() {
   const stepIndicatorRef = useRef<StepIndicatorRef>(null);
   const pageSliderRef = useRef<PageSliderRef>(null);
+  const [otpId, setOtpId] = useState<number | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
   const nextStep = () => {
     stepIndicatorRef.current?.nextStep();
     pageSliderRef.current?.nextPage();
@@ -58,6 +65,10 @@ export default function ResetPassword() {
             value={{
               nextStep,
               prevStep,
+              otpId,
+              setOtpId,
+              email,
+              setEmail
             }}>
             <PageSlider ref={pageSliderRef}>
               <Page>

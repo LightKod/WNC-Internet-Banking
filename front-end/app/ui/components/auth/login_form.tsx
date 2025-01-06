@@ -6,6 +6,9 @@ import { z } from "zod";
 import ReCAPTCHA from "react-google-recaptcha";
 import { login } from "@/app/lib/actions/api";
 import Spinner from "../universal/spinner";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { setUserName, setUserRole } from "@/app/lib/features/userSlice";
 
 const LoginSchema = z.object({
   username: z.string().min(1, { message: "Please enter username" }),
@@ -21,6 +24,9 @@ export default function LoginForm() {
     setError,
     formState: { errors },
   } = useForm<LoginInputs>({ resolver: zodResolver(LoginSchema) });
+
+  const router = useRouter();
+  const dispatch = useDispatch();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [captchaError, setCaptchaError] = useState<string | null>(null);
@@ -49,6 +55,14 @@ export default function LoginForm() {
       }
       if(response.status === -1) {
         setCaptchaError('Invalid Captcha');
+        return;
+      } else if(response.status === 0) {
+        // console.log(response.user?.name);
+        // console.log(response.role?.role);
+        dispatch(setUserName(response.user?.name || ""));
+        dispatch(setUserRole(response.role?.role || ""));
+        router.push('/dashboard');
+
         return;
       }
     } catch (error) {

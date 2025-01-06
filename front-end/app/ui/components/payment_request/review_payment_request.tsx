@@ -69,6 +69,7 @@ export default function ReviewPaymentRequest() {
                             <XMarkIcon className="w-4"/>
                             <p>Cancel payment</p>
                         </Link>
+                        {context.isTransactionSuccessful && !context.isTransactionSuccessful?.isSuccessful && <p className="text-red-500 text-xs">{context.isTransactionSuccessful?.error.message}</p>}
                     </div>
                 </div>
             </div>
