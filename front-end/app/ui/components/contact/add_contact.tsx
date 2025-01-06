@@ -5,10 +5,12 @@ import Modal, { ModalRef } from "../universal/modal";
 import { z } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { linkedLibraryDict } from "@/app/lib/definitions/definition";
+import { allBanks } from "@/app/lib/definitions/definition";
 import { addContact } from "@/app/lib/actions/api";
 import Toast, { ToastRef } from "../universal/toast";
 import Spinner from "../universal/spinner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../universal/tooltip";
+import { getInternalUserFromBankAccount } from "@/app/lib/actions/actions";
 
 const AddContactSchema = z.object({
   cardNumber: z
@@ -18,7 +20,7 @@ const AddContactSchema = z.object({
   nickname: z
     .string({ message: "Require Nickname" })
     .min(1, { message: "Required Nickname" }),
-  bank: z
+  bankCode: z
     .string({ message: "Require Bank" })
     .min(1, { message: "Require Bank" }),
 });
@@ -26,8 +28,10 @@ const AddContactSchema = z.object({
 type AddContactInput = z.infer<typeof AddContactSchema>;
 
 export default function AddContact() {
+  // const [userBankAcc, setUserBankAcc] = useState<>
   const modalRef = useRef<ModalRef>(null);
   const openModal = () => {
+    reset();
     modalRef.current?.openModal();
   };
 
@@ -39,6 +43,9 @@ export default function AddContact() {
     formState: { errors },
     watch,
     reset,
+    setError,
+    setValue,
+    clearErrors
   } = useForm<AddContactInput>({
     resolver: zodResolver(AddContactSchema),
   });
@@ -47,13 +54,17 @@ export default function AddContact() {
     data: AddContactInput
   ) => {
     console.log(data);
+    if(Object.keys(errors).length > 0) {
+      reset({}, {keepErrors: true});
+      return;
+    }
     try {
       setLoading(true);
       const response = await addContact({
         account_number: data.cardNumber,
         nickname: data.nickname,
         bank_id: 1,
-        bank_name: data.bank,
+        bank_name: data.bankCode,
       });
       console.log(response);
       modalRef.current?.closeModal();
@@ -73,11 +84,39 @@ export default function AddContact() {
   };
 
   const cardNumber = watch("cardNumber");
+  const bankCode = watch("bankCode");
+
+  const fetchUser = async (accountNumber: string) => {
+    try {
+      const user = await getInternalUserFromBankAccount(accountNumber);
+      console.log(user);
+      if(user !== null) {
+        setValue('nickname', user.name);
+        clearErrors('cardNumber');
+        clearErrors('nickname')
+      } else {
+        setError('nickname', {message: 'User does not exist'});
+        setError('cardNumber', {message: 'User does not exist'});
+        setValue('nickname', '');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
     if (cardNumber?.length === 12) {
       console.log("check existence");
+      clearErrors('cardNumber');
+      if (bankCode === "PGP") {
+        fetchUser(cardNumber);
+      }
+    } else if (cardNumber?.length !== 12) {
+      clearErrors('cardNumber');
+      clearErrors('nickname');
+      setValue('nickname', '');
+      setError('cardNumber', {message: 'Card Number must be exactly 12 character'})
     }
-  }, [cardNumber]);
+  }, [cardNumber, bankCode]);
 
   return (
     <div>
@@ -91,11 +130,57 @@ export default function AddContact() {
       </button>
       <Modal ref={modalRef} size="sm" heading="Add new contact">
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-          <div className="w-full">
+          <div>
+            <div className="flex gap-3">
+              {Object.entries(allBanks).map(([key, value]) => (
+                <Tooltip key={key}>
+                  <TooltipTrigger>
+                    <label
+                      htmlFor={`bankCode_${key}`}
+                      className="group w-12 h-12 flex items-center justify-center border-2 bg-slate-50 border-slate-300 rounded-full hover:border-blue-600 has-[:checked]:border-blue-600 transition-all duration-300 cursor-pointer">
+                      <input
+                        {...register("bankCode")}
+                        id={`bankCode_${key}`}
+                        type="radio"
+                        value={key}
+                        className="peer hidden"
+                      />
+                      <span className="text-xl font-semibold text-gray-500 group-hover:text-gray-950 peer-checked:text-gray-950 transition-all duration-300">
+                        {value.name[0].toUpperCase()}
+                      </span>
+                    </label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{value.name}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+            <div className="flex gap-3 items-center">
+              {bankCode ? (
+                <p className="text-blue-600 text-sm mt-2">
+                  Selected Bank:
+                  <span className="font-bold">
+                    {" "}
+                    {allBanks[bankCode].name.toUpperCase()}
+                  </span>
+                </p>
+              ) : (
+                <h1 className="text-sm mt-2">Please select a bank</h1>
+              )}
+              {errors.bankCode?.message && (
+                <p className="text-xs text-red-700 mt-2">
+                  {errors.bankCode.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* <div className="w-full">
             <select
               defaultValue=""
               id=""
-              {...register("bank")}
+              {...register("bankCode")}
               className="focus:outline-none focus:ring-0 appearance-none bg-transparent border-2 border-gray-400 rounded w-full">
               <option value="" disabled>
                 Choose a bank
@@ -106,10 +191,12 @@ export default function AddContact() {
                 </option>
               ))}
             </select>
-            {errors.bank?.message && (
-              <p className="text-xs text-red-700 mt-2">{errors.bank.message}</p>
+            {errors.bankCode?.message && (
+              <p className="text-xs text-red-700 mt-2">
+                {errors.bankCode.message}
+              </p>
             )}
-          </div>
+          </div> */}
           <div className="relative z-0 w-full flex flex-col text-sm">
             <input
               id="CardNumber"

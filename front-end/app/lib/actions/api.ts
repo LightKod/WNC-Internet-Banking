@@ -204,3 +204,40 @@ export const updateContact = async (contactId: number, {nickname, account_number
         throw error;
     }
 }
+
+export const verifyOtp = async ({otp_code, email, otp_id}: {otp_code: string, email: string, otp_id: number}) =>  {
+    try {
+        const response = await fetch(`${BASE_URL}/auth/verify-otp`, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                otp_code,
+                email,
+                otp_id
+            })
+        })
+        return (await response.json());
+    } catch(error) {
+        throw error;
+    }
+}
+
+export const resetPassword = async ({otp_id, new_password}: {otp_id: number, new_password: string}) => {
+    try {
+        const response = await fetch(`${BASE_URL}/auth/reset-password`, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                otp_id,
+                new_password
+            })
+        });
+        return (await response.json());
+    } catch(error) {
+        throw error;
+    }
+}
