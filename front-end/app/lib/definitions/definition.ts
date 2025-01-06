@@ -82,3 +82,16 @@ export const allBanks: { [key: string]: {
         accountLength: 12
     }
 }
+
+export type User = {
+    id: number;
+    username: string;
+    name: string;
+    email: string;
+    phone_number: string;
+    created_at: string;
+}
+
+export type Role = {
+    role: string;
+}

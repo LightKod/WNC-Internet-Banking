@@ -38,9 +38,9 @@ export default function ResetPasswordOTPVerify() {
       // if (otp === "1234") { // just for test :>
       //   context?.nextStep();
       // }
-      console.log(context.otpId);
-      console.log(context.email);
-      console.log(otp);
+      // console.log(context.otpId);
+      // console.log(context.email);
+      // console.log(otp);
       fetchVerifyOtp();
     }
   }, [otp, context?.otpId]);

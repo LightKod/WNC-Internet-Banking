@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { Role, User } from "../definitions/definition";
 
 const BASE_URL = 'http://localhost:80/api'
 
@@ -34,21 +35,31 @@ export const login = async ({username, password, captchaValue}: {username: strin
         const dataJson = await response.json();
         cookies().set('accessToken', dataJson.data.accessToken, { maxAge: 15 * 60 });
         cookies().set('refreshToken', dataJson.data.refreshToken, {maxAge: 60 * 60 * 24 * 7});
-        redirect('/dashboard');
+        // redirect('/dashboard');
+        // console.log(dataJson);
+        const fetchUserInfo = await getUserInfo();
+        const userInfo: User = fetchUserInfo.data.user;
+        const role: Role = await checkRole();
+        // console.log(role);
+        return {
+            status: dataJson.status,
+            user: userInfo,
+            role
+        }
     } catch(error) {
         throw error;
     }
 }
 
-export const checkRole = async (accessToken: string) => {
+export const checkRole = async () => {
     try {
         const response = await fetch(`${BASE_URL}/check-role`, {
             headers: {
-                Authorization: `Bearer ${accessToken}`,
+                Authorization: `Bearer ${cookies().get('accessToken')?.value}`,
                 'Content-type': 'application/json'
             }
         });
-        return response;
+        return (await response.json());
     } catch(error) {
         throw error;
     }
@@ -235,6 +246,21 @@ export const resetPassword = async ({otp_id, new_password}: {otp_id: number, new
                 otp_id,
                 new_password
             })
+        });
+        return (await response.json());
+    } catch(error) {
+        throw error;
+    }
+}
+
+export const getUserInfo = async () => {
+    try {
+        const response = await fetch(`${BASE_URL}/user/info`, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+                Authorization: `Bearer ${cookies().get('accessToken')?.value}`
+            }
         });
         return (await response.json());
     } catch(error) {
