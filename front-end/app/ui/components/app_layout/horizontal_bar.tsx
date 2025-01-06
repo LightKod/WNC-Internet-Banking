@@ -8,6 +8,9 @@ import MiniNavBar from "./mini_navbar";
 import { Dropdown, DropdownContent, DropdownTrigger } from "../universal/dropdown";
 import Link from "next/link";
 import { handleLogout } from "@/app/lib/actions/actions";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/lib/store";
+import { useEffect } from "react";
 
 // should be a client component
 // fetch for user's info for avatar button
@@ -21,7 +24,8 @@ export default function HorizontalBar({
 }) {
     const pathname = usePathname();
     const currentPathName = [...paths, ...employeePaths, ...adminPaths, ...otherPaths, ...hiddenPaths].flatMap(group => group.paths).find(path => path.href === pathname)?.name || 'Define this path'
-
+    const _userName = useSelector((state: RootState) => state.user.userName);
+    const _userRole = useSelector((state: RootState) => state.user.userRole);
     return (
         <div className="flex p-4 justify-between items-center border-b-2 border-slate-100">
             <span className="font-bold text-gray-950 hidden md:block">{currentPathName}</span>
@@ -37,11 +41,11 @@ export default function HorizontalBar({
                     <DropdownTrigger>
                         <button type="button" className="group flex items-center gap-x-1.5 px-1.5 py-1 rounded-md border-2 border-slate-200 hover:border-blue-600 transition-colors duration-300">
                             <div className="flex items-center justify-center flex-none w-8 h-8 rounded-full bg-slate-200 text-gray-950 text-sm font-semibold">
-                                {userName.charAt(0).toUpperCase()}
+                                {_userName.charAt(0).toUpperCase()}
                             </div>
                             <div className="flex flex-col gap-y-0.5 justify-center items-start">
-                                <span className="text-gray-950 font-bold text-[0.688rem] leading-3">{userName}</span>
-                                <span className="text-gray-500 text-[0.688rem] leading-3">{userRole.charAt(0).toUpperCase() + userRole.slice(1)}</span>
+                                <span className="text-gray-950 font-bold text-[0.688rem] leading-3">{_userName}</span>
+                                <span className="text-gray-500 text-[0.688rem] leading-3">{_userRole.charAt(0).toUpperCase() + _userRole.slice(1)}</span>
                             </div>
                             <ChevronDownIcon className="w-4 text-gray-500 group-hover:text-gray-950 transition-colors duration-300"/>
                         </button>
@@ -66,7 +70,7 @@ export default function HorizontalBar({
             </div>
 
             {/* NAVBAR (SMALL SCREEN) */}
-            <MiniNavBar userRole={userRole}/>
+            <MiniNavBar userRole={_userRole}/>
         </div>
     )
 }

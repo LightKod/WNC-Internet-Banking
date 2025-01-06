@@ -1,4 +1,4 @@
-import { searchTransactions, getTotalPages } from '../services/transaction.service.js';
+import {getAllTransactions, searchTransactions, getTotalPages } from '../services/transaction.service.js';
 import statusCode from '../constants/statusCode.js';
 
 export const searchTransactionsController = async (req, res) => {
@@ -42,6 +42,34 @@ export const getTotalPagesController = async (req, res) => {
         });
     } catch (error) {
         console.error('Error in getTotalPagesController:', error);
+        res.status(500).json({
+            status: statusCode.ERROR,
+            message: 'Internal server error',
+        });
+    }
+};
+export const getAllTransactionsController = async (req, res) => {
+    const { page = 1, query = '', from, to, bank, type } = req.query;
+    try {
+        const filters = {
+            page: parseInt(page, 10),
+            query,
+            from,
+            to,
+            bank,
+            type,
+        };
+
+        const { transactions, totalPages } = await getAllTransactions(filters);
+        res.status(200).json({
+            status: statusCode.SUCCESS,
+            data: {
+                transactions,
+                totalPages,
+            },
+        });
+    } catch (error) {
+        console.error('Error in getAllTransactionsController:', error);
         res.status(500).json({
             status: statusCode.ERROR,
             message: 'Internal server error',

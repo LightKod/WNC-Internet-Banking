@@ -68,3 +68,30 @@ export type Transaction = {
     amount: string,
     isReceive: boolean
 }
+
+export const allBanks: { [key: string]: {
+    name: string,
+    accountLength: number
+} } = {
+    "PGP": {
+        name: "PGP | Bankit!",
+        accountLength: 12
+    },
+    "RSA": {
+        name: "Bank A",
+        accountLength: 12
+    },
+}
+
+export type User = {
+    id: number;
+    username: string;
+    name: string;
+    email: string;
+    phone_number: string;
+    created_at: string;
+}
+
+export type Role = {
+    role: string;
+}
