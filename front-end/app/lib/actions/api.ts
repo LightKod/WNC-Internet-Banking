@@ -83,7 +83,7 @@ export const handleRefreshToken = async () => {
     }
 }
 
-export const addContact = async ({ account_number, nickname, bank_id, bank_name }: { account_number: string, nickname: string, bank_id?: number, bank_name: string }) => {
+export const addContact = async ({ account_number, nickname, bank_id, bank_name }: { account_number: string, nickname: string, bank_id: string, bank_name: string }) => {
     try {
         const response = await fetch(`${BASE_URL}/user-contacts`, {
             method: 'POST',

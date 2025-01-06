@@ -73,14 +73,14 @@ export const allBanks: { [key: string]: {
     name: string,
     accountLength: number
 } } = {
+    "PGP": {
+        name: "PGP | Bankit!",
+        accountLength: 12
+    },
     "RSA": {
         name: "Bank A",
         accountLength: 12
     },
-    "PGP": {
-        name: "PGP | Bankit!",
-        accountLength: 12
-    }
 }
 
 export type User = {

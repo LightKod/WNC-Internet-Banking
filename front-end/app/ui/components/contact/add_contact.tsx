@@ -53,7 +53,6 @@ export default function AddContact() {
   const onSubmit: SubmitHandler<AddContactInput> = async (
     data: AddContactInput
   ) => {
-    console.log(data);
     if(Object.keys(errors).length > 0) {
       reset({}, {keepErrors: true});
       return;
@@ -63,8 +62,8 @@ export default function AddContact() {
       const response = await addContact({
         account_number: data.cardNumber,
         nickname: data.nickname,
-        bank_id: 1,
-        bank_name: data.bankCode,
+        bank_id: data.bankCode,
+        bank_name: allBanks[data.bankCode].name,
       });
       console.log(response);
       modalRef.current?.closeModal();
