@@ -57,13 +57,14 @@ export default function TransactionHistory({
                             <div className={clsx(
                                 "px-2.5 py-1 place-self-center text-xs text-center font-medium rounded-md md:text-sm",
                                 {
-                                    "bg-red-100 text-red-500": transaction.transactionType !== "debt-payment" && transaction.transactionType !== "internal-deposit" && !transaction.isReceive,
-                                    "bg-blue-100 text-blue-500": transaction.transactionType !== "debt-payment" && transaction.transactionType !== "internal-deposit" && transaction.isReceive,
+                                    "bg-red-100 text-red-500": transaction.transactionType !== "external" && transaction.transactionType !== "debt-payment" && transaction.transactionType !== "internal-deposit" && !transaction.isReceive,
+                                    "bg-blue-100 text-blue-500": transaction.transactionType !== "external" && transaction.transactionType !== "debt-payment" && transaction.transactionType !== "internal-deposit" && transaction.isReceive,
+                                    "bg-violet-100 text-violet-500": transaction.transactionType === "external",
                                     "bg-green-100 text-green-500": transaction.transactionType === "internal-deposit",
                                     "bg-yellow-100 text-yellow-500": transaction.transactionType === "debt-payment"
                                 }
                             )}>
-                                {transaction.transactionType === "debt-payment" ? "Debt payment" : transaction.transactionType === "internal-deposit" ? "Internal deposit" : transaction.isReceive ? "Receive" : "Transfer"}
+                                {transaction.transactionType === "external" ? "Interbank transfer" : transaction.transactionType === "debt-payment" ? "Debt payment" : transaction.transactionType === "internal-deposit" ? "Internal deposit" : transaction.isReceive ? "Receive" : "Transfer"}
                             </div>
                             <span className={clsx(
                                 "text-end font-medium text-sm md:text-base",
