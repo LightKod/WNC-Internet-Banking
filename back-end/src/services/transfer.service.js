@@ -104,7 +104,7 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
         // Gửi OTP qua email (giả sử đã có hàm gửi email OTP)
         console.log(`Đây là OTP: ${otpCode}`)
         //Đã test thành công không cần test nữa
-        // await EmailService({customerMail:user.email ,otpCode: otpCode,subject:"Email confirm OTP"});
+        await EmailService({customerMail:user.email ,otpCode: otpCode,subject:"Email confirm OTP"});
 
         return { status: statusCode.SUCCESS, code: 0, data: transaction, message: 'Init transaction success' };
     } catch (err) {
@@ -227,7 +227,7 @@ export const initiateExternalTransfer = async ({ source_account_number, destinat
             status: 'pending',
         });
         console.log("OTP sent to email " + otpCode)
-        // await EmailService({customerMail:user.email ,otpCode: otpCode,subject:"Email confirm OTP"});
+        await EmailService({customerMail:user.email ,otpCode: otpCode,subject:"Email confirm OTP"});
         return { status: statusCode.SUCCESS, code: 0, data: transaction, message: 'OTP sent to email' };
     } catch (err) {
         console.error('Error in initiateExternalTransfer service:', err);
