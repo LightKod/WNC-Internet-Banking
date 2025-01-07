@@ -146,7 +146,9 @@ export default function SuccessfulTransfer() {
             {isSaveContactShowing && (
                 <div className="grid grid-cols-1 border-2 border-slate-300 rounded-md bg-slate-50 divide-y-2 divide-slate-300 lg:grid-cols-[3fr_1fr] lg:divide-x-2 lg:divide-y-0">
                     <div className="flex gap-x-4 items-center p-4">
-                        <div className="w-12 h-12 rounded-full bg-slate-500"/>
+                        <div className="flex items-center justify-center flex-none w-12 h-12 rounded-full bg-slate-300 text-gray-950 font-semibold">
+                            {receiverBankAccount.name.charAt(0).toUpperCase()}
+                        </div>
                         <div className="flex flex-col gap-y-0.5">
                             <span className="text-gray-950 font-semibold">{receiverBankAccount!.name}</span>
                             <span className="text-gray-500 text-sm">{receiverBankAccount!.bankName}</span>

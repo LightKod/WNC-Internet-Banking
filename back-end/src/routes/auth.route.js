@@ -7,11 +7,11 @@ import {
     verifyResetPasswordOtpController,
     resetPasswordController
 } from '../controllers/auth.controller.js';
-
+import { checkRole } from '../middleware/checkRole.js';
 const router = express.Router();
 
 router.post('/login', loginController);
-router.post('/register', registerController);
+router.post('/register',checkRole('employee'), registerController);
 router.post('/refresh-token', refreshTokenController);
 router.post('/send-otp', sendResetPasswordOtpController);
 router.post('/verify-otp', verifyResetPasswordOtpController);

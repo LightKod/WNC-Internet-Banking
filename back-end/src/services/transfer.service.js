@@ -44,7 +44,7 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
             return { status: statusCode.ERROR, ...ErrorCodes.INVALID_ACCOUNT };
         }
 
-        if (sourceAccount.balance < amount) {
+        if (sourceAccount.balance < Number(amount)) {
             return { status: statusCode.ERROR, ...ErrorCodes.INSUFFICIENT_FUNDS };
         }
 

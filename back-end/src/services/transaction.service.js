@@ -127,3 +127,58 @@ export const getTotalPages = async (filters, user_id) => {
         return 0;
     }
 };
+export const getAllTransactions = async (filters) => {
+    try {
+        const { page = 1, query, from, to, bank, type } = filters;
+
+        const whereClause = {};
+
+        // Add content filter
+        if (query) {
+            whereClause.content = { [Op.like]: `%${query}%` };
+        }
+
+        // Add date range filter
+        if (from || to) {
+            whereClause.transaction_date = {};
+            if (from) whereClause.transaction_date[Op.gte] = new Date(from);
+            if (to) whereClause.transaction_date[Op.lte] = new Date(to);
+        }
+
+        // Add bank filter for external transactions
+        if (bank) {
+            whereClause[Op.and] = [
+                { transaction_type: "external" }, // Only external transactions
+                {
+                    [Op.or]: [
+                        { source_bank: { [Op.like]: `%${bank}%` } },
+                        { destination_bank: { [Op.like]: `%${bank}%` } },
+                    ],
+                },
+            ];
+        }
+
+        if (type) {
+            whereClause.transaction_type = type;
+        }
+
+        const offset = (page - 1) * ITEMS_PER_PAGE;
+
+        // Fetch total count for pagination
+        const totalCount = await Transaction.count({ where: whereClause });
+        const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+
+        // Fetch transactions with pagination
+        const transactions = await Transaction.findAll({
+            where: whereClause,
+            limit: ITEMS_PER_PAGE,
+            offset,
+            order: [["transaction_date", "DESC"]],
+        });
+
+        return { transactions, totalPages };
+    } catch (error) {
+        console.error("Error fetching all transactions:", error);
+        return { transactions: [], totalPages: 0 };
+    }
+};
