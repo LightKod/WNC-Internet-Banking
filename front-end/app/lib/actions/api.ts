@@ -147,9 +147,13 @@ export const googleRecaptcha = async (captchaValue: string) => {
     }
 }
 
-export const getTransactions = async ({query, from, to, page}: {query: string, from: string, to: string, page: string}) => {
+export const getTransactions = async ({query, from, to, page, bank}: {query: string, from: string, to: string, page: string, bank?: string}) => {
     try {
-        const params = new URLSearchParams({query, from, to, page}).toString();
+        if(!bank) {
+            bank = "";
+        }
+        const params = new URLSearchParams({query, from, to, page, bank}).toString();
+        console.log(params);
         const response = await fetch(`${BASE_URL}/transaction/search?${params}`, {
             method: 'GET',
             headers: {
@@ -163,9 +167,13 @@ export const getTransactions = async ({query, from, to, page}: {query: string, f
     }
 }
 
-export const getTotalTransactionPages = async ({query, from, to}: {query: string, from: string, to: string}) => {
+export const getTotalTransactionPages = async ({query, from, to, bank}: {query: string, from: string, to: string, bank?: string}) => {
     try {
-        const params = new URLSearchParams({query, from, to}).toString();
+        if(!bank) {
+            bank = "";
+        }
+        const params = new URLSearchParams({query, from, to, bank}).toString();
+        console.log(params);
         const response = await fetch(`${BASE_URL}/transaction/pages?${params}`, {
             method: 'GET',
             headers: {

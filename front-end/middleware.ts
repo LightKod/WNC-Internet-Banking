@@ -24,6 +24,7 @@ export async function middleware(request: NextRequest) {
       return response;
     }
     if (fetchRefreshTokenAPI.status === -1) {
+      cookies().delete('refreshToken');
       return NextResponse.redirect(new URL("/login", request.url));
     }
   }
@@ -61,5 +62,6 @@ export const config = {
     "/transfer/:path*",
     "/contacts/:path*",
     "/payment-request/:path*",
+    "/admin/:path*",
   ],
 };
