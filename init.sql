@@ -112,6 +112,7 @@ CREATE TABLE users (
 
 
 INSERT INTO users (username, name, password, email, phone_number, role, status, created_at) VALUES --Password: password123
+('test', 'John Doe', '$2b$10$yyzs9kWabQbJC3nTeaR71.qp6NZL2AbjaHu5p8eo8a3owjdituuUy', 'nguyennhatquangkod2003v2@gmail.com', '1234567890', 'user', 'active', NOW()),
 ('john_doe', 'John Doe', '$2b$10$yyzs9kWabQbJC3nTeaR71.qp6NZL2AbjaHu5p8eo8a3owjdituuUy', 'john.doe@example.com', '1234567890', 'user', 'active', NOW()),
 ('jane_smith', 'Jane Smith', '$2b$10$yyzs9kWabQbJC3nTeaR71.qp6NZL2AbjaHu5p8eo8a3owjdituuUy', 'jane.smith@example.com', '1234567891', 'user', 'active', NOW()),
 ('michael_brown', 'Michael Brown', '$2b$10$yyzs9kWabQbJC3nTeaR71.qp6NZL2AbjaHu5p8eo8a3owjdituuUy', 'michael.brown@example.com', '1234567892', 'user', 'active', NOW()),
@@ -126,16 +127,17 @@ INSERT INTO users (username, name, password, email, phone_number, role, status, 
 
 
 INSERT INTO account (account_number, account_type, balance, currency, user_id, created_at) VALUES
-('100000000001', 'payment', 10000.00, 'USD', 1, NOW()),
-('100000000002', 'payment', 10000.00, 'USD', 2, NOW()),
-('100000000003', 'payment', 10000.00, 'USD', 3, NOW()),
-('100000000004', 'payment', 10000.00, 'USD', 4, NOW()),
-('100000000005', 'payment', 10000.00, 'USD', 5, NOW()),
-('100000000006', 'payment', 10000.00, 'USD', 6, NOW()),
-('100000000007', 'payment', 10000.00, 'USD', 7, NOW()),
-('100000000008', 'payment', 10000.00, 'USD', 8, NOW()),
-('100000000009', 'payment', 10000.00, 'USD', 9, NOW()),
-('100000000010', 'payment', 10000.00, 'USD', 10, NOW());
+('100000000001', 'payment', 50000.00, 'VND', 1, NOW()),
+('100000000002', 'payment', 50000.00, 'VND', 2, NOW()),
+('100000000003', 'payment', 50000.00, 'VND', 3, NOW()),
+('100000000004', 'payment', 50000.00, 'VND', 4, NOW()),
+('100000000005', 'payment', 50000.00, 'VND', 5, NOW()),
+('100000000006', 'payment', 50000.00, 'VND', 6, NOW()),
+('100000000007', 'payment', 50000.00, 'VND', 7, NOW()),
+('100000000008', 'payment', 50000.00, 'VND', 8, NOW()),
+('100000000009', 'payment', 50000.00, 'VND', 9, NOW()),
+('100000000010', 'payment', 50000.00, 'VND', 10, NOW());
+('100000000011', 'payment', 50000.00, 'VND', 10, NOW());
 
 
 -- Example for account_number 1000000000001:

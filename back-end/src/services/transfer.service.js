@@ -7,6 +7,7 @@ import axios from 'axios';
 import EmailService from './sendMail.service.js'; // Hàm gửi OTP qua email
 import getExternalTransferTemplateByBankCode from '../middleware/allLinkedBank.js';
 import { createDebtTransactionService, confirmDebtTransaction } from './debt.service.js';
+const fee = 1000;
 
 const ErrorCodes = {
     SUCCESS: { code: 0, message: "Success" },
@@ -43,8 +44,12 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
         if (!sourceAccount || !destinationAccount) {
             return { status: statusCode.ERROR, ...ErrorCodes.INVALID_ACCOUNT };
         }
+        let amountTransfer = Number(amount);
+        if (fee_payer == "sender") {
+            amountTransfer = amountTransfer + fee;
+        }
 
-        if (sourceAccount.balance < Number(amount)) {
+        if (sourceAccount.balance < amountTransfer) {
             return { status: statusCode.ERROR, ...ErrorCodes.INSUFFICIENT_FUNDS };
         }
 
@@ -100,11 +105,25 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
             otp_code: otpCode,
             status: 'pending',
         });
-
+        const emailContent = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <h2>Transaction OTP</h2>
+        <p>Dear ${user.name},</p>
+        <p>You have initiated a transfer of <strong>${amount}</strong> to account <strong>${destination_account_number}</strong>.</p>
+        <p>Please use the following OTP to confirm the transaction:</p>
+        <div style="font-size: 18px; font-weight: bold; color: #000; padding: 10px; background: #f4f4f4; border: 1px solid #ddd; display: inline-block;">
+          ${otpCode}
+        </div>
+        <p><strong>Note:</strong> This OTP is valid for 5 minutes only. If you did not request this code, please ignore this email or contact us for assistance.</p>
+        <p>Best regards,</p>
+        <p><strong>Bankit-PGP Support Team</strong></p>
+        <p style="font-size: 12px; color: #555;">This is an automated email. Please do not reply to this message.</p>
+      </div>
+    `;
         // Gửi OTP qua email (giả sử đã có hàm gửi email OTP)
         console.log(`Đây là OTP: ${otpCode}`)
         //Đã test thành công không cần test nữa
-        await EmailService({customerMail:user.email ,otpCode: otpCode,subject:"Email confirm OTP"});
+        await EmailService({customerMail:user.email ,otpCode: otpCode,subject:"Email confirm OTP",content:emailContent});
 
         return { status: statusCode.SUCCESS, code: 0, data: transaction, message: 'Init transaction success' };
     } catch (err) {
@@ -149,14 +168,17 @@ export const confirmTransfer = async ({ otp_code, transaction_id, debt_id }) => 
             return { status: statusCode.ERROR, ...ErrorCodes.ACCOUNT_NOT_FOUND };
         }
 
+        const receivedFee = transaction.fee_payer === 'receiver' ? fee : 0;
+        const sendFee = transaction.fee_payer === 'sender' ? fee : 0;
+
         // Cập nhật số dư tài khoản
         await Account.update(
-            { balance: parseInt(sourceAccount.balance) - parseInt(transaction.amount) },
+            { balance: parseInt(sourceAccount.balance) - parseInt(transaction.amount) - sendFee },
             { where: { id: sourceAccount.id } }
         );
 
         await Account.update(
-            { balance: parseInt(destinationAccount.balance) + parseInt(transaction.amount) },
+            { balance: parseInt(destinationAccount.balance) + parseInt(transaction.amount) - receivedFee },
             { where: { id: destinationAccount.id } }
         );
 
@@ -226,8 +248,23 @@ export const initiateExternalTransfer = async ({ source_account_number, destinat
             otp_code: otpCode,
             status: 'pending',
         });
+        const emailContent = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <h2>External Transfer OTP</h2>
+        <p>Dear ${user.name},</p>
+        <p>You have initiated a transfer of <strong>${amount}</strong> to account <strong>${destination_account_number}</strong> at bank <strong>${bank_code}</strong>.</p>
+        <p>Please use the following OTP to confirm the transaction:</p>
+        <div style="font-size: 18px; font-weight: bold; color: #000; padding: 10px; background: #f4f4f4; border: 1px solid #ddd; display: inline-block;">
+          ${otpCode}
+        </div>
+        <p><strong>Note:</strong> This OTP is valid for 5 minutes only. If you did not request this code, please ignore this email or contact us for assistance.</p>
+        <p>Best regards,</p>
+        <p><strong>Bankit-PGP Support Team</strong></p>
+        <p style="font-size: 12px; color: #555;">This is an automated email. Please do not reply to this message.</p>
+      </div>
+    `;
         console.log("OTP sent to email " + otpCode)
-        await EmailService({customerMail:user.email ,otpCode: otpCode,subject:"Email confirm OTP"});
+        await EmailService({customerMail:user.email ,otpCode: otpCode,subject:"Email confirm OTP",content:emailContent});
         return { status: statusCode.SUCCESS, code: 0, data: transaction, message: 'OTP sent to email' };
     } catch (err) {
         console.error('Error in initiateExternalTransfer service:', err);

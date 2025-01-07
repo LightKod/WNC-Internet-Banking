@@ -90,7 +90,21 @@ export const sendResetPasswordOtp = async (email) => {
 
     // Send OTP via email (implement email service here)
     console.log(`Send OTP: ${otpCode} to ${email}`);
-    await EmailService({ customerMail: email, otpCode: otpCode, subject: 'Reset Password OTP' });
+    const content = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <h2>Your Reset Password OTP</h2>
+      <p>Dear ${user.name},</p>
+      <p>Please use the following OTP to reset your password:</p>
+      <div style="font-size: 18px; font-weight: bold; color: #000; padding: 10px; background: #f4f4f4; border: 1px solid #ddd; display: inline-block;">
+        ${otpCode}
+      </div>
+    <p><strong>Note:</strong> This OTP is valid for 5 minutes only. If you did not request this code, please ignore this email or contact us for assistance.</p>
+    <p>Best regards,</p>
+    <p><strong>Bankit-PGP Support Team</strong></p>
+    <p style="font-size: 12px; color: #555;">This is an automated email. Please do not reply to this message.</p>
+    </div>
+  `;
+    await EmailService({ customerMail: email, otpCode: otpCode, subject: 'Reset Password OTP' ,content: content });
 
     return { success: true, data: otp.id };
 };
