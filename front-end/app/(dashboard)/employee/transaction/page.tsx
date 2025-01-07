@@ -1,4 +1,4 @@
-import TransactionTable from "@/app/ui/components/dashboard/transaction_table";
+import TransactionTable from "@/app/ui/components/app_layout/transaction/transaction_table";
 import Datepicker from "@/app/ui/components/universal/datepicker";
 import Pagination from "@/app/ui/components/universal/pagination";
 import SearchField from "@/app/ui/components/universal/search_field";
