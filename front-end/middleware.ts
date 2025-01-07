@@ -24,8 +24,10 @@ export async function middleware(request: NextRequest) {
       return response;
     }
     if (fetchRefreshTokenAPI.status === -1) {
-      cookies().delete("refreshToken");
-      return NextResponse.redirect(new URL("/login", request.url));
+      const response = NextResponse.redirect(new URL('/login', request.url));
+      response.cookies.delete('refreshToken');
+      return response;
+      // return NextResponse.redirect(new URL("/login", request.url));
     }
   }
   if (pathname.startsWith("/login") && accessToken) {
