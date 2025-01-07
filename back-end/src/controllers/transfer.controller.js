@@ -3,7 +3,7 @@ import statusCode from '../constants/statusCode.js';
 import { verifySignature, verifyRequestHash, generateSignature } from '../utils/security.js';
 import { createDebtTransactionService, confirmDebtTransaction } from '../services/debt.service.js';
 import db from '../models/index.model.js';
-const { Transaction, DebtTransaction } = db;
+const { Transaction, DebtTransaction, User } = db;
 // Bước 1: Yêu cầu chuyển khoản và gửi OTP
 export const initiateTransfer = async (req, res) => {
     const { source_account_number, destination_account_number, amount, content, fee_payer, debt_id } = req.body;
@@ -120,8 +120,12 @@ export const accountInfo = async (req, res) => {
         if (!account) {
             return res.status(404).json({ error: 'Account not found' });
         }
+        const user = await db.User.findOne({ where: { id: account.user_id } });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
 
-        const responseData = { id: account.id, account_number: account.account_number, balance: account.balance, bank_code };
+        const responseData = { id: account.id, account_number: account.account_number, name: user.name, bank_code };
         const signedResponse = await generateSignature(responseData, process.env.PRIVATE_KEY, process.env.SIGNATURE_TYPE);
 
         res.status(200).json({ ...responseData, signature: signedResponse });
@@ -176,7 +180,7 @@ export const deposit = async (req, res) => {
             status: 'SUCCESS',
             source_bank: bank_code,
         });
-        const responseData = { account_number, new_balance: account.balance, bank_code };
+        const responseData = { account_number, bank_code };
         const signedResponse = await generateSignature(responseData, process.env.PRIVATE_KEY, process.env.SIGNATURE_TYPE);
 
         res.status(200).json({ ...responseData, signature: signedResponse });
