@@ -7,6 +7,7 @@ import axios from 'axios';
 import EmailService from './sendMail.service.js'; // Hàm gửi OTP qua email
 import getExternalTransferTemplateByBankCode from '../middleware/allLinkedBank.js';
 import { createDebtTransactionService, confirmDebtTransaction } from './debt.service.js';
+const fee = 1000;
 
 const ErrorCodes = {
     SUCCESS: { code: 0, message: "Success" },
@@ -43,8 +44,12 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
         if (!sourceAccount || !destinationAccount) {
             return { status: statusCode.ERROR, ...ErrorCodes.INVALID_ACCOUNT };
         }
+        let amountTransfer = Number(amount);
+        if (fee_payer == "sender") {
+            amountTransfer = amountTransfer + fee;
+        }
 
-        if (sourceAccount.balance < Number(amount)) {
+        if (sourceAccount.balance < amountTransfer) {
             return { status: statusCode.ERROR, ...ErrorCodes.INSUFFICIENT_FUNDS };
         }
 
@@ -104,7 +109,7 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
         // Gửi OTP qua email (giả sử đã có hàm gửi email OTP)
         console.log(`Đây là OTP: ${otpCode}`)
         //Đã test thành công không cần test nữa
-        await EmailService({customerMail:user.email ,otpCode: otpCode,subject:"Email confirm OTP"});
+        await EmailService({ customerMail: user.email, otpCode: otpCode, subject: "Email confirm OTP" });
 
         return { status: statusCode.SUCCESS, code: 0, data: transaction, message: 'Init transaction success' };
     } catch (err) {
@@ -149,14 +154,17 @@ export const confirmTransfer = async ({ otp_code, transaction_id, debt_id }) => 
             return { status: statusCode.ERROR, ...ErrorCodes.ACCOUNT_NOT_FOUND };
         }
 
+        const receivedFee = transaction.fee_payer === 'receiver' ? fee : 0;
+        const sendFee = transaction.fee_payer === 'sender' ? fee : 0;
+
         // Cập nhật số dư tài khoản
         await Account.update(
-            { balance: parseInt(sourceAccount.balance) - parseInt(transaction.amount) },
+            { balance: parseInt(sourceAccount.balance) - parseInt(transaction.amount) - sendFee },
             { where: { id: sourceAccount.id } }
         );
 
         await Account.update(
-            { balance: parseInt(destinationAccount.balance) + parseInt(transaction.amount) },
+            { balance: parseInt(destinationAccount.balance) + parseInt(transaction.amount) - receivedFee },
             { where: { id: destinationAccount.id } }
         );
 
@@ -227,7 +235,7 @@ export const initiateExternalTransfer = async ({ source_account_number, destinat
             status: 'pending',
         });
         console.log("OTP sent to email " + otpCode)
-        await EmailService({customerMail:user.email ,otpCode: otpCode,subject:"Email confirm OTP"});
+        await EmailService({ customerMail: user.email, otpCode: otpCode, subject: "Email confirm OTP" });
         return { status: statusCode.SUCCESS, code: 0, data: transaction, message: 'OTP sent to email' };
     } catch (err) {
         console.error('Error in initiateExternalTransfer service:', err);

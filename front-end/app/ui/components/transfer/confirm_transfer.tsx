@@ -8,32 +8,32 @@ import { linkedLibraryDict } from "@/app/lib/definitions/definition"
 
 export default function ConfirmTransfer() {
     const context = useContext(PageContentContext)
-    
-    if(!context){
+
+    if (!context) {
         throw new Error('Something went wrong')
     }
 
     let formValues: any = null
     let receiverBankAccount: any = null
 
-    if(context.transferType === "internal") {
+    if (context.transferType === "internal") {
         formValues = context.internalFormRef.current?.getValues()
         receiverBankAccount = context.internalFormRef.current?.receiverBankAccount
     }
-    else if(context.transferType === "interbank") {
+    else if (context.transferType === "interbank") {
         formValues = context.interbankFormRef.current?.getValues()
         receiverBankAccount = context.interbankFormRef.current?.receiverBankAccount
     }
 
     const handleSubmit = () => {
-        if(context.transferType === "internal") {
+        if (context.transferType === "internal") {
             context.internalFormRef.current?.onSubmit()
         }
-        else if(context.transferType === "interbank") {
+        else if (context.transferType === "interbank") {
             context.interbankFormRef.current?.onSubmit()
         }
     }
-    
+
     return (
         <div className="flex flex-col gap-y-8 px-8 pb-8">
             <div className="flex flex-col gap-y-1">
@@ -76,11 +76,11 @@ export default function ConfirmTransfer() {
                         </div>
                         <div className="flex flex-col gap-y-0.5">
                             <div className="text-sm text-gray-950 font-semibold">Transfer fee</div>
-                            <div className="text-blue-600">{formValues?.isSelfFeePayment === "true" ? `${formatMoney("15000")} VND` : "0 VND"}</div>
+                            <div className="text-blue-600">{formValues?.isSelfFeePayment === "true" ? `${formatMoney("1000")} VND` : "0 VND"}</div>
                         </div>
                         <div className="flex flex-col gap-y-0.5">
                             <div className="text-sm text-gray-950 font-semibold">Total</div>
-                            <div className="text-blue-600">{formValues?.isSelfFeePayment === "true" ? `${formatMoney((BigInt(formValues!.amount) + BigInt(15000)).toString())} VND` : `${formatMoney(formValues!.amount.toString())} VND`}</div>
+                            <div className="text-blue-600">{formValues?.isSelfFeePayment === "true" ? `${formatMoney((BigInt(formValues!.amount) + BigInt(1000)).toString())} VND` : `${formatMoney(formValues!.amount.toString())} VND`}</div>
                         </div>
                         <div className="flex flex-col gap-y-0.5">
                             <div className="text-sm text-gray-950 font-semibold">Transfer note</div>
@@ -91,11 +91,11 @@ export default function ConfirmTransfer() {
                 <div className="w-full h-full pt-4 md:pl-4 md:pt-0">
                     <div className="flex flex-col gap-y-2">
                         <button type="button" onClick={handleSubmit} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 transition-colors duration-300">
-                            <ArrowRightIcon className="w-4"/>
+                            <ArrowRightIcon className="w-4" />
                             <p>Continue</p>
                         </button>
-                        <button type="button" onClick={() => {context.prevStep(); context.setIsFormValid(false); context.setIsTransactionSuccessful(null)}} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-slate-200 text-gray-950 text-sm font-medium hover:bg-slate-300 transition-colors duration-300">
-                            <ArrowLeftIcon className="w-4"/>
+                        <button type="button" onClick={() => { context.prevStep(); context.setIsFormValid(false); context.setIsTransactionSuccessful(null) }} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-slate-200 text-gray-950 text-sm font-medium hover:bg-slate-300 transition-colors duration-300">
+                            <ArrowLeftIcon className="w-4" />
                             <p>Back</p>
                         </button>
                         {context.isTransactionSuccessful && !context.isTransactionSuccessful?.isSuccessful && <p className="text-red-500 text-xs">{context.isTransactionSuccessful?.error.message + ". Go back and edit the form before submitting again"}</p>}
