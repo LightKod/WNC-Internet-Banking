@@ -8,7 +8,7 @@ const protectRoute = passport.authenticate('jwt', { session: false });
 //Internal
 router.post('/internal/initiate', protectRoute, transferController.initiateTransfer);
 router.post('/internal/confirm', protectRoute, transferController.confirmTransfer);
-router.post('/internal/deposit', protectRoute,checkRole('employee'), transferController.depositInternal);
+router.post('/internal/deposit', protectRoute, checkRole('employee'), transferController.depositInternal);
 
 //External
 router.post('/external/initiate', protectRoute, transferController.initiateExternalTransfer);
@@ -19,7 +19,7 @@ router.post('/external/confirm', protectRoute, transferController.confirmExterna
  * /external/account-info:
  *   post:
  *     summary: Retrieve account information
- *     description: This endpoint allows users to retrieve account information from a linked bank.
+ *     description: This endpoint allows others bank to retrieve account information from this bank.
  *     tags:
  *       - Accounts
  *     security:
@@ -82,7 +82,7 @@ router.post('/external/confirm', protectRoute, transferController.confirmExterna
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 message:
  *                   type: string
  *                   description: Error message.
  *                   example: "Request has expired"
@@ -93,7 +93,7 @@ router.post('/external/confirm', protectRoute, transferController.confirmExterna
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 message:
  *                   type: string
  *                   description: Error message.
  *                   example: "Bank not linked"
@@ -104,7 +104,7 @@ router.post('/external/confirm', protectRoute, transferController.confirmExterna
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 message:
  *                   type: string
  *                   description: Error message.
  *                   example: "Account not found"
@@ -115,7 +115,7 @@ router.post('/external/confirm', protectRoute, transferController.confirmExterna
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 message:
  *                   type: string
  *                   description: Error message.
  *                   example: "Internal server error"
@@ -127,7 +127,7 @@ router.post('/external/account-info', transferController.accountInfo);
  * /external/deposit:
  *   post:
  *     summary: Deposit funds into an account
- *     description: This endpoint allows depositing funds into a linked account.
+ *     description: This endpoint allows others bank to deposit funds into an account from this bank.
  *     tags:
  *       - Transactions
  *     security:
@@ -194,7 +194,7 @@ router.post('/external/account-info', transferController.accountInfo);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 message:
  *                   type: string
  *                   description: Error message.
  *                   example: "Invalid signature"
@@ -205,7 +205,7 @@ router.post('/external/account-info', transferController.accountInfo);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 message:
  *                   type: string
  *                   description: Error message.
  *                   example: "Bank not linked"
@@ -216,7 +216,7 @@ router.post('/external/account-info', transferController.accountInfo);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 message:
  *                   type: string
  *                   description: Error message.
  *                   example: "Account not found"
@@ -227,7 +227,7 @@ router.post('/external/account-info', transferController.accountInfo);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 message:
  *                   type: string
  *                   description: Error message.
  *                   example: "Internal server error"
