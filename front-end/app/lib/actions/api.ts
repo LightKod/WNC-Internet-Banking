@@ -275,3 +275,23 @@ export const getUserInfo = async () => {
         throw error;
     }
 }
+
+export const getTransactionsAdmin = async ({query, from, to, page, bank}: {query: string, from: string, to: string, page: string, bank?: string}) => {
+    try {
+        if(!bank) {
+            bank = "";
+        }
+        const params = new URLSearchParams({query, from, to, page, bank}).toString();
+        console.log(params);
+        const response = await fetch(`${BASE_URL}/transaction/admin?${params}`, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+                Authorization: `Bearer ${cookies().get('accessToken')?.value}`
+            }
+        });
+        return (await response.json());
+    } catch(error) {
+        throw error;
+    }
+}

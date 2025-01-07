@@ -7,6 +7,7 @@ import axios from 'axios';
 import EmailService from './sendMail.service.js'; // Hàm gửi OTP qua email
 import getExternalTransferTemplateByBankCode from '../middleware/allLinkedBank.js';
 import { createDebtTransactionService, confirmDebtTransaction } from './debt.service.js';
+const fee = 1000;
 
 const ErrorCodes = {
     SUCCESS: { code: 0, message: "Success" },
@@ -43,8 +44,12 @@ export const initiateTransfer = async ({ source_account_number, destination_acco
         if (!sourceAccount || !destinationAccount) {
             return { status: statusCode.ERROR, ...ErrorCodes.INVALID_ACCOUNT };
         }
+        let amountTransfer = Number(amount);
+        if (fee_payer == "sender") {
+            amountTransfer = amountTransfer + fee;
+        }
 
-        if (sourceAccount.balance < Number(amount)) {
+        if (sourceAccount.balance < amountTransfer) {
             return { status: statusCode.ERROR, ...ErrorCodes.INSUFFICIENT_FUNDS };
         }
 
@@ -163,14 +168,17 @@ export const confirmTransfer = async ({ otp_code, transaction_id, debt_id }) => 
             return { status: statusCode.ERROR, ...ErrorCodes.ACCOUNT_NOT_FOUND };
         }
 
+        const receivedFee = transaction.fee_payer === 'receiver' ? fee : 0;
+        const sendFee = transaction.fee_payer === 'sender' ? fee : 0;
+
         // Cập nhật số dư tài khoản
         await Account.update(
-            { balance: parseInt(sourceAccount.balance) - parseInt(transaction.amount) },
+            { balance: parseInt(sourceAccount.balance) - parseInt(transaction.amount) - sendFee },
             { where: { id: sourceAccount.id } }
         );
 
         await Account.update(
-            { balance: parseInt(destinationAccount.balance) + parseInt(transaction.amount) },
+            { balance: parseInt(destinationAccount.balance) + parseInt(transaction.amount) - receivedFee },
             { where: { id: destinationAccount.id } }
         );
 

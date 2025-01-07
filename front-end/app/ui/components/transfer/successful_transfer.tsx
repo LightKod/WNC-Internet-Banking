@@ -13,18 +13,18 @@ import { addContact, checkContactExistence } from "@/app/lib/actions/actions"
 export default function SuccessfulTransfer() {
     const context = useContext(PageContentContext)
 
-    if(!context){
+    if (!context) {
         throw new Error('Something went wrong')
     }
 
     let formValues: any = null
     let receiverBankAccount: any = null
 
-    if(context.transferType === "internal") {
+    if (context.transferType === "internal") {
         formValues = context.internalFormRef.current?.getValues()
         receiverBankAccount = context.internalFormRef.current?.receiverBankAccount
     }
-    else if(context.transferType === "interbank") {
+    else if (context.transferType === "interbank") {
         formValues = context.interbankFormRef.current?.getValues()
         receiverBankAccount = context.interbankFormRef.current?.receiverBankAccount
     }
@@ -45,15 +45,15 @@ export default function SuccessfulTransfer() {
     const [isContactSaved, setIsContactSaved] = useState<boolean>(false)
 
     const handleSaveContact = async () => {
-        if(context.transferType === "internal") {
+        if (context.transferType === "internal") {
             const result = await addContact(receiverBankAccount!.accountNumber, receiverBankAccount!.name, "PGP", "Bankit!")
-            if(result === true) {
+            if (result === true) {
                 setIsContactSaved(true)
             }
         }
         else {
             const result = await addContact(receiverBankAccount!.accountNumber, receiverBankAccount!.name, formValues!.bankCode, linkedLibraryDict[formValues!.bankCode].name)
-            if(result === true) {
+            if (result === true) {
                 setIsContactSaved(true)
             }
         }
@@ -61,7 +61,7 @@ export default function SuccessfulTransfer() {
 
     useEffect(() => {
         const checkExistence = async () => {
-            if(context.transferType === "internal") {
+            if (context.transferType === "internal") {
                 const result = await checkContactExistence(receiverBankAccount!.accountNumber, "PGP")
                 setIsSaveContactShowing(!result)
             }
@@ -77,7 +77,7 @@ export default function SuccessfulTransfer() {
     return (
         <div className="flex flex-col gap-y-8 px-8 pb-8">
             <div className="flex flex-col gap-y-1 items-center p-8 bg-blue-50 rounded-md border-2 border-blue-100">
-                <CheckCircleIcon className="w-24 text-blue-600"/>
+                <CheckCircleIcon className="w-24 text-blue-600" />
                 <p className="text-gray-950 font-semibold">Transfer completed</p>
                 <p className="text-4xl text-blue-600 font-bold">{`${formatMoney(formValues!.amount.toString())} VND`}</p>
                 <div className="flex gap-x-2 items-center justify-center">
@@ -90,9 +90,9 @@ export default function SuccessfulTransfer() {
                         }
                     )}>
                         {isCopied ? (
-                            <CheckIcon className="w-4"/>
+                            <CheckIcon className="w-4" />
                         ) : (
-                            <ClipboardIcon className="w-4"/>
+                            <ClipboardIcon className="w-4" />
                         )}
                         <span className="text-xs">{isCopied ? "Copied" : "Copy"}</span>
                     </button>
@@ -130,11 +130,11 @@ export default function SuccessfulTransfer() {
                     </div>
                     <div className="flex flex-col gap-y-0.5">
                         <div className="text-sm text-gray-950 font-semibold">Transfer fee</div>
-                        <div className="text-blue-600">{formValues?.isSelfFeePayment === "true" ? `${formatMoney("15000")} VND` : "0 VND"}</div>
+                        <div className="text-blue-600">{formValues?.isSelfFeePayment === "true" ? `${formatMoney("1000")} VND` : "0 VND"}</div>
                     </div>
                     <div className="flex flex-col gap-y-0.5">
                         <div className="text-sm text-gray-950 font-semibold">Total</div>
-                        <div className="text-blue-600">{formValues?.isSelfFeePayment === "true" ? `${formatMoney((BigInt(formValues!.amount) + BigInt(15000)).toString())} VND` : `${formatMoney(formValues!.amount.toString())} VND`}</div>
+                        <div className="text-blue-600">{formValues?.isSelfFeePayment === "true" ? `${formatMoney((BigInt(formValues!.amount) + BigInt(1000)).toString())} VND` : `${formatMoney(formValues!.amount.toString())} VND`}</div>
                     </div>
                     <div className="flex flex-col gap-y-0.5">
                         <div className="text-sm text-gray-950 font-semibold">Transfer note</div>
@@ -167,10 +167,10 @@ export default function SuccessfulTransfer() {
                                 <div className="text-sm text-gray-950 font-semibold text-center">Add this person to your contact list?</div>
                                 <div className="flex gap-x-4">
                                     <button type="button" onClick={() => setIsSaveContactShowing(false)} className="group p-2.5 rounded-md border-2 border-gray-200 hover:border-red-600 transition-colors duration-300">
-                                        <XMarkIcon className="w-5 text-gray-500 group-hover:text-gray-950 transition-colors duration-300"/>
+                                        <XMarkIcon className="w-5 text-gray-500 group-hover:text-gray-950 transition-colors duration-300" />
                                     </button>
                                     <button type="button" onClick={handleSaveContact} className="group p-2.5 rounded-md border-2 border-gray-200 hover:border-blue-600 transition-colors duration-300">
-                                        <CheckIcon className="w-5 text-gray-500 group-hover:text-gray-950 transition-colors duration-300"/>
+                                        <CheckIcon className="w-5 text-gray-500 group-hover:text-gray-950 transition-colors duration-300" />
                                     </button>
                                 </div>
                             </>
@@ -183,15 +183,15 @@ export default function SuccessfulTransfer() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Link href="/dashboard" className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-slate-200 text-gray-950 text-sm font-medium hover:bg-slate-300 transition-colors duration-300">
-                    <ArrowLeftIcon className="w-4"/>
+                    <ArrowLeftIcon className="w-4" />
                     <p>Dashboard</p>
                 </Link>
                 <button type="button" onClick={() => window.location.reload()} className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-blue-600 text-blue-50 text-sm font-medium hover:bg-blue-700 transition-colors duration-300">
-                    <ArrowPathIcon className="w-4"/>
+                    <ArrowPathIcon className="w-4" />
                     <p>Make a new transfer</p>
                 </button>
                 <Link href="/transaction" className="flex items-center justify-center gap-2 rounded-md px-3 py-2.5 bg-slate-200 text-gray-950 text-sm font-medium hover:bg-slate-300 transition-colors duration-300">
-                    <ArrowRightIcon className="w-4"/>
+                    <ArrowRightIcon className="w-4" />
                     <p>Transaction history</p>
                 </Link>
             </div>
