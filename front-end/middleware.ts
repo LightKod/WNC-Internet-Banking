@@ -20,11 +20,11 @@ export async function middleware(request: NextRequest) {
         fetchRefreshTokenAPI.data.accessToken,
         { maxAge: 15 * 60 }
       );
-      console.log('handle refresh token API');
+      console.log("handle refresh token API");
       return response;
     }
     if (fetchRefreshTokenAPI.status === -1) {
-      cookies().delete('refreshToken');
+      cookies().delete("refreshToken");
       return NextResponse.redirect(new URL("/login", request.url));
     }
   }
@@ -36,7 +36,8 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/transaction") ||
       pathname.startsWith("/transfer") ||
       pathname.startsWith("/contacts") ||
-      pathname.startsWith("/payment-request")) &&
+      pathname.startsWith("/payment-request") ||
+      pathname.startsWith("/admin")) &&
     !accessToken
   ) {
     return NextResponse.redirect(new URL("/login", request.url));

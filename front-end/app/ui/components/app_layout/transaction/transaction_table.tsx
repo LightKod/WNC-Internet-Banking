@@ -1,4 +1,4 @@
-import { getTransactions } from "@/app/lib/actions/api";
+import { getTransactionsAdmin } from "@/app/lib/actions/api";
 import { ExclamationCircleIcon } from "@heroicons/react/24/solid";
 import clsx from "clsx";
 import React from "react";
@@ -32,7 +32,7 @@ export default async function TransactionTable({
   bank?: string;
 }) {
   // fetchin fetchin
-  const transactions = await getTransactions({
+  const transactions = await getTransactionsAdmin({
     query,
     from,
     to,

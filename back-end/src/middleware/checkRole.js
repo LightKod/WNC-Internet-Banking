@@ -1,4 +1,4 @@
-import statusCode  from "../constants/statusCode";
+import statusCode  from "../constants/statusCode.js";
 export const checkRole = (requiredRole) => {
     return (req, res, next) => {
         try {
