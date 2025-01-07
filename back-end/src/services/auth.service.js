@@ -4,7 +4,7 @@ import db from '../models/index.model.js'
 import { createAccountService } from './account.service.js'
 import { Op } from 'sequelize';
 const { User, Account, RefreshToken, OTP } = db;
-
+import EmailService from './sendMail.service.js';
 // Generate JWT tokens
 const generateAccessToken = (user) => jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
 const generateRefreshToken = (user) => jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
@@ -90,6 +90,7 @@ export const sendResetPasswordOtp = async (email) => {
 
     // Send OTP via email (implement email service here)
     console.log(`Send OTP: ${otpCode} to ${email}`);
+    await EmailService({ customerMail: email, otpCode: otpCode, subject: 'Reset Password OTP' });
 
     return { success: true, data: otp.id };
 };
