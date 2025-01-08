@@ -1,4 +1,4 @@
-import { getTotalTransactionPages } from "@/app/lib/actions/api";
+import { getTotalTransactionPages, getTransactionsAdmin } from "@/app/lib/actions/api";
 import { allBanks } from "@/app/lib/definitions/definition";
 import SelectBank from "@/app/ui/components/app_layout/transaction/select_bank";
 import TransactionTable from "@/app/ui/components/app_layout/transaction/transaction_table";
@@ -26,12 +26,14 @@ export default async function Reconciliation(props: {
   const endDate = searchParams?.to || today.toISOString().split('T')[0];
   const bank = searchParams?.bank || "";
 
-  const totalPages = await getTotalTransactionPages({
+  const totalPages = await getTransactionsAdmin({
     query,
     from: fromDate,
     to: endDate,
+    page: currentPage.toString(),
     bank
   });
+  // console.log(totalPages.data.totalPages);
   return (
     <div>
       <div className="flex items-center justify-between">
