@@ -1,4 +1,4 @@
-import {getAllTransactions, searchTransactions, getTotalPages } from '../services/transaction.service.js';
+import { getAllTransactions, searchTransactions, getTotalPages } from '../services/transaction.service.js';
 import statusCode from '../constants/statusCode.js';
 
 export const searchTransactionsController = async (req, res) => {
@@ -14,7 +14,7 @@ export const searchTransactionsController = async (req, res) => {
             type,
         };
 
-        const transactions = await searchTransactions(filters,user_id);
+        const transactions = await searchTransactions(filters, user_id);
         res.status(200).json({
             status: statusCode.SUCCESS,
             data: { transactions },
@@ -34,7 +34,7 @@ export const getTotalPagesController = async (req, res) => {
     const user_id = req.user.id;
     try {
         const filters = { query, from, to, bank, type };
-        const totalPages = await getTotalPages(filters,user_id);
+        const totalPages = await getTotalPages(filters, user_id);
 
         res.status(200).json({
             status: statusCode.SUCCESS,
@@ -61,6 +61,7 @@ export const getAllTransactionsController = async (req, res) => {
         };
 
         const { transactions, totalPages } = await getAllTransactions(filters);
+
         res.status(200).json({
             status: statusCode.SUCCESS,
             data: {
