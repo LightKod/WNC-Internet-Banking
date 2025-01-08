@@ -25,14 +25,14 @@ API Documentation:
 1. **Open the Project**  
 
     Navigate to the submitted folder and open it in an IDE   (e.g., VSCode).
-2. **Run Docker Compose**  
+2. **Add Docker network**  
+   **Ensure that Docker is running**
 
-    Open  `Command prompt` from root folder:
+    Open  `Command prompt` from system:
     ```bash
     docker network create wnc_final_project
     ```
 
-   **Ensure that Docker is running**
 
 3. **Run Docker Compose**  
 
