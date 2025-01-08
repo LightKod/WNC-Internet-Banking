@@ -21,7 +21,7 @@ export default async function Reconciliation(props: {
   const currentPage = Number(searchParams?.page) || 1;
   const today = new Date().toISOString().split("T")[0];
   const fromDate = searchParams?.from || "";
-  const endDate = searchParams?.from || "";
+  const endDate = searchParams?.to || "";
   const bank = searchParams?.bank || "";
 
   const totalPages = await getTotalTransactionPages({
