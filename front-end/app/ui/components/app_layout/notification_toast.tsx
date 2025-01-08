@@ -32,7 +32,7 @@ export default function NotificationToast() {
     }
 
     useEffect(() => {
-        const interval = setInterval(checkNotif, 3000);
+        const interval = setInterval(checkNotif, 30000000);
 
         return () => clearInterval(interval);
     }, [pathname]);

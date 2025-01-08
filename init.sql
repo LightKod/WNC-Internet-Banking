@@ -136,8 +136,8 @@ INSERT INTO account (account_number, account_type, balance, currency, user_id, c
 ('100000000007', 'payment', 50000.00, 'VND', 7, NOW()),
 ('100000000008', 'payment', 50000.00, 'VND', 8, NOW()),
 ('100000000009', 'payment', 50000.00, 'VND', 9, NOW()),
-('100000000010', 'payment', 50000.00, 'VND', 10, NOW());
-('100000000011', 'payment', 50000.00, 'VND', 10, NOW());
+('100000000010', 'payment', 50000.00, 'VND', 10, NOW()),
+('100000000011', 'payment', 50000.00, 'VND', 11, NOW());
 
 
 -- Example for account_number 1000000000001:

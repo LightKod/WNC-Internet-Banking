@@ -18,7 +18,7 @@ export const searchTransactions = async (filters, user_id) => {
             // Nếu user không có tài khoản nào, trả về danh sách rỗng
             return [];
         }
-        
+
         const whereClause = {};
         whereClause[Op.or] = [
             { source_account: { [Op.in]: accountNumbers } },
@@ -33,7 +33,7 @@ export const searchTransactions = async (filters, user_id) => {
         if (from || to) {
             whereClause.transaction_date = {};
             if (from) whereClause.transaction_date[Op.gte] = new Date(from);
-            if (to) whereClause.transaction_date[Op.lte] = new Date(to);
+            if (to) whereClause.transaction_date[Op.lte] = new Date(to).setHours(23, 59, 59, 999);
         }
 
         // Add bank filter for external transactions
@@ -96,7 +96,7 @@ export const getTotalPages = async (filters, user_id) => {
         if (from || to) {
             whereClause.transaction_date = {};
             if (from) whereClause.transaction_date[Op.gte] = new Date(from);
-            if (to) whereClause.transaction_date[Op.lte] = new Date(to);
+            if (to) whereClause.transaction_date[Op.lte] = new Date(to).setHours(23, 59, 59, 999);
         }
 
         // Add bank filter for external transactions
@@ -142,7 +142,7 @@ export const getAllTransactions = async (filters) => {
         if (from || to) {
             whereClause.transaction_date = {};
             if (from) whereClause.transaction_date[Op.gte] = new Date(from);
-            if (to) whereClause.transaction_date[Op.lte] = new Date(to);
+            if (to) whereClause.transaction_date[Op.lte] = new Date(to).setHours(23, 59, 59, 999);
         }
 
         // Add bank filter for external transactions
