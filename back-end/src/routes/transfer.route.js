@@ -63,10 +63,10 @@ router.post('/external/confirm', protectRoute, transferController.confirmExterna
  *                   type: string
  *                   description: The account number.
  *                   example: "100000000002"
- *                 balance:
- *                   type: number
- *                   description: The current account balance.
- *                   example: 500.00
+ *                 name:
+ *                   type: string
+ *                   description: The name of the user.
+ *                   example: John Doe
  *                 bank_code:
  *                   type: string
  *                   description: The linked bank's code.
@@ -175,10 +175,6 @@ router.post('/external/account-info', transferController.accountInfo);
  *                   type: string
  *                   description: The account number that received the deposit.
  *                   example: "100000000002"
- *                 new_balance:
- *                   type: number
- *                   description: The updated account balance.
- *                   example: 1500.00
  *                 bank_code:
  *                   type: string
  *                   description: The linked bank's code.
