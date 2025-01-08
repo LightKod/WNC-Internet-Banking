@@ -39,7 +39,7 @@ export default async function TransactionTable({
     page: currentPage.toString(),
     bank
   });
-  console.log(transactions.data.transactions);
+  // console.log(transactions.data.transactions);
   if (
     transactions.status === 0 &&
     transactions.data.transactions.length !== 0

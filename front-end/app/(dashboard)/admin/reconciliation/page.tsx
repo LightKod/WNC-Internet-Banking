@@ -19,9 +19,11 @@ export default async function Reconciliation(props: {
   const searchParams = await props.searchParams;
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page) || 1;
-  const today = new Date().toISOString().split("T")[0];
-  const fromDate = searchParams?.from || "";
-  const endDate = searchParams?.from || "";
+  const today = new Date();
+  const lastMonth = new Date();
+  lastMonth.setDate(today.getDate() - 30);
+  const fromDate = searchParams?.from || lastMonth.toISOString().split('T')[0];
+  const endDate = searchParams?.to || today.toISOString().split('T')[0];
   const bank = searchParams?.bank || "";
 
   const totalPages = await getTotalTransactionPages({
