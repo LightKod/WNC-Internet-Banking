@@ -13,46 +13,12 @@ import {
 const router = express.Router();
 /**
  * @swagger
- * /api/debt/transactions:
- *   get:
- *     summary: Get all debt transactions
- *     description: Retrieve all debt transactions for the logged-in user.
- *     tags:
- *       - Debt
- *     responses:
- *       200:
- *         description: Successfully retrieved debt transactions.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       transactionId:
- *                         type: string
- *                         example: "txn123"
- *                       amount:
- *                         type: number
- *                         example: 1000
- *       400:
- *         description: Failed to fetch transactions.
- */
-router.get('/transactions', getAllDebtTransactionsController);
-/**
- * @swagger
  * /api/debt:
  *   post:
  *     summary: Create a new debt
- *     description: Create a new debt with the required details.
- *     tags:
- *       - Debt
+ *     tags: [Debts]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -62,129 +28,441 @@ router.get('/transactions', getAllDebtTransactionsController);
  *             properties:
  *               debtor_account:
  *                 type: string
- *                 description: The debtor's account number.
- *                 example: "123456789"
+ *                 description: The account number of the debtor.
+ *                 example: "1000000001"
  *               amount:
  *                 type: number
- *                 description: The debt amount.
+ *                 description: The amount of the debt.
  *                 example: 1000
  *               description:
  *                 type: string
- *                 description: Description of the debt.
+ *                 description: A description for the debt (optional).
  *                 example: "Loan repayment"
  *               due_date:
  *                 type: string
- *                 format: date-time
- *                 description: Due date for the debt.
- *                 example: "2025-01-15T10:00:00Z"
+ *                 format: date
+ *                 description: The due date for the debt in YYYY-MM-DD format.
+ *                 example: "2025-01-15"
  *     responses:
  *       201:
  *         description: Debt created successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Debt created successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: The unique ID of the created debt.
+ *                       example: "12345"
+ *                     debtor_account:
+ *                       type: string
+ *                       example: "1000000001"
+ *                     amount:
+ *                       type: number
+ *                       example: 1000
+ *                     description:
+ *                       type: string
+ *                       example: "Loan repayment"
+ *                     due_date:
+ *                       type: string
+ *                       format: date
+ *                       example: "2025-01-15"
+ *                     creditor_account:
+ *                       type: string
+ *                       example: "2000000002"
  *       400:
- *         description: Validation error.
+ *         description: Validation error (e.g., invalid input data).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 errors:
+ *                   type: string
+ *                   description: A semicolon-separated string of validation errors.
+ *                   example: "debtor_account - Invalid account format; amount - Must be greater than 0"
  *       500:
- *         description: Internal server error.
+ *         description: Unexpected server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: "Internal server error"
  */
 router.post('/', createDebtController);
+//router.get('/transactions', getAllDebtTransactionsController);
 /**
  * @swagger
  * /api/debt/{debtId}:
  *   get:
- *     summary: Get a debt by ID
- *     description: Retrieve details of a specific debt using its ID.
- *     tags:
- *       - Debt
+ *     summary: Retrieve a debt by its ID
+ *     tags: [Debts]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: debtId
  *         required: true
  *         schema:
  *           type: string
- *         description: The ID of the debt.
+ *         description: The unique ID of the debt to retrieve.
+ *         example: "12345"
  *     responses:
  *       200:
  *         description: Debt fetched successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Debt fetched successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: The unique ID of the debt.
+ *                       example: "12345"
+ *                     debtor_account:
+ *                       type: string
+ *                       example: "1000000001"
+ *                     amount:
+ *                       type: number
+ *                       example: 1000
+ *                     description:
+ *                       type: string
+ *                       example: "Loan repayment"
+ *                     due_date:
+ *                       type: string
+ *                       format: date
+ *                       example: "2025-01-15"
+ *                     status:
+ *                       type: string
+ *                       description: The status of the debt (e.g., pending, paid).
+ *                       example: "pending"
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-01-01T12:00:00Z"
  *       400:
- *         description: Failed to fetch the debt.
+ *         description: Failed to fetch the debt (e.g., invalid ID or debt not found).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   description: Error message describing the issue.
+ *                   example: "Debt not found"
  */
 router.get('/:debtId', getDebtByIdController);
 /**
  * @swagger
- * /api/debt/user/debtor:
+ * /api/user/debt/debtor:
  *   get:
- *     summary: Get debts by debtor
- *     description: Retrieve debts where the logged-in user is the debtor.
- *     tags:
- *       - Debt
+ *     summary: Retrieve debts by debtor
+ *     tags: [Debts]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Debts retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Debts retrieved successfully"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         description: Unique ID of the debt.
+ *                         example: "12345"
+ *                       debtor_account:
+ *                         type: string
+ *                         description: Debtor's account ID.
+ *                         example: "1000000001"
+ *                       amount:
+ *                         type: number
+ *                         description: Amount of the debt.
+ *                         example: 500
+ *                       description:
+ *                         type: string
+ *                         description: Description of the debt.
+ *                         example: "Personal loan"
+ *                       due_date:
+ *                         type: string
+ *                         format: date
+ *                         description: Due date for the debt.
+ *                         example: "2025-01-15"
+ *                       status:
+ *                         type: string
+ *                         description: Status of the debt.
+ *                         example: "unpaid"
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Timestamp when the debt was created.
+ *                         example: "2025-01-01T12:00:00Z"
  *       500:
  *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error"
  */
-
 router.get('/user/debtor', getDebtsByDebtorController);
 /**
  * @swagger
  * /api/debt/user/creditor:
  *   get:
- *     summary: Get debts by creditor
- *     description: Retrieve debts where the logged-in user is the creditor.
- *     tags:
- *       - Debt
+ *     summary: Retrieve debts by creditor
+ *     tags: [Debts]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Debts retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Debts retrieved successfully"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         description: Unique ID of the debt.
+ *                         example: "67890"
+ *                       creditor_account:
+ *                         type: string
+ *                         description: Creditor's account ID.
+ *                         example: "2000000001"
+ *                       amount:
+ *                         type: number
+ *                         description: Amount of the debt.
+ *                         example: 1000
+ *                       description:
+ *                         type: string
+ *                         description: Description of the debt.
+ *                         example: "Business loan"
+ *                       due_date:
+ *                         type: string
+ *                         format: date
+ *                         description: Due date for the debt.
+ *                         example: "2025-01-30"
+ *                       status:
+ *                         type: string
+ *                         description: Status of the debt.
+ *                         example: "paid"
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Timestamp when the debt was created.
+ *                         example: "2025-01-10T12:00:00Z"
  *       500:
  *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error"
  */
-
 router.get('/user/creditor', getDebtByCreditorController);
 /**
  * @swagger
  * /api/debt/read/{debtId}:
- *   put:
- *     summary: Mark a debt as read
- *     description: Update the status of a specific debt to "read".
- *     tags:
- *       - Debt
+ *   patch:
+ *     summary: Update the read status of a debt
+ *     tags: [Debts]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: debtId
  *         required: true
  *         schema:
  *           type: string
- *         description: The ID of the debt.
+ *         description: The ID of the debt whose status is to be updated
+ *         example: "12345"
  *     responses:
  *       200:
  *         description: Debt status updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Debts status updated successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: The unique ID of the debt.
+ *                       example: "12345"
+ *                     status:
+ *                       type: string
+ *                       description: Updated status of the debt.
+ *                       example: "read"
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Timestamp when the debt status was updated.
+ *                       example: "2025-01-10T14:00:00Z"
  *       500:
  *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error"
  */
 router.put('/read/:debtId', readDebtStatusController);
 /**
  * @swagger
  * /api/debt/read-all:
- *   put:
- *     summary: Mark all debts as read
- *     description: Update the status of all debts for the logged-in user to "read".
- *     tags:
- *       - Debt
+ *   get:
+ *     summary: Update the status of all debts from this user
+ *     tags: [Debts]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: All debts status updated successfully.
+ *         description: All debts retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "All debts status updated successfully"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: Unique ID of the debt.
+ *                         example: 1
+ *                       amount:
+ *                         type: number
+ *                         format: float
+ *                         description: Amount of the debt.
+ *                         example: 100.50
+ *                       due_date:
+ *                         type: string
+ *                         format: date
+ *                         description: Due date for the debt.
+ *                         example: "2025-01-01"
+ *                       status:
+ *                         type: string
+ *                         description: Status of the debt.
+ *                         example: "pending"
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Timestamp when the debt was created.
+ *                         example: "2025-01-10T12:00:00Z"
  *       500:
  *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Error updating all debts status"
  */
 router.put('/read-all', readAllDebtsController);
 /**
  * @swagger
  * /api/debt/cancel:
  *   post:
- *     summary: Cancel a debt
- *     description: Cancel a specific debt.
- *     tags:
- *       - Debt
+ *     summary: Cancel a specific debt
+ *     tags: [Debts]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -194,17 +472,47 @@ router.put('/read-all', readAllDebtsController);
  *             properties:
  *               debtId:
  *                 type: string
- *                 description: The ID of the debt to cancel.
- *                 example: "debt123"
+ *                 description: ID of the debt to be canceled.
+ *                 example: "12345"
  *               cancelNote:
  *                 type: string
  *                 description: Reason for canceling the debt.
- *                 example: "Agreement canceled"
+ *                 example: "Debt resolved by other means"
  *     responses:
  *       200:
  *         description: Debt canceled successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     debtId:
+ *                       type: string
+ *                       description: ID of the canceled debt.
+ *                       example: "12345"
+ *                     cancelNote:
+ *                       type: string
+ *                       description: Reason for canceling the debt.
+ *                       example: "Debt resolved by other means"
  *       400:
- *         description: Failed to cancel the debt.
+ *         description: Bad request, possibly due to invalid debtId or cancelNote.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid debtId or cancelNote"
  */
 router.post('/cancel', cancelDebtController);
 
