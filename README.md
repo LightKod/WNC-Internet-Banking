@@ -43,8 +43,16 @@ API Documentation:
 1. **Open the Project**  
 
     Navigate to the submitted folder and open it in an IDE   (e.g., VSCode).
+2. **Add Docker network**  
+   **Ensure that Docker is running**
 
-2. **Run Docker Compose**  
+    Open  `Command prompt` from system:
+    ```bash
+    docker network create wnc_final_project
+    ```
+
+
+3. **Run Docker Compose**  
 
     Open the IDE's `Terminal` from root folder:
     ```bash
@@ -53,7 +61,7 @@ API Documentation:
 
     The application should be started and ready at   [`http://localhost:80`](http://localhost:80).
 
-3. **End the Server**
+4. **End the Server**
 
     In the same `Terminal`, simply press `Ctrl + C` to end the Docker Container.
 
