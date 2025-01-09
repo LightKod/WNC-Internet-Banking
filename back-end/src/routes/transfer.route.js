@@ -16,7 +16,7 @@ router.post('/external/confirm', protectRoute, transferController.confirmExterna
 
 /**
  * @swagger
- * /api/external/account-info:
+ * /api/transfer/external/account-info:
  *   post:
  *     summary: Retrieve account information
  *     description: This endpoint allows others bank to retrieve account information from this bank.
